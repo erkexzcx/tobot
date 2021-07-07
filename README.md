@@ -6,7 +6,7 @@ Tob.lt bot, written in Go, inspired by Ansible modules and Telegraf plugin desig
 
 Features:
  * Intended for 24/7 uptime. It can be manually paused & resumed using Telegram bot.
- * Modular & customizable routines (see them [here](https://github.com/erkexzcx/tobot/tree/main/module)).
+ * Modular & customizable routines (see them [here](https://github.com/erkexzcx/tobot/tree/master/module)).
  * Level-up multiple skills at the same time.
  * Automatically solves anti-bot checks (really, you won't even notice them)...
  * Automatically recover from network or `NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!`-like errors.
@@ -39,7 +39,7 @@ Telegram bot will also send you all received new PMs from the players. Reply to 
 
 4. Create new directory, similar to existing one `activities` (use this dir as an example). Each file represents different activity, format must be `*.yml` and such files will be executed in alphabetical filename order (hence that's the meaning of `10_` in filenames). Once all activities are finished, bot will start from the top again. :)
 
-Full list of modules: https://github.com/erkexzcx/tobot/tree/main/module
+Full list of modules: https://github.com/erkexzcx/tobot/tree/master/module
 
 Non-module specific fields:
 ```
