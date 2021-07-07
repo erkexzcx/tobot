@@ -198,7 +198,11 @@ func (obj *Slayer) Perform(p *player.Player, settings map[string]string) *module
 		return &module.Result{CanRepeat: false, Error: errors.New("invalid regex (FIXME)")}
 	}
 	if matches[1] == matches[2] {
-		return &module.Result{CanRepeat: false, Error: errors.New("TODO")}
+		err := takeReward(p, settings)
+		if err != nil {
+			return &module.Result{CanRepeat: false, Error: err}
+		}
+		return obj.Perform(p, settings)
 	}
 
 	// Extract request URI from action link
@@ -257,7 +261,7 @@ func enableSlayer(p *player.Player, settings map[string]string) error {
 }
 
 func takeReward(p *player.Player, settings map[string]string) error {
-	path := "/slayer.php?{{ creds }}&id=task&nr=" + settings["slayer"]
+	path := "/slayer.php?{{ creds }}"
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -266,9 +270,9 @@ func takeReward(p *player.Player, settings map[string]string) error {
 	}
 
 	// Check if successfully enabled
-	foundElement := doc.Find("div:contains('Jums sėkmingai paskirta užduotis! Grįžę atgal rasite daugiau informacijos apie užduotį.')").Length()
+	foundElement := doc.Find("div:contains('Užduotis atlikta!')").Length()
 	if foundElement == 0 {
-		return errors.New("did not enable Slayer contract successfully")
+		return errors.New("did not take Slayer reward successfully")
 	}
 
 	return nil
