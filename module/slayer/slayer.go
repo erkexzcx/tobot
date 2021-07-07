@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"tobot/module"
 	"tobot/player"
@@ -161,6 +162,10 @@ func (obj *Slayer) Validate(settings map[string]string) error {
 		if k != "vs" && k != "slayer" {
 			return errors.New("unknown '" + k + "' field")
 		}
+	}
+
+	if count, _ := strconv.Atoi(settings["_count"]); count == 0 {
+		return errors.New("cannot work without '_count' field or with its value of '0' (indefinitely)")
 	}
 
 	return nil
