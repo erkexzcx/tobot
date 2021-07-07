@@ -27,7 +27,7 @@ Most of the "trusted" distros ships a very old Golang version in their official 
 # Build binary
 go build -ldflags="-s -w" -o tobot ./cmd/tobot/main.go
 
-# Verify if it's working
+# Verify binary
 ./tobot -help
 ```
 
