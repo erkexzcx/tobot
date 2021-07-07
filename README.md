@@ -15,12 +15,12 @@ Main features:
 
 # Usage
 
-1. Install dependencies. For Debian/Ubuntu:
+1. [Install Golang](https://golang.org/doc/install) and dependencies. For Debian/Ubuntu:
 ```bash
 apt install tesseract-ocr tesseract-ocr-lit libtesseract-dev gcc g++
 ```
 
-Most of the "trusted" distros ships a very old Golang version which might not be able to build binary. To avoid issues, remove any existing Golang installations and install the latest version using official upstream guide.
+Most of the "trusted" distros ships a very old Golang version in their official repositories, which might not work at all. Make sure to remove any existing Golang installations and install the latest version using [official upstream guide](https://golang.org/doc/install) for your operating system.
 
 2. Build binary
 ```
@@ -34,8 +34,8 @@ go build -ldflags="-s -w" -o tobot ./cmd/tobot/main.go
 3. Create configuration file. Simply copy `config.example.yml` to a new file `config.yml` and edit accordingly.
 
 Telegram bot will:
- * Notify you about important events (e.g. you got banned);
- * Player sent you a PM. Reply to Telegram bot's message in order to reply the same text to the player. Note that bot **WILL STOP indefinitely** until you reply to the player. If you don't want to reply, just *to the Telegram **bot's message*** the text `/ignore`. Don't worry, any text that starts with `/` will not be sent to player, so it's okay to write `/igore`. :)
+ - Notify you about important events (e.g. you got banned);
+ - Player sent you a PM. Reply to Telegram bot's message in order to reply the same text to the player. Note that bot **WILL STOP indefinitely** until you reply to the player. If you don't want to reply, just *to the Telegram **bot's message*** the text `/ignore`. Don't worry, any text that starts with `/` will not be sent to player, so it's okay to write `/igore`. :)
 
 4. Create new directory, similar to existing one `activities` (use this dir as an example). Each file represents different activity, format must be `*.yml` and such files will be executed in alphabetical filename order (hence that's the meaning of `10_` in filenames). Once all activities are finished, bot will start from the top again. :)
 
