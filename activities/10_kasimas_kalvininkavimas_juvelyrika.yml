@@ -1,0 +1,32 @@
+name: Alavo kasimas, lydimas, durklo gaminimas, iskastu brangakmeniu apdirbimas ir visko pardavimas
+tasks:
+
+  - _module: kasimas
+    item: O1
+
+  - _module: lydimas
+    item: B1
+
+  # Alavo durklas
+  - _module: gaminimas_ginklai
+    item: K1
+  - _module: parduotuve
+    action: parduoti
+    item: K1
+    amount: max
+
+  # Safyras
+  - _module: apdirbimas
+    item: AB1
+  - _module: parduotuve
+    action: parduoti
+    item: AB1
+    amount: max
+
+  # Ametistas
+  # - _module: apdirbimas
+  #   item: AB2
+  # - _module: parduotuve
+  #   action: parduoti
+  #   item: AB2
+  #   amount: max

@@ -1,0 +1,10 @@
+name: Raudonojo serbento rinkimas ir pardavimas
+tasks:
+
+  - _module: uogavimas
+    item: UO1
+
+  - _module: parduotuve
+    action: parduoti
+    item: UO1
+    amount: max

@@ -1,0 +1,16 @@
+# Root URL
+root_address: http://tob.lt
+user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
+
+# Credentials (taken from URL)
+nick: mysuperaccount
+pass: va6T5kr1dcDPl0YiT0Q0ZvZbPeQr5qr812qhki5V49ay4SmowqRw
+
+# Telegram settings
+telegram_api_key: 1234567890:6xYrZZ2s_jrki5qgr8OxVBS566z2ZGF4Co7
+telegram_chat_id: 123456789
+
+# Constantly go offline (timeout) in order to not stay online 24/7
+become_offline: true
+become_offline_every: 1h,3h
+become_offline_for: 15m,30m
