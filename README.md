@@ -5,7 +5,7 @@
 Tob.lt bot, written in Go, inspired by Ansible modules and Telegraf plugin designs.
 
 Main features:
- * Intended for 24/7 uptime. It can be paused & resumed using Telegram bot.
+ * Intended for 24/7 uptime. It can be manually paused & resumed using Telegram bot.
  * Modular & customizable routines (see them [here](https://github.com/erkexzcx/tobot/tree/main/module)).
  * Level-up multiple skills at the same time.
  * Automatically solves anti-bot checks (really, you won't even notice them)...
