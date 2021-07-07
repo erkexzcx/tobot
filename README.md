@@ -33,9 +33,9 @@ go build -ldflags="-s -w" -o tobot ./cmd/tobot/main.go
 
 3. Create configuration file. Simply copy `config.example.yml` to a new file `config.yml` and edit accordingly.
 
-Telegram bot will:
- - Notify you about important events (e.g. you got banned);
- - Player sent you a PM. Reply to Telegram bot's message in order to reply the same text to the player. Note that bot **WILL STOP indefinitely** until you reply to the player. If you don't want to reply, just *to the Telegram **bot's message*** the text `/ignore`. Don't worry, any text that starts with `/` will not be sent to player, so it's okay to write `/igore`. :)
+Telegram bot will notify you about important events (e.g. bot started or you got banned).
+
+Telegram bot will also send you all received new PMs from the players. Reply to the player by simply **replying** to the same Telegram **bot's message**. Note that tob.lt bot **WILL STOP indefinitely** until you reply to the player. If you don't want to reply to the player, then reply to Telegram bot's message with text `/ignore`. Also note that Telegram bot will not send any message to the player that starts with `/`, so it's OK to make a TYPO mistake.
 
 4. Create new directory, similar to existing one `activities` (use this dir as an example). Each file represents different activity, format must be `*.yml` and such files will be executed in alphabetical filename order (hence that's the meaning of `10_` in filenames). Once all activities are finished, bot will start from the top again. :)
 
