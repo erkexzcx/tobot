@@ -81,7 +81,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 
 	// Check if banned
 	if isBanned(doc) {
-		p.notifyTelegram("player banned")
+		p.NotifyTelegram("player banned")
 		return nil, errors.New("player banned")
 	}
 
@@ -97,9 +97,9 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		}
 
 		if m.moderator {
-			p.notifyTelegram("User '*" + m.from + "' says: " + m.text)
+			p.NotifyTelegram("User '*" + m.from + "' says: " + m.text)
 		} else {
-			p.notifyTelegram("User '" + m.from + "' says: " + m.text)
+			p.NotifyTelegram("User '" + m.from + "' says: " + m.text)
 		}
 
 		// Lock - Telegram will unlock it
@@ -167,7 +167,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 
 	// Check if banned
 	if isBanned(doc) {
-		p.notifyTelegram("player banned")
+		p.NotifyTelegram("player banned")
 		return nil, errors.New("player banned")
 	}
 

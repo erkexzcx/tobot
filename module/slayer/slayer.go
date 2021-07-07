@@ -256,6 +256,24 @@ func enableSlayer(p *player.Player, settings map[string]string) error {
 	return nil
 }
 
+func takeReward(p *player.Player, settings map[string]string) error {
+	path := "/slayer.php?{{ creds }}&id=task&nr=" + settings["slayer"]
+
+	// Download page that contains unique action link
+	doc, err := p.Navigate(path, false)
+	if err != nil {
+		return err
+	}
+
+	// Check if successfully enabled
+	foundElement := doc.Find("div:contains('Jums sėkmingai paskirta užduotis! Grįžę atgal rasite daugiau informacijos apie užduotį.')").Length()
+	if foundElement == 0 {
+		return errors.New("did not enable Slayer contract successfully")
+	}
+
+	return nil
+}
+
 func init() {
 	module.Add("slayer", &Slayer{})
 }

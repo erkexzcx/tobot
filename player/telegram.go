@@ -72,22 +72,22 @@ func (p *Player) initTelegram() {
 		}()
 
 		if m.Text == "/ignore" {
-			p.notifyTelegram("ignoring... :)")
+			p.NotifyTelegram("ignoring... :)")
 			return
 		}
 
 		if strings.HasPrefix(m.Text, "/") {
-			p.notifyTelegram("unknown, but ignoring... :)")
+			p.NotifyTelegram("unknown, but ignoring... :)")
 			return
 		}
 
 		p.sendPM(match[1], strings.TrimSpace(m.Text))
-		p.notifyTelegram("replied :)")
+		p.NotifyTelegram("replied :)")
 	})
 
 	go p.telegramBot.Start()
 }
 
-func (p *Player) notifyTelegram(msg string) {
+func (p *Player) NotifyTelegram(msg string) {
 	p.telegramBot.Send(p.telegramChat, msg, &tb.SendOptions{})
 }

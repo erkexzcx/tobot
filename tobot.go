@@ -75,6 +75,7 @@ func runActivity(p *player.Player, c *config.Config, a *Activity) {
 
 			res := m.Perform(p, task)
 			if res.Error != nil {
+				p.NotifyTelegram("Bot stopping: " + res.Error.Error())
 				panic(res.Error)
 			}
 			fmt.Print(".")
