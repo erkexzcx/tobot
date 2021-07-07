@@ -41,15 +41,13 @@ Telegram bot will also send you all received new PMs from the players. Reply to 
 
 Full list of modules: https://github.com/erkexzcx/tobot/tree/main/module
 
-Mandatory fields for each task:
+Non-module specific fields:
 ```
-module - name of the module
+_module - (required) name of the module
+_count - (optional) how many times perform the module action. 
 ```
 
-Optional fields:
-```
-count - perform task this amount of times. Useful to limit "slayer" or cut just 1 wood for "kepimas" step.
-```
+All other fields are listed in README.md file within each module's directory.
 
 5. Run program
 ```
