@@ -2,6 +2,6 @@ name: Slayer kelimas
 tasks:
 
   - _module: slayer
-    _count: 240
+    _count: 230
     vs: 1
     slayer: 1
