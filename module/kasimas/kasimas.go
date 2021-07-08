@@ -1,4 +1,4 @@
-package kirtimas
+package kasimas
 
 import (
 	"errors"

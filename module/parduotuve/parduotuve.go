@@ -1,4 +1,4 @@
-package kirtimas
+package parduotuve
 
 import (
 	"errors"
@@ -658,14 +658,8 @@ func (obj *Parduotuve) Validate(settings map[string]string) error {
 	if !found {
 		return errors.New("missing key 'amount'")
 	}
-	if amount == "max" {
-		return nil
-	}
-	val, err := strconv.Atoi(amount)
+	_, err := strconv.Atoi(amount)
 	if err != nil {
-		return errors.New("unrecognized value of key 'amount'")
-	}
-	if val < 0 {
 		return errors.New("unrecognized value of key 'amount'")
 	}
 
@@ -683,10 +677,7 @@ var regexPirktiMax = regexp.MustCompile(`Daugiausia galite nusipirkti šių daik
 
 func buy(p *player.Player, settings map[string]string) *module.Result {
 	page := itemsPagesMap[settings["item"]]
-	amount, err := strconv.Atoi(settings["amount"])
-	if err != nil {
-		amount = -1 // 'max'
-	}
+	amount, _ := strconv.Atoi(settings["amount"])
 
 	path := "/parda.php?{{ creds }}&id=pirkt&ka=" + settings["item"] + "&page=" + page
 	pathSubmit := "/parda.php?{{ creds }}&id=perku&ka=" + settings["item"] + "&page=" + page
@@ -708,20 +699,18 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 	}
 	maxToBuy := maxToBuyMatch[1]
 
-	// Check if count of available to buy items is equal to 0
-	if maxToBuy == "0" {
-		return &module.Result{CanRepeat: false, Error: errors.New("impossible to buy - not enough cash or space")}
-	}
-
 	// Convert string number to actual int
 	maxToBuyInt, err := strconv.Atoi(maxToBuy)
 	if err != nil {
-		return &module.Result{CanRepeat: false, Error: errors.New("unable to understand max number of items available to sell")}
+		return &module.Result{CanRepeat: false, Error: errors.New("unable to understand max number of items available to buy")}
 	}
 
 	buyAmount := amount
-	if amount == -1 || amount > maxToBuyInt {
-		buyAmount = maxToBuyInt
+	if amount <= 0 {
+		buyAmount = maxToBuyInt + amount // Adding negative number becomes subtraction
+	}
+	if buyAmount < 1 {
+		return &module.Result{CanRepeat: false, Error: errors.New("unable to buy " + fmt.Sprint(buyAmount) + " amount of items")}
 	}
 
 	params := url.Values{}
@@ -748,10 +737,7 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 
 func sell(p *player.Player, settings map[string]string) *module.Result {
 	page := itemsPagesMap[settings["item"]]
-	amount, err := strconv.Atoi(settings["amount"])
-	if err != nil {
-		amount = -1 // 'max'
-	}
+	amount, _ := strconv.Atoi(settings["amount"])
 
 	path := "/parda.php?{{ creds }}&id=parduot&ka=" + settings["item"] + "&page=" + page
 	pathSubmit := "/parda.php?{{ creds }}&id=parduodu&ka=" + settings["item"] + "&page=" + page
@@ -775,13 +761,11 @@ func sell(p *player.Player, settings map[string]string) *module.Result {
 	}
 
 	sellAmount := amount
-	if amount == -1 || amount > maxToSellInt {
-		sellAmount = maxToSellInt
+	if amount <= 0 {
+		sellAmount = maxToSellInt + amount // Adding negative number becomes subtraction
 	}
-
-	// Check if count of available to sell items is equal to 0
-	if sellAmount == 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
+	if sellAmount < 1 {
+		return &module.Result{CanRepeat: false, Error: errors.New("unable to sell " + fmt.Sprint(sellAmount) + " amount of items")}
 	}
 
 	params := url.Values{}

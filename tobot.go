@@ -3,7 +3,9 @@ package tobot
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
+	"strings"
 	"tobot/config"
 	"tobot/module"
 	"tobot/player"
@@ -66,7 +68,7 @@ func runActivity(p *player.Player, c *config.Config, a *Activity) {
 			endless = true
 		}
 
-		log.Println("module: " + task["_module"])
+		log.Println(moduleSettingsToTitle(task))
 		for {
 			if !endless && count == 0 {
 				break
@@ -86,4 +88,16 @@ func runActivity(p *player.Player, c *config.Config, a *Activity) {
 		}
 		fmt.Println()
 	}
+}
+
+func moduleSettingsToTitle(m map[string]string) string {
+	list := []string{}
+	for k, v := range m {
+		if k == "_module" {
+			continue
+		}
+		list = append(list, k+":"+v)
+	}
+	sort.StringsAreSorted(list)
+	return "Module: " + m["_module"] + "{" + strings.Join(list, "; ") + "}"
 }

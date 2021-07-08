@@ -1,4 +1,4 @@
-package dirbtuves
+package apdirbimas
 
 import (
 	"errors"

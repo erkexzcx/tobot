@@ -1,4 +1,4 @@
-package kirtimas
+package grybavimas
 
 import (
 	"errors"

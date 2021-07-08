@@ -1,4 +1,4 @@
-package gaminimas_amatu_potion
+package medziokle
 
 import (
 	"errors"
@@ -9,27 +9,25 @@ import (
 	"tobot/player"
 )
 
-type GaminimasAmatuPotion struct{}
+type Medziokle struct{}
 
-// In shop items found as 'PA1' instead of '1'
 var allowedSettings = map[string][]string{
 	"item": {
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"10",
-		"11",
-		"12",
+		"alk",
+		"iev",
+		"glu",
+		"top",
+		"kle",
+		"azu",
+		"mau",
+		"uos",
+		"ber",
+		"skr",
+		"sek",
 	},
 }
 
-func (obj *GaminimasAmatuPotion) Validate(settings map[string]string) error {
+func (obj *Medziokle) Validate(settings map[string]string) error {
 	// Check for missing keys
 	for k := range allowedSettings {
 		_, found := settings[k]
@@ -65,8 +63,8 @@ func (obj *GaminimasAmatuPotion) Validate(settings map[string]string) error {
 	return nil
 }
 
-func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/namai.php?{{ creds }}&id=amatupotion02&ka=" + settings["item"]
+func (obj *Medziokle) Perform(p *player.Player, settings map[string]string) *module.Result {
+	path := "/miskas.php?{{ creds }}&id=medzioju0&ka=" + settings["item"]
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -74,14 +72,8 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Check if not depleted
-	foundElements := doc.Find("b:contains('Nepakanka reikiamų grybų!')").Length()
-	if foundElements > 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
-	}
-
 	// Find action link
-	actionLink, found := doc.Find("a[href*='&kd=']:contains('Gaminti')").Attr("href")
+	actionLink, found := doc.Find("a[href*='&kd=']:contains('Medžioti')").Attr("href")
 	if !found {
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
@@ -100,15 +92,26 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 	}
 
 	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements = doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
+	foundElements := doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
 	if foundElements > 0 {
 		return obj.Perform(p, settings)
 	}
 
+	foundElements = doc.Find("div:contains('Nebeturite strėlių!')").Length()
+	if foundElements > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// If action was a success
-	foundElements = doc.Find("div:contains('Pagaminta: ')").Length()
+	foundElements = doc.Find("div:contains('Sumedžiojote ')").Length() + doc.Find("div:contains('Jūs nieko nesumedžiojote...')").Length()
 	if foundElements > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
+	}
+
+	// If inventory full
+	foundElements = doc.Find("div:contains('Jūsų inventorius jau pilnas!')").Length()
+	if foundElements > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If actioned too fast
@@ -124,5 +127,5 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 }
 
 func init() {
-	module.Add("gaminimas_amatu_potion", &GaminimasAmatuPotion{})
+	module.Add("medziokle", &Medziokle{})
 }

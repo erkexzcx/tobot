@@ -1,4 +1,4 @@
-package kirtimas
+package uogavimas
 
 import (
 	"errors"

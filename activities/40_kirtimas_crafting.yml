@@ -10,4 +10,4 @@ tasks:
   - _module: parduotuve
     action: parduoti
     item: L1
-    amount: max
+    amount: 0

@@ -1,4 +1,4 @@
-package dirbtuves
+package lydimas
 
 import (
 	"errors"

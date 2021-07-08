@@ -1,4 +1,4 @@
-package gaminimas_amatu_potion
+package kepimas
 
 import (
 	"errors"
@@ -9,27 +9,82 @@ import (
 	"tobot/player"
 )
 
-type GaminimasAmatuPotion struct{}
+type Kepimas struct{}
 
-// In shop items found as 'PA1' instead of '1'
 var allowedSettings = map[string][]string{
 	"item": {
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"10",
-		"11",
-		"12",
+		// Nekeptos zuvys
+		"Z1",
+		"Z2",
+		"Z3",
+		"Z4",
+		"Z5",
+		"Z6",
+		"Z7",
+		"Z8",
+		"Z9",
+		"Z10",
+		"Z11",
+		"Z12",
+		"Z13",
+		"Z14",
+		"Z15",
+		"Z16",
+
+		// Nekepta mesa
+		"MS1",
+		"MS2",
+		"MS3",
+		"MS4",
+		"MS5",
+		"MS6",
+		"MS7",
+		"MS8",
+		"MS9",
+		"MS10",
+		"MS11",
+		"MS12",
+		"MS13",
+
+		// Nekepti grybai
+		"GR1",
+		"GR2",
+		"GR3",
+		"GR4",
+		"GR5",
+		"GR6",
+		"GR7",
+		"GR8",
+		"GR9",
+		"GR10",
+		"GR11",
+		"GR12",
+	},
+	"fuel": {
+		// Mediena
+		"MA1",
+		"MA2",
+		"MA3",
+		"MA4",
+		"MA5",
+		"MA6",
+		"MA7",
+		"MA8",
+		"MA9",
+		"MA10",
+		"MA11",
+		"MA12",
+		"MA13",
+		"MA14",
+		"MA15",
+		"MA16",
+
+		// Anglis
+		"O6",
 	},
 }
 
-func (obj *GaminimasAmatuPotion) Validate(settings map[string]string) error {
+func (obj *Kepimas) Validate(settings map[string]string) error {
 	// Check for missing keys
 	for k := range allowedSettings {
 		_, found := settings[k]
@@ -65,8 +120,8 @@ func (obj *GaminimasAmatuPotion) Validate(settings map[string]string) error {
 	return nil
 }
 
-func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/namai.php?{{ creds }}&id=amatupotion02&ka=" + settings["item"]
+func (obj *Kepimas) Perform(p *player.Player, settings map[string]string) *module.Result {
+	path := "/namai.php?{{ creds }}&id=gaminu2&ka=" + settings["item"]
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -74,14 +129,24 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
+	// If need fuel
+	foundElements := doc.Find("div:contains('Ugnis užgeso...!')").Length()
+	if foundElements > 0 {
+		err := addFuel(p, settings)
+		if err != nil {
+			return &module.Result{CanRepeat: false, Error: err}
+		}
+		return obj.Perform(p, settings)
+	}
+
 	// Check if not depleted
-	foundElements := doc.Find("b:contains('Nepakanka reikiamų grybų!')").Length()
+	foundElements = doc.Find("b:contains('Nebeturite ko kepti!')").Length()
 	if foundElements > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// Find action link
-	actionLink, found := doc.Find("a[href*='&kd=']:contains('Gaminti')").Attr("href")
+	actionLink, found := doc.Find("a[href*='&kd=']:contains('Kepti')").Attr("href")
 	if !found {
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
@@ -105,8 +170,18 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 		return obj.Perform(p, settings)
 	}
 
+	// If need fuel
+	foundElements = doc.Find("div:contains('Ugnis užgeso...!')").Length()
+	if foundElements > 0 {
+		err := addFuel(p, settings)
+		if err != nil {
+			return &module.Result{CanRepeat: false, Error: err}
+		}
+		return obj.Perform(p, settings)
+	}
+
 	// If action was a success
-	foundElements = doc.Find("div:contains('Pagaminta: ')").Length()
+	foundElements = doc.Find("div:contains(' (jau turite: ')").Length()
 	if foundElements > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
@@ -123,6 +198,24 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 
+func addFuel(p *player.Player, settings map[string]string) error {
+	path := "/namai.php?{{ creds }}&id=kurt&ka=" + settings["fuel"]
+
+	// Download page that contains unique action link
+	doc, err := p.Navigate(path, true)
+	if err != nil {
+		return err
+	}
+
+	// If action was a success
+	foundElements := doc.Find("div:contains('Krosnelė užkurta, galite eiti kepti maistą.')").Length()
+	if foundElements > 0 {
+		return nil
+	}
+
+	return errors.New("failed to add fuel to krosnele")
+}
+
 func init() {
-	module.Add("gaminimas_amatu_potion", &GaminimasAmatuPotion{})
+	module.Add("kepimas", &Kepimas{})
 }

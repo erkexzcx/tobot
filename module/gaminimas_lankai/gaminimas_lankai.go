@@ -1,4 +1,4 @@
-package dirbtuves
+package gaminimas_lankai
 
 import (
 	"errors"

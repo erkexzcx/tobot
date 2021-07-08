@@ -1,4 +1,4 @@
-package kirtimas
+package slayer
 
 import (
 	"errors"
@@ -256,10 +256,16 @@ func enableSlayer(p *player.Player, settings map[string]string) error {
 		return err
 	}
 
+	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
+	foundElements := doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
+	if foundElements > 0 {
+		return enableSlayer(p, settings)
+	}
+
 	// Check if successfully enabled
 	foundElement := doc.Find("div:contains('Jums sėkmingai paskirta užduotis! Grįžę atgal rasite daugiau informacijos apie užduotį.')").Length()
 	if foundElement == 0 {
-		return errors.New("did not enable Slayer contract successfully")
+		return errors.New("failed to enable Slayer contract")
 	}
 
 	return nil
