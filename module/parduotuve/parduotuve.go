@@ -705,7 +705,7 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 		return &module.Result{CanRepeat: false, Error: errors.New("unable to understand max number of items available to buy")}
 	}
 
-	buyAmount := amount
+	buyAmount := maxToBuyInt
 	if amount <= 0 {
 		buyAmount = maxToBuyInt + amount // Adding negative number becomes subtraction
 	}
@@ -760,15 +760,13 @@ func sell(p *player.Player, settings map[string]string) *module.Result {
 		return &module.Result{CanRepeat: false, Error: errors.New("unable to understand max number of items available to sell")}
 	}
 
-	sellAmount := amount
+	sellAmount := maxToSellInt
 	if amount <= 0 {
 		sellAmount = maxToSellInt + amount // Adding negative number becomes subtraction
 	}
-	if sellAmount < 1 {
+	if sellAmount < 0 {
 		return &module.Result{CanRepeat: false, Error: errors.New("unable to sell " + fmt.Sprint(sellAmount) + " amount of items")}
 	}
-
-	// Successfully sell zero amount of items.
 	if sellAmount == 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}

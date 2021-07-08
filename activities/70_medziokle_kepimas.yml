@@ -1,9 +1,9 @@
 name: Medziokle alksnio lanku, kepimas ir pardavimas
 tasks:
 
-  # Nusikirsti 10 alksniu krosneles kurui
+  # Nusikirsti 5 alksniu krosneles kurui
   - _module: kirtimas
-    _count: 10
+    _count: 5
     item: MA1
 
   # Nusipirkti max-1 streliu (neleis medzioti jei pilnas inventorius)
