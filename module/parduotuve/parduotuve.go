@@ -768,6 +768,11 @@ func sell(p *player.Player, settings map[string]string) *module.Result {
 		return &module.Result{CanRepeat: false, Error: errors.New("unable to sell " + fmt.Sprint(sellAmount) + " amount of items")}
 	}
 
+	// Successfully sell zero amount of items.
+	if sellAmount == 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	params := url.Values{}
 	params.Add("kiekis", fmt.Sprint(sellAmount))
 	params.Add("null", "Parduoti")

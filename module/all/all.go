@@ -15,4 +15,5 @@ import (
 	_ "tobot/module/parduotuve"
 	_ "tobot/module/slayer"
 	_ "tobot/module/uogavimas"
+	_ "tobot/module/zvejyba"
 )
