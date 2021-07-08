@@ -165,7 +165,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 		r := getRandomInt(3123, 8765)
 		log.Println("Clicked too fast! Sleeping for " + fmt.Sprintf("%.2f", float64(r)/1000) + "s and trying again...")
 		time.Sleep(time.Duration(r) * time.Millisecond)
-		return p.Navigate(path, action)
+		return p.Submit(path, body)
 	}
 
 	// Mark wait time
@@ -179,7 +179,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 		if !res {
 			log.Println("Anti cheat procedure failed...")
 		}
-		return p.Navigate(path, action)
+		return p.Submit(path, body)
 	}
 
 	// Check if banned
