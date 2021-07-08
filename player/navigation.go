@@ -160,10 +160,27 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 		return p.Submit(path, body)
 	}
 
+	// Try again if clicked too fast!
+	if isTooFast(doc) {
+		r := getRandomInt(3123, 8765)
+		log.Println("Clicked too fast! Sleeping for " + fmt.Sprintf("%.2f", float64(r)/1000) + "s and trying again...")
+		time.Sleep(time.Duration(r) * time.Millisecond)
+		return p.Navigate(path, action)
+	}
+
 	// Mark wait time
 	p.timeUntilMux.Lock()
 	p.timeUntilNavigation = time.Now().Add(MIN_WAIT_TIME)
 	p.timeUntilMux.Unlock()
+
+	// Check if landed in anti-cheat check page
+	if isAnticheatPage(doc) {
+		res := p.solveAnticheat(doc)
+		if !res {
+			log.Println("Anti cheat procedure failed...")
+		}
+		return p.Navigate(path, action)
+	}
 
 	// Check if banned
 	if isBanned(doc) {
