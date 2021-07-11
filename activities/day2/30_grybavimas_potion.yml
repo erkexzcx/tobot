@@ -1,0 +1,13 @@
+name: Berzinio ragangrybio rinkimas, sod. amato potion gaminimas ir pardavimas
+tasks:
+
+  - _module: grybavimas
+    item: GR1
+
+  - _module: gaminimas_amatu_potion
+    item: 1
+
+  - _module: parduotuve
+    action: parduoti
+    item: PA1
+    amount: 0

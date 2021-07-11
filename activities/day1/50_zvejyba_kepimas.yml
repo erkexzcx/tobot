@@ -1,7 +1,7 @@
 name: Svejyba slieku, kepimas ir pardavimas
 tasks:
 
-  # Nusikirsti 5 alksniu krosneles kurui
+  # Nusikirsti 5 alksnius krosneles kurui
   - _module: kirtimas
     _count: 5
     item: MA1
@@ -16,29 +16,23 @@ tasks:
   - _module: zvejyba
     item: sliekas
 
-  # Iskepti visus laimikius
+  # Iskepti ir parduoti visus karosus
   - _module: kepimas
     item: Z1
     fuel: MA1
-  - _module: kepimas
-    item: Z2
-    fuel: MA1
-  - _module: kepimas
-    item: Z3
-    fuel: MA1
-
-  # Parduoti visus keptus laimikius
   - _module: parduotuve
     action: parduoti
     item: KZ1
     amount: 0
+
+  # Jei pagausim kitas zuvis - tiesiog parduoti
   - _module: parduotuve
     action: parduoti
-    item: KZ2
+    item: Z2
     amount: 0
   - _module: parduotuve
     action: parduoti
-    item: KZ3
+    item: Z3
     amount: 0
 
   # parduoti nepanaudotas alksnio malkas

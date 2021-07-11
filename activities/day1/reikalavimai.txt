@@ -1,0 +1,5 @@
+Norint, kad "starter" sekmingai veiksmuotu, reikia inventoriuje tureti siuos irankius:
+1. Alksnio lankas
+2. Bronzinis kirvis
+3. Alavo kirtiklis
+4. Lazdynine meskere

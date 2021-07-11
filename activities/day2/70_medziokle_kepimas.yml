@@ -16,7 +16,7 @@ tasks:
   - _module: medziokle
     item: alk
 
-  # Iskepti visus laimikius
+  # Iskepti laimikius
   - _module: kepimas
     item: MS1
     fuel: MA1
@@ -27,7 +27,7 @@ tasks:
     item: MS3
     fuel: MA1
 
-  # Parduoti visus keptus laimikius
+  # Parduoti keptus laimikius
   - _module: parduotuve
     action: parduoti
     item: MK1

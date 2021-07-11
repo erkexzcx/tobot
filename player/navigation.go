@@ -92,7 +92,22 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 			panic(err)
 		}
 
+		// Ignore @sistema
 		if m.from == "" {
+			return p.Navigate(path, action)
+		}
+
+		// Ignore non-moderators
+		if !m.moderator {
+			time.Sleep(5 * time.Second)
+			return p.Navigate(path, action)
+		}
+
+		// Attempt to autoreply
+		replyMsg := generateReply(m.text)
+		if replyMsg != "" {
+			time.Sleep(15 * time.Second)
+			p.sendPM(m.from, replyMsg)
 			return p.Navigate(path, action)
 		}
 

@@ -2,6 +2,7 @@ package player
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/url"
 	"regexp"
@@ -27,7 +28,6 @@ func (p *Player) getLastPM() (*pm, error) {
 
 	// Return empty struct if last message received by "@SISTEMA"
 	if s.Find("a:contains('[Atsakyti]')").Length() == 0 {
-		log.Println("last message by @SISTEMA")
 		return &pm{}, nil
 	}
 
@@ -81,4 +81,50 @@ func (p *Player) sendPM(to, message string) {
 		p.sendPM(to, message)
 		return
 	}
+}
+
+var replacer = strings.NewReplacer(
+	"ą", "a",
+	"č", "c",
+	"ę", "e",
+	"ė", "e",
+	"į", "i",
+	"š", "s",
+	"ų", "u",
+	"ū", "u",
+	"ž", "z",
+	"y", "i",
+)
+var reTikrinimas = regexp.MustCompile(`(patikr|tikrin)`)
+var reAtrasyk = regexp.MustCompile(`(rasik)\w*( :|:| )([^\.\,\n]+)`)
+
+func generateReply(input string) string {
+	input = strings.ToLower(input)
+	input = replacer.Replace(input)
+	fmt.Println(input)
+
+	matchesTikrinimas := reTikrinimas.MatchString(input)
+	matchesAtrasyk := reAtrasyk.MatchString(input)
+
+	if !matchesTikrinimas && !matchesAtrasyk {
+		return "?"
+	}
+
+	if strings.Contains(input, "neatr") || strings.Contains(input, "nerasik") || strings.Contains(input, "neparasik") {
+		return "ka dar sugalvosi?"
+	}
+
+	if strings.Contains(input, "virksc") || strings.Contains(input, " galo") {
+		return "nebesvaik"
+	}
+
+	if matchesTikrinimas && !matchesAtrasyk {
+		return "esu"
+	}
+
+	matched := reAtrasyk.FindStringSubmatch(input)
+	if len(matched) != 4 {
+		return "nezinau"
+	}
+	return matched[3]
 }

@@ -15,18 +15,18 @@ tasks:
     item: K1
     amount: 0
 
-  # Safyras
+  # Brangakmeniu apdirbimas
   - _module: apdirbimas
     item: AB1
+  - _module: apdirbimas
+    item: AB2
+
+  # Brangakmeniu pardavimas
   - _module: parduotuve
     action: parduoti
     item: AB1
     amount: 0
-
-  # Ametistas
-  # - _module: apdirbimas
-  #   item: AB2
-  # - _module: parduotuve
-  #   action: parduoti
-  #   item: AB2
-  #   amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB2
+    amount: 0

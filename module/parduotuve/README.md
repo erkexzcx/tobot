@@ -19,7 +19,7 @@ This module allows to buy/sell items in main shop.
     amount: 5
 ```
 ```yaml
-  # Buy exactly max-1 amount of items
+  # Buy max-1 amount of items
   - _module: parduotuve
     action: pirkti
     item: MA1

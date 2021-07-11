@@ -77,7 +77,7 @@ func NewPlayer(ps *PlayerSettings) *Player {
 
 	p.initTelegram()
 
-	p.NotifyTelegram("Started!")
+	p.NotifyTelegramSilent("Started!")
 
 	return p
 }
