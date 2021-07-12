@@ -104,7 +104,13 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		}
 
 		// Attempt to autoreply
-		replyMsg := generateReply(m.text)
+		replyMsg, ignore := generateReply(m.text)
+
+		if ignore {
+			time.Sleep(8 * time.Second)
+			return p.Navigate(path, action)
+		}
+
 		if replyMsg != "" {
 			time.Sleep(15 * time.Second)
 			p.sendPM(m.from, replyMsg)

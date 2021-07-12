@@ -2,7 +2,6 @@ package player
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/url"
 	"regexp"
@@ -98,33 +97,40 @@ var replacer = strings.NewReplacer(
 var reTikrinimas = regexp.MustCompile(`(patikr|tikrin)`)
 var reAtrasyk = regexp.MustCompile(`(rasik)\w*( :|:| )([^\.\,\n]+)`)
 
-func generateReply(input string) string {
+func generateReply(input string) (string, bool) {
 	input = strings.ToLower(input)
 	input = replacer.Replace(input)
-	fmt.Println(input)
 
 	matchesTikrinimas := reTikrinimas.MatchString(input)
 	matchesAtrasyk := reAtrasyk.MatchString(input)
 
+	if !matchesTikrinimas && !matchesAtrasyk && strings.HasSuffix(input, "?") {
+		return "nustok klausinet", false
+	}
+
 	if !matchesTikrinimas && !matchesAtrasyk {
-		return "?"
+		return "", true
 	}
 
 	if strings.Contains(input, "neatr") || strings.Contains(input, "nerasik") || strings.Contains(input, "neparasik") {
-		return "ka dar sugalvosi?"
+		return "ka dar sugalvosi?", false
 	}
 
 	if strings.Contains(input, "virksc") || strings.Contains(input, " galo") {
-		return "nebesvaik"
+		return "nesvaik", false
 	}
 
 	if matchesTikrinimas && !matchesAtrasyk {
-		return "esu"
+		return "?", false
 	}
 
-	matched := reAtrasyk.FindStringSubmatch(input)
-	if len(matched) != 4 {
-		return "nezinau"
+	if matchesAtrasyk {
+		matched := reAtrasyk.FindStringSubmatch(input)
+		if len(matched) != 4 {
+			return "?", true
+		}
+		return matched[3], false
 	}
-	return matched[3]
+
+	return "", true
 }
