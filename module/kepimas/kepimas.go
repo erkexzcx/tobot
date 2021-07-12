@@ -148,6 +148,7 @@ func (obj *Kepimas) Perform(p *player.Player, settings map[string]string) *modul
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Kepti')").Attr("href")
 	if !found {
+		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
 
@@ -193,8 +194,7 @@ func (obj *Kepimas) Perform(p *player.Player, settings map[string]string) *modul
 		return obj.Perform(p, settings)
 	}
 
-	html, _ := doc.Html()
-	log.Println(html)
+	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

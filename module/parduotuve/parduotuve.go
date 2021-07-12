@@ -788,8 +788,7 @@ func sell(p *player.Player, settings map[string]string) *module.Result {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	html, _ := doc.Html()
-	log.Println(html)
+	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

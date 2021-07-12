@@ -80,6 +80,7 @@ func (obj *Kirtimas) Perform(p *player.Player, settings map[string]string) *modu
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Kirsti')").Attr("href")
 	if !found {
+		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
 
@@ -121,8 +122,7 @@ func (obj *Kirtimas) Perform(p *player.Player, settings map[string]string) *modu
 		return obj.Perform(p, settings)
 	}
 
-	html, _ := doc.Html()
-	log.Println(html)
+	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

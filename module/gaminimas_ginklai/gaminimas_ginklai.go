@@ -100,6 +100,7 @@ func (obj *GaminimasGinklai) Perform(p *player.Player, settings map[string]strin
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Kalti')").Attr("href")
 	if !found {
+		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
 
@@ -135,8 +136,7 @@ func (obj *GaminimasGinklai) Perform(p *player.Player, settings map[string]strin
 		return obj.Perform(p, settings)
 	}
 
-	html, _ := doc.Html()
-	log.Println(html)
+	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

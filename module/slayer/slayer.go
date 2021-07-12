@@ -185,6 +185,7 @@ func (obj *Slayer) Perform(p *player.Player, settings map[string]string) *module
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Pulti')").Attr("href")
 	if !found {
+		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
 
@@ -242,8 +243,7 @@ func (obj *Slayer) Perform(p *player.Player, settings map[string]string) *module
 		return obj.Perform(p, settings)
 	}
 
-	html, _ := doc.Html()
-	log.Println(html)
+	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 
