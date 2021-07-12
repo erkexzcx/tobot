@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 	"tobot/module"
 	"tobot/player"
@@ -164,10 +163,6 @@ func (obj *Slayer) Validate(settings map[string]string) error {
 		}
 	}
 
-	if count, _ := strconv.Atoi(settings["_count"]); count == 0 {
-		return errors.New("cannot work without '_count' field or with its value of '0' (indefinitely)")
-	}
-
 	return nil
 }
 
@@ -208,7 +203,7 @@ func (obj *Slayer) Perform(p *player.Player, settings map[string]string) *module
 		if err != nil {
 			return &module.Result{CanRepeat: false, Error: err}
 		}
-		return obj.Perform(p, settings)
+		return &module.Result{CanRepeat: false, Error: nil} // stop
 	}
 
 	// Extract request URI from action link

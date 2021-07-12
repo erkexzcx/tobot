@@ -710,6 +710,7 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
+	log.Println("Buying:", buyAmount)
 	params := url.Values{}
 	params.Add("kiekis", fmt.Sprint(buyAmount))
 	params.Add("null", "Pirkti")
@@ -761,6 +762,8 @@ func sell(p *player.Player, settings map[string]string) *module.Result {
 	if sellAmount <= 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
+
+	log.Println("Selling:", sellAmount)
 
 	params := url.Values{}
 	params.Add("kiekis", fmt.Sprint(sellAmount))
