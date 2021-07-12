@@ -1,37 +1,42 @@
 name: Svejyba slieku, kepimas ir pardavimas
 tasks:
 
-  # Nusikirsti 5 alksniu krosneles kurui
+  # Nusikirsti 5 medzius krosneles kurui
   - _module: kirtimas
     _count: 5
-    item: MA1
+    item: MA3
 
-  # Nusipirkti max slieku
+  # Nusipirkti max karosu
   - _module: parduotuve
     action: pirkti
-    item: M1
+    item: Z1
     amount: 0
 
   # Zvejyba
   - _module: zvejyba
-    item: sliekas
+    item: karos
 
   # Iskepti laimikius
-  - _module: kepimas
-    item: Z1
-    fuel: MA1
   - _module: kepimas
     item: Z2
     fuel: MA1
   - _module: kepimas
     item: Z3
     fuel: MA1
+  - _module: kepimas
+    item: Z4
+    fuel: MA1
+  - _module: kepimas
+    item: Z5
+    fuel: MA1
+  - _module: kepimas
+    item: Z6
+    fuel: MA1
+  - _module: kepimas
+    item: Z7
+    fuel: MA1
 
   # Parduoti keptus laimikius
-  - _module: parduotuve
-    action: parduoti
-    item: KZ1
-    amount: 0
   - _module: parduotuve
     action: parduoti
     item: KZ2
@@ -40,15 +45,25 @@ tasks:
     action: parduoti
     item: KZ3
     amount: 0
-
-  # Varles nekepiamos - parduoti
   - _module: parduotuve
     action: parduoti
-    item: Z12
+    item: KZ4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ7
     amount: 0
 
-  # parduoti nepanaudotas alksnio malkas
+  # parduoti nepanaudotus medzius
   - _module: parduotuve
     action: parduoti
-    item: MA1
+    item: MA3
     amount: 0

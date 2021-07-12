@@ -14,7 +14,7 @@ tasks:
 
   # Medziokle
   - _module: medziokle
-    item: alk
+    item: glu
 
   # Iskepti laimikius
   - _module: kepimas
