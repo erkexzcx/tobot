@@ -265,6 +265,7 @@ func enableSlayer(p *player.Player, settings map[string]string) error {
 	// Check if successfully enabled
 	foundElement := doc.Find("div:contains('Jums sėkmingai paskirta užduotis! Grįžę atgal rasite daugiau informacijos apie užduotį.')").Length()
 	if foundElement == 0 {
+		module.DumpHTML(doc)
 		return errors.New("failed to enable Slayer contract")
 	}
 
@@ -283,6 +284,7 @@ func takeReward(p *player.Player, settings map[string]string) error {
 	// Check if successfully enabled
 	foundElement := doc.Find("div:contains('Užduotis atlikta!')").Length()
 	if foundElement == 0 {
+		module.DumpHTML(doc)
 		return errors.New("did not take Slayer reward successfully")
 	}
 
