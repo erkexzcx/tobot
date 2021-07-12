@@ -1,0 +1,6 @@
+name: Slayer kelimas
+tasks:
+
+  - _module: slayer
+    vs: 10
+    slayer: 2

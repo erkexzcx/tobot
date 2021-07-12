@@ -1,0 +1,48 @@
+name: Medziokle alksnio lanku, kepimas ir pardavimas
+tasks:
+
+  # Nusikirsti 5 medzius krosneles kurui
+  - _module: kirtimas
+    _count: 5
+    item: MA3
+
+  # Nusipirkti max-1 streliu (neleis medzioti jei pilnas inventorius)
+  - _module: parduotuve
+    action: pirkti
+    item: ST3
+    amount: -1
+
+  # Medziokle
+  - _module: medziokle
+    item: alk
+
+  # Iskepti laimikius
+  - _module: kepimas
+    item: MS1
+    fuel: MA3
+  - _module: kepimas
+    item: MS2
+    fuel: MA3
+  - _module: kepimas
+    item: MS3
+    fuel: MA3
+
+  # Parduoti keptus laimikius
+  - _module: parduotuve
+    action: parduoti
+    item: MK1
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK2
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK3
+    amount: 0
+
+  # parduoti nepanaudotus medzius
+  - _module: parduotuve
+    action: parduoti
+    item: MA3
+    amount: 0
