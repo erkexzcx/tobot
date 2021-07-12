@@ -41,6 +41,12 @@ tasks:
     item: KZ3
     amount: 0
 
+  # Varles nekepiamos - parduoti
+  - _module: parduotuve
+    action: parduoti
+    item: Z12
+    amount: 0
+
   # parduoti nepanaudotas alksnio malkas
   - _module: parduotuve
     action: parduoti
