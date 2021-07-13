@@ -91,7 +91,7 @@ func (obj *Zvejyba) Perform(p *player.Player, settings map[string]string) *modul
 		return obj.Perform(p, settings)
 	}
 
-	foundElements = doc.Find("div:contains('Nepakanka sliekų!')").Length()
+	foundElements = doc.Find("div:contains('Nepakanka')").Length()
 	if foundElements > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
