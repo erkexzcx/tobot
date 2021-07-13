@@ -19,22 +19,22 @@ tasks:
   # Iskepti laimikius
   - _module: kepimas
     item: Z2
-    fuel: MA1
+    fuel: MA3
   - _module: kepimas
     item: Z3
-    fuel: MA1
+    fuel: MA3
   - _module: kepimas
     item: Z4
-    fuel: MA1
+    fuel: MA3
   - _module: kepimas
     item: Z5
-    fuel: MA1
+    fuel: MA3
   - _module: kepimas
     item: Z6
-    fuel: MA1
+    fuel: MA3
   - _module: kepimas
     item: Z7
-    fuel: MA1
+    fuel: MA3
 
   # Parduoti keptus laimikius
   - _module: parduotuve
