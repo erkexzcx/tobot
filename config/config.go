@@ -90,6 +90,10 @@ func validateConfig(c *Config) error {
 		return errors.New("invalid 'root_address' field value")
 	}
 
+	if c.MinRTTTime < 1*time.Millisecond {
+		return errors.New("invalid 'min_rtt_time' field value")
+	}
+
 	if err := checkIntervalInput(c.BecomeOfflineEvery, "become_offline_every"); err != nil {
 		return err
 	}

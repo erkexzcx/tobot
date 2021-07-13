@@ -12,7 +12,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const MIN_WAIT_TIME = 565 * time.Millisecond
+const MIN_WAIT_TIME = 550 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game. It cannot click too fast, tracks new PMs
 func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
@@ -42,6 +42,9 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	}
 	defer resp.Body.Close()
 
+	// Mark timestamp when doc was downloaded
+	timeNow = time.Now()
+
 	// Create Goquery document out of response body
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
@@ -53,7 +56,6 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 
 	// Mark wait time
 	p.timeUntilMux.Lock()
-	timeNow = time.Now()
 	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTTTime)
 	if action {
 		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc))
@@ -167,6 +169,9 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	}
 	defer resp.Body.Close()
 
+	// Mark timestamp when doc was downloaded
+	timeNow := time.Now()
+
 	// Create Goquery document out of response body
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
@@ -186,7 +191,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 
 	// Mark wait time
 	p.timeUntilMux.Lock()
-	p.timeUntilNavigation = time.Now().Add(MIN_WAIT_TIME - p.minRTTTime)
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTTTime)
 	p.timeUntilMux.Unlock()
 
 	// Check if landed in anti-cheat check page
