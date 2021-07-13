@@ -1,4 +1,4 @@
-name: Alksnio kirtimas ir lanku gaminimas
+name: Kirtimas, lanku gaminimas, pardavimas
 tasks:
 
   - _module: kirtimas

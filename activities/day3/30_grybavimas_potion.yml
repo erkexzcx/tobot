@@ -1,4 +1,4 @@
-name: Berzinio ragangrybio rinkimas, sod. amato potion gaminimas ir pardavimas
+name: Grybavimas, sod. amato potion gaminimas ir pardavimas
 tasks:
 
   - _module: grybavimas
