@@ -12,6 +12,7 @@ Features:
  * Automatically recover from network or `NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!`-like errors.
  * Receive new PMs and reply back via Telegram bot.
  * Can be configured to automatically stop & resume at given customizable & randomized intervals/durations.
+ * Maximum clicking performance, uses your provided RTT duration to ensure there is to time wasted when waiting.
 
 # Usage
 
