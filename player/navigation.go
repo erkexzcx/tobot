@@ -12,30 +12,28 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const MIN_WAIT_TIME = 750 * time.Millisecond // Static time, also used for navigation
+const MIN_WAIT_TIME = 560 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game. It cannot click too fast, tracks new PMs
 func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	p.manageBecomeOffline()
 
-	fullLink := p.fullLink(path)
-
 	// Wait until performing HTTP request
-	p.timeUntilMux.Lock()
 	timeNow := time.Now()
+	p.timeUntilMux.Lock()
 	waitUntil := p.timeUntilNavigation
 	if action {
 		waitUntil = p.timeUntilAction
 	}
 	p.timeUntilMux.Unlock()
 	timeToWait := waitUntil.Sub(timeNow)
-	if timeToWait < MIN_WAIT_TIME {
-		timeToWait = MIN_WAIT_TIME
+	if timeToWait < MIN_WAIT_TIME-p.minRTTTime {
+		timeToWait = MIN_WAIT_TIME - p.minRTTTime
 	}
 	time.Sleep(timeToWait)
 
 	// Perform HTTP request and get response
-	resp, err := p.httpRequest("GET", fullLink, nil)
+	resp, err := p.httpRequest("GET", p.fullLink(path), nil)
 	if err != nil {
 		log.Println("Failure occurred (#1): " + err.Error())
 		log.Println("Sleeping for 5 seconds and trying again...")
@@ -56,9 +54,9 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	// Mark wait time
 	p.timeUntilMux.Lock()
 	timeNow = time.Now()
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME)
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTTTime)
 	if action {
-		p.timeUntilAction = timeNow.Add(extractWaitTime(doc))
+		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc))
 	}
 	p.timeUntilMux.Unlock()
 
@@ -156,9 +154,6 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	// Wait until performing HTTP request
 	p.timeUntilMux.Lock()
 	timeToWait := time.Until(p.timeUntilNavigation)
-	if timeToWait < MIN_WAIT_TIME {
-		timeToWait = MIN_WAIT_TIME
-	}
 	p.timeUntilMux.Unlock()
 	time.Sleep(timeToWait)
 
@@ -191,7 +186,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 
 	// Mark wait time
 	p.timeUntilMux.Lock()
-	p.timeUntilNavigation = time.Now().Add(MIN_WAIT_TIME)
+	p.timeUntilNavigation = time.Now().Add(MIN_WAIT_TIME - p.minRTTTime)
 	p.timeUntilMux.Unlock()
 
 	// Check if landed in anti-cheat check page
@@ -230,16 +225,19 @@ func isAnticheatPage(doc *goquery.Document) bool {
 	return doc.Find("div:contains('Paspauskite žemiau esančią šią spalvą:')").Length() > 0
 }
 
-func extractWaitTime(doc *goquery.Document) time.Duration {
+func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
 	timeLeft, found := doc.Find("#countdown").Attr("title")
 	if !found {
-		return MIN_WAIT_TIME
+		return MIN_WAIT_TIME - p.minRTTTime
 	}
 	parsedDuration, err := time.ParseDuration(timeLeft + "s")
 	if err != nil {
 		panic(err)
 	}
-	return parsedDuration + MIN_WAIT_TIME
+	if parsedDuration > MIN_WAIT_TIME-p.minRTTTime {
+		return parsedDuration - p.minRTTTime
+	}
+	return MIN_WAIT_TIME - p.minRTTTime
 }
 
 func (p *Player) fullLink(path string) string {

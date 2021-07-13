@@ -13,6 +13,8 @@ type Config struct {
 	RootAddress string `yaml:"root_address"`
 	UserAgent   string `yaml:"user_agent"`
 
+	MinRTTTime time.Duration `yaml:"min_rtt_time"`
+
 	Nick string `yaml:"nick"`
 	Pass string `yaml:"pass"`
 
@@ -47,48 +49,52 @@ func validateConfig(c *Config) error {
 	// Emptiness checks //
 
 	if c.RootAddress == "" {
-		return errors.New("empty 'config->root_address' field value")
+		return errors.New("empty 'root_address' field value")
 	}
 
 	if c.UserAgent == "" {
-		return errors.New("empty 'config->user_agent' field value")
+		return errors.New("empty 'user_agent' field value")
 	}
 
 	if c.Nick == "" {
-		return errors.New("empty 'config->nick' field value")
+		return errors.New("empty 'nick' field value")
 	}
 
 	if c.Pass == "" {
-		return errors.New("empty 'config->pass' field value")
+		return errors.New("empty 'pass' field value")
+	}
+
+	if c.MinRTTTime == 0 {
+		return errors.New("empty 'min_rtt_time' field value")
 	}
 
 	if c.TelegramApiKey == "" {
-		return errors.New("empty 'config->telegram_api_key' field value")
+		return errors.New("empty 'telegram_api_key' field value")
 	}
 
 	if c.TelegramChatId == 0 {
-		return errors.New("empty 'config->telegram_chat_id' field value")
+		return errors.New("empty 'telegram_chat_id' field value")
 	}
 
 	if c.BecomeOfflineEvery == "" {
-		return errors.New("empty 'config->become_offline_every' field value")
+		return errors.New("empty 'become_offline_every' field value")
 	}
 
 	if c.BecomeOfflineFor == "" {
-		return errors.New("empty 'config->become_offline_for' field value")
+		return errors.New("empty 'become_offline_for' field value")
 	}
 
 	// Value checks //
 
 	if !strings.Contains(c.RootAddress, "http") {
-		return errors.New("invalid 'config->root_address' field value")
+		return errors.New("invalid 'root_address' field value")
 	}
 
-	if err := checkIntervalInput(c.BecomeOfflineEvery, "config->become_offline_every"); err != nil {
+	if err := checkIntervalInput(c.BecomeOfflineEvery, "become_offline_every"); err != nil {
 		return err
 	}
 
-	if err := checkIntervalInput(c.BecomeOfflineFor, "config->become_offline_for"); err != nil {
+	if err := checkIntervalInput(c.BecomeOfflineFor, "become_offline_for"); err != nil {
 		return err
 	}
 

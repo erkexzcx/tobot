@@ -82,6 +82,8 @@ func main() {
 		Nick: c.Nick,
 		Pass: c.Pass,
 
+		MinRTTTime: c.MinRTTTime,
+
 		TelegramBot:  telegramBot,
 		TelegramChat: &tb.Chat{ID: c.TelegramChatId},
 

@@ -2,6 +2,9 @@
 root_address: http://tob.lt
 user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
 
+# Launch "ping -c 30 tob.lt", wait until completes and find _minimum_ rtt time and then -1 out of it. In my case it was 53ms so I put 52ms
+min_rtt_time: 52ms
+
 # Credentials (taken from URL)
 nick: mysuperaccount
 pass: va6T5kr1dcDPl0YiT0Q0ZvZbPeQr5qr812qhki5V49ay4SmowqRw

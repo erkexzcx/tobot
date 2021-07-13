@@ -11,6 +11,8 @@ type PlayerSettings struct {
 	Nick string
 	Pass string
 
+	MinRTTTime time.Duration
+
 	TelegramBot  *tb.Bot
 	TelegramChat *tb.Chat
 
@@ -31,6 +33,8 @@ func NewPlayer(ps *PlayerSettings) *Player {
 	p := &Player{
 		nick: ps.Nick,
 		pass: ps.Pass,
+
+		minRTTTime: ps.MinRTTTime,
 
 		telegramBot:  ps.TelegramBot,
 		telegramChat: ps.TelegramChat,
@@ -85,6 +89,8 @@ func NewPlayer(ps *PlayerSettings) *Player {
 type Player struct {
 	nick string
 	pass string
+
+	minRTTTime time.Duration
 
 	telegramBot  *tb.Bot
 	telegramChat *tb.Chat
