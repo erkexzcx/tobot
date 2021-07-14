@@ -82,7 +82,7 @@ func main() {
 		Nick: c.Nick,
 		Pass: c.Pass,
 
-		MinRTTTime: c.MinRTTTime - (1 * time.Millisecond),
+		MinRTT: c.MinRTT - time.Millisecond,
 
 		TelegramBot:  telegramBot,
 		TelegramChat: &tb.Chat{ID: c.TelegramChatId},

@@ -13,7 +13,7 @@ type Config struct {
 	RootAddress string `yaml:"root_address"`
 	UserAgent   string `yaml:"user_agent"`
 
-	MinRTTTime time.Duration `yaml:"min_rtt_time"`
+	MinRTT time.Duration `yaml:"min_rtt"`
 
 	Nick string `yaml:"nick"`
 	Pass string `yaml:"pass"`
@@ -64,7 +64,7 @@ func validateConfig(c *Config) error {
 		return errors.New("empty 'pass' field value")
 	}
 
-	if c.MinRTTTime == 0 {
+	if c.MinRTT == 0 {
 		return errors.New("empty 'min_rtt_time' field value")
 	}
 
@@ -90,7 +90,7 @@ func validateConfig(c *Config) error {
 		return errors.New("invalid 'root_address' field value")
 	}
 
-	if c.MinRTTTime < 1*time.Millisecond {
+	if c.MinRTT < 1*time.Millisecond {
 		return errors.New("invalid 'min_rtt_time' field value")
 	}
 

@@ -2,8 +2,9 @@
 root_address: http://tob.lt
 user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
 
-# Launch "ping -c 30 tob.lt", wait until completes and find _minimum_ rtt time.
-min_rtt_time: 53ms
+# Minimum RTT time from your device to tob.lt server. This is used to compensate waiting between clicks.
+# TIP: Use command "ping -c 50 tob.lt", wait until it completes and find "min/max/avg" times.
+min_rtt: 51ms
 
 # Credentials (taken from URL)
 nick: mysuperaccount

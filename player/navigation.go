@@ -27,8 +27,8 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	}
 	p.timeUntilMux.Unlock()
 	timeToWait := waitUntil.Sub(timeNow)
-	if timeToWait < MIN_WAIT_TIME-p.minRTTTime {
-		timeToWait = MIN_WAIT_TIME - p.minRTTTime
+	if timeToWait < MIN_WAIT_TIME-p.minRTT {
+		timeToWait = MIN_WAIT_TIME - p.minRTT
 	}
 	time.Sleep(timeToWait)
 
@@ -56,7 +56,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 
 	// Mark wait time
 	p.timeUntilMux.Lock()
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTTTime)
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
 	if action {
 		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc))
 	}
@@ -191,7 +191,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 
 	// Mark wait time
 	p.timeUntilMux.Lock()
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTTTime)
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
 	p.timeUntilMux.Unlock()
 
 	// Check if landed in anti-cheat check page
@@ -233,16 +233,16 @@ func isAnticheatPage(doc *goquery.Document) bool {
 func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
 	timeLeft, found := doc.Find("#countdown").Attr("title")
 	if !found {
-		return MIN_WAIT_TIME - p.minRTTTime
+		return MIN_WAIT_TIME - p.minRTT
 	}
 	parsedDuration, err := time.ParseDuration(timeLeft + "s")
 	if err != nil {
 		panic(err)
 	}
-	if parsedDuration > MIN_WAIT_TIME-p.minRTTTime {
-		return parsedDuration - p.minRTTTime
+	if parsedDuration > MIN_WAIT_TIME-p.minRTT {
+		return parsedDuration - p.minRTT
 	}
-	return MIN_WAIT_TIME - p.minRTTTime
+	return MIN_WAIT_TIME - p.minRTT
 }
 
 func (p *Player) fullLink(path string) string {
