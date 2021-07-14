@@ -128,6 +128,35 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		}
 	}
 
+	/*
+		Letters frequency in Lithuanian words (without diacrytics)
+		-----------------
+		letter	frequency
+		I	162001
+		A	135308
+		S	117226
+		E	72597
+		T	63720
+		N	62547
+		U	56183
+		K	53220
+		R	50699
+		O	45875
+		L	41797
+		P	31388
+		M	29880
+		D	24531
+		V	24389
+		G	22129
+		Z	16733
+		J	16671
+		B	15099
+		Y	13452
+		C	8500
+		F	2828
+		H	1372
+	*/
+
 	if _, f := remainingLetters["I"]; f {
 		return clickLetter("I")
 	}
