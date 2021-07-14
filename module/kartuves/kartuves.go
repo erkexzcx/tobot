@@ -53,7 +53,6 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 
 	// Check if we have to wait
 	if doc.Find("div:contains('Zaisti galesite po')").Length() > 0 {
-		log.Println("waiting for next game...")
 		waitUntilGame(doc)
 		return obj.Perform(p, settings)
 	}
@@ -109,11 +108,11 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
 			log.Println("Zodis atspetas!")
-			return &module.Result{CanRepeat: true, Error: nil}
+			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
 			log.Println("Jus pakartas!")
-			return &module.Result{CanRepeat: true, Error: nil}
+			return &module.Result{CanRepeat: false, Error: nil}
 		}
 
 		module.DumpHTML(tmpDoc)
