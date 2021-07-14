@@ -2,28 +2,30 @@ name: Kasimas, lydimas, durklo gaminimas, iskastu brangakmeniu apdirbimas ir vis
 tasks:
 
   - _module: kasimas
-    item: O1
+    item: O7
 
   - _module: lydimas
-    item: B1
+    item: B7
 
   - _module: gaminimas_ginklai
-    item: K1
+    item: K12
   - _module: parduotuve
     action: parduoti
-    item: K1
+    item: K12
     amount: 0
 
-  # Apdirbti ir parduoti visus safyrus
+  # Brangakmeniu apdirbimas
   - _module: apdirbimas
-    item: AB1
-  - _module: parduotuve
-    action: parduoti
-    item: AB1
-    amount: 0
+    item: AB4
+  - _module: apdirbimas
+    item: AB5
 
-  # Parduoti neapdirbtus ametistus
+  # Brangakmeniu pardavimas
   - _module: parduotuve
     action: parduoti
-    item: NB2
+    item: AB4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB5
     amount: 0

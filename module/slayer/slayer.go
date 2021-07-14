@@ -134,6 +134,9 @@ var allowedSlayers = map[string]bool{
 	"3": true,
 	"4": true,
 	"5": true,
+	"6": true,
+	"7": true,
+	"8": true,
 }
 
 func (obj *Slayer) Validate(settings map[string]string) error {

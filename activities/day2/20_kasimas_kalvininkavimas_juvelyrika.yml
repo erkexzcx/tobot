@@ -7,7 +7,6 @@ tasks:
   - _module: lydimas
     item: B1
 
-  # Alavo durklas
   - _module: gaminimas_ginklai
     item: K1
   - _module: parduotuve

@@ -1,0 +1,10 @@
+name: Uogavimas ir pardavimas
+tasks:
+
+  - _module: uogavimas
+    item: UO5
+
+  - _module: parduotuve
+    action: parduoti
+    item: UO5
+    amount: 0
