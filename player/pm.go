@@ -95,7 +95,7 @@ var replacer = strings.NewReplacer(
 	"y", "i",
 )
 var reTikrinimas = regexp.MustCompile(`(patikr|tikrin)`)
-var reAtrasyk = regexp.MustCompile(`(rasik)\w*( :|:| )([^\.\,\n]+)`)
+var reAtrasyk = regexp.MustCompile(`(rasik)\w*\W{1,3}([^\.\,\n]+)`)
 
 func generateReply(input string) (string, bool) {
 	input = strings.ToLower(input)
@@ -104,33 +104,12 @@ func generateReply(input string) (string, bool) {
 	matchesTikrinimas := reTikrinimas.MatchString(input)
 	matchesAtrasyk := reAtrasyk.MatchString(input)
 
-	if !matchesTikrinimas && !matchesAtrasyk && strings.HasSuffix(input, "?") {
-		return "nustok klausinet", false
-	}
-
-	if !matchesTikrinimas && !matchesAtrasyk {
-		return "", true
-	}
-
-	if strings.Contains(input, "neatr") || strings.Contains(input, "nerasik") || strings.Contains(input, "neparasik") {
-		return "ka dar sugalvosi?", false
-	}
-
-	if strings.Contains(input, "virksc") || strings.Contains(input, " galo") {
-		return "nesvaik", false
-	}
-
-	if matchesTikrinimas && !matchesAtrasyk {
-		return "?", false
-	}
-
-	if matchesAtrasyk {
+	if matchesTikrinimas && matchesAtrasyk {
 		matched := reAtrasyk.FindStringSubmatch(input)
-		if len(matched) != 4 {
-			return "?", true
+		if len(matched) != 3 {
+			return "", false
 		}
-		return matched[3], false
+		return matched[2], false
 	}
-
-	return "", true
+	return "", false
 }

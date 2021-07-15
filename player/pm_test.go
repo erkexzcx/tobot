@@ -13,10 +13,11 @@ func TestGenerateReply(t *testing.T) {
 		}
 	}
 	testMe("Tikrinu: atrašyk 56", false, "56")
-	testMe("Tikrinu 1925", false, "?")
-	testMe("tykrinu: 124", false, "?")
+	testMe("Tikrinu 1925", false, "")
+	testMe("tykrinu: 124", false, "")
+	testMe("Tikrinu 7464v atrašyk. Kelmas", false, "kelmas")
 	testMe("2 Tikrinu: atrašyk 102", false, "102")
-	testMe("atrasik is kyto galo 102", false, "nesvaik")
-	testMe("atrasyk atvirksciai: labas", false, "nesvaik")
-	testMe("kiek bus 2+2???", false, "nustok klausinet")
+	testMe("atrasik is kyto galo 102", false, "")
+	testMe("atrasyk atvirksciai: labas", false, "")
+	testMe("kiek bus 2+2???", false, "")
 }
