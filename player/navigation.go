@@ -30,6 +30,9 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	if timeToWait < MIN_WAIT_TIME-p.minRTT {
 		timeToWait = MIN_WAIT_TIME - p.minRTT
 	}
+	if p.randomizeWait {
+		timeToWait += time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
+	}
 	time.Sleep(timeToWait)
 
 	// Perform HTTP request and get response
@@ -103,20 +106,6 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 			return p.Navigate(path, action)
 		}
 
-		// Attempt to autoreply
-		replyMsg, ignore := generateReply(m.text)
-
-		if ignore {
-			time.Sleep(8 * time.Second)
-			return p.Navigate(path, action)
-		}
-
-		if replyMsg != "" {
-			time.Sleep(15 * time.Second)
-			p.sendPM(m.from, replyMsg)
-			return p.Navigate(path, action)
-		}
-
 		if m.moderator {
 			p.NotifyTelegram("User '*" + m.from + "' says: " + m.text)
 		} else {
@@ -157,6 +146,9 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	p.timeUntilMux.Lock()
 	timeToWait := time.Until(p.timeUntilNavigation)
 	p.timeUntilMux.Unlock()
+	if p.randomizeWait {
+		timeToWait += time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
+	}
 	time.Sleep(timeToWait)
 
 	// Perform HTTP request and get response

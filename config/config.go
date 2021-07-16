@@ -24,6 +24,9 @@ type Config struct {
 	BecomeOffline      bool   `yaml:"become_offline"`
 	BecomeOfflineEvery string `yaml:"become_offline_every"`
 	BecomeOfflineFor   string `yaml:"become_offline_for"`
+
+	RandomizeWait    bool   `yaml:"randomize_wait"`
+	RandomizeWaitVal string `yaml:"randomize_wait_val"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -76,12 +79,19 @@ func validateConfig(c *Config) error {
 		return errors.New("empty 'telegram_chat_id' field value")
 	}
 
-	if c.BecomeOfflineEvery == "" {
-		return errors.New("empty 'become_offline_every' field value")
+	if c.BecomeOffline {
+		if c.BecomeOfflineEvery == "" {
+			return errors.New("empty 'become_offline_every' field value")
+		}
+		if c.BecomeOfflineFor == "" {
+			return errors.New("empty 'become_offline_for' field value")
+		}
 	}
 
-	if c.BecomeOfflineFor == "" {
-		return errors.New("empty 'become_offline_for' field value")
+	if c.RandomizeWait {
+		if c.RandomizeWaitVal == "" {
+			return errors.New("empty 'randomize_wait_val' field value")
+		}
 	}
 
 	// Value checks //
@@ -94,12 +104,19 @@ func validateConfig(c *Config) error {
 		return errors.New("invalid 'min_rtt_time' field value")
 	}
 
-	if err := checkIntervalInput(c.BecomeOfflineEvery, "become_offline_every"); err != nil {
-		return err
+	if c.BecomeOffline {
+		if err := checkIntervalInput(c.BecomeOfflineEvery, "become_offline_every"); err != nil {
+			return err
+		}
+		if err := checkIntervalInput(c.BecomeOfflineFor, "become_offline_for"); err != nil {
+			return err
+		}
 	}
 
-	if err := checkIntervalInput(c.BecomeOfflineFor, "become_offline_for"); err != nil {
-		return err
+	if c.RandomizeWait {
+		if err := checkIntervalInput(c.RandomizeWaitVal, "randomize_wait_val"); err != nil {
+			return err
+		}
 	}
 
 	return nil

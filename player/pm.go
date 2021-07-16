@@ -81,35 +81,3 @@ func (p *Player) sendPM(to, message string) {
 		return
 	}
 }
-
-var replacer = strings.NewReplacer(
-	"ą", "a",
-	"č", "c",
-	"ę", "e",
-	"ė", "e",
-	"į", "i",
-	"š", "s",
-	"ų", "u",
-	"ū", "u",
-	"ž", "z",
-	"y", "i",
-)
-var reTikrinimas = regexp.MustCompile(`(patikr|tikrin)`)
-var reAtrasyk = regexp.MustCompile(`(rasik)\w*\W{1,3}([^\.\,\n]+)`)
-
-func generateReply(input string) (string, bool) {
-	input = strings.ToLower(input)
-	input = replacer.Replace(input)
-
-	matchesTikrinimas := reTikrinimas.MatchString(input)
-	matchesAtrasyk := reAtrasyk.MatchString(input)
-
-	if matchesTikrinimas && matchesAtrasyk {
-		matched := reAtrasyk.FindStringSubmatch(input)
-		if len(matched) != 3 {
-			return "", false
-		}
-		return matched[2], false
-	}
-	return "", false
-}

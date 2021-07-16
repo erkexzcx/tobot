@@ -72,11 +72,15 @@ func main() {
 
 	becomeOfflineEvery := strings.Split(c.BecomeOfflineEvery, ",")
 	becomeOfflineFor := strings.Split(c.BecomeOfflineFor, ",")
+	randomizeWaitVal := strings.Split(c.RandomizeWaitVal, ",")
 
 	becomeOfflineEveryFrom, _ := time.ParseDuration(becomeOfflineEvery[0])
 	becomeOfflineEveryTo, _ := time.ParseDuration(becomeOfflineEvery[1])
 	becomeOfflineForFrom, _ := time.ParseDuration(becomeOfflineFor[0])
 	becomeOfflineForTo, _ := time.ParseDuration(becomeOfflineFor[1])
+
+	randomizeWaitFrom, _ := time.ParseDuration(randomizeWaitVal[0])
+	randomizeWaitTo, _ := time.ParseDuration(randomizeWaitVal[1])
 
 	ps := &player.PlayerSettings{
 		Nick: c.Nick,
@@ -99,6 +103,11 @@ func main() {
 
 		BecomeOfflineForFrom: becomeOfflineForFrom,
 		BecomeOfflineForTo:   becomeOfflineForTo,
+
+		RandomizeWait: c.RandomizeWait,
+
+		RandomizeWaitFrom: randomizeWaitFrom,
+		RandomizeWaitTo:   randomizeWaitTo,
 	}
 	p := player.NewPlayer(ps)
 
