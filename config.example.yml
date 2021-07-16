@@ -21,4 +21,4 @@ become_offline_for: 30m,2h
 
 # Randomize wait time between clicks
 randomize_wait: true
-randomize_wait_val: 0ms,8000ms
+randomize_wait_val: 0ms,4000ms
