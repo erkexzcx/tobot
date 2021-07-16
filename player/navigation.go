@@ -100,12 +100,6 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 			return p.Navigate(path, action)
 		}
 
-		// Ignore non-moderators
-		if !m.moderator {
-			time.Sleep(5 * time.Second)
-			return p.Navigate(path, action)
-		}
-
 		if m.moderator {
 			p.NotifyTelegram("User '*" + m.from + "' says: " + m.text)
 		} else {

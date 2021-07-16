@@ -14,13 +14,25 @@ Features:
 
 # Usage
 
-1. Create Telegram bot: https://core.telegram.org/bots
+1. Create tob.lt account. **See bottom of this page in order to avoid your other accounts getting banned!**.
+
+Perform these settings in order to ensure smooth experience:
+* `Ijungti/Isjungti leidima siulyti mainus` - disabled
+* `Pranesimas apie barono atvykima` - disabled
+* `Pranesimas apie feja` - disabled
+* `Grafiniu ikonu ir paveiksleliu rodymas` - disabled
+* `Greitasis meniu` - leave only `Antiflood laikrodukas` and hide the rest.
+* `Zaidimo fonas` - disabled
+
+2. Create Telegram bot: https://core.telegram.org/bots
 
 Set below commands for your bot (using BotFather):
 ```
 start - Resume bot
 stop - Pause bot
 ```
+
+**Tip from my experience**: Change Telegram bot's notification sound. In my case it was possible in (official/standard) Telegram app --> settings. Otherwise you will miss it at some point. :)
 
 2. [Install Golang](https://golang.org/doc/install).
 
@@ -61,9 +73,9 @@ go build -ldflags="-s -w" -o tobot ./cmd/tobot/main.go
 
 Telegram bot will notify you about important events (e.g. bot started or you got banned).
 
-Telegram bot will also send you all received new PMs from the players. Reply to the player by simply **replying** to the same Telegram **bot's message**. Note that tob.lt bot **WILL STOP indefinitely** until you reply to the player. If you don't want to reply to the player, then reply to Telegram bot's message with text `/ignore`. Also note that Telegram bot will not send any message to the player that starts with `/`, so it's OK to make a TYPO mistake.
+Telegram bot will also send you all received new PMs from the players. Reply to the player by simply **replying** to the same Telegram **bot's message** (not just sending message to bot). Note that tob.lt bot **WILL STOP indefinitely** until you reply to the player. If you don't want to reply to the player, then reply to Telegram bot's message with text `/ignore`. Also note that Telegram bot will not send any message to the player that starts with `/`, so it's OK to make a TYPO (mistake) that starts with `/`).
 
-6. Create new directory, similar to existing one `activities` (use this dir as an example). Each file represents different activity, format must be `*.yml` and such files will be executed in alphabetical filename order (hence that's the meaning of `10_` in filenames). Once all activities are finished, bot will start from the top again. :)
+6. Create new directory, similar to existing one `activities/*` (use those dirs as an example). Each file represents different activity, format must be `*.yml` and such files will be executed in alphabetical filename order (hence that's the meaning of `10_` in filenames). Once all activities are finished, bot will start from the top again. :)
 
 Full list of modules: https://github.com/erkexzcx/tobot/tree/master/module
 
@@ -75,12 +87,13 @@ _count - (optional) how many times perform the module action.
 
 All other fields are listed in README.md file within each module's directory.
 
-6. Run program
+**Note**: Feel free to use `activities/*` as they are premade templates. E.g. `./tobot -activities activities/day1` works just fine on fresh account (do not forget to look at `activities/day1/reikalavimai.txt`).
+
+7. Run program
 ```
 ./tobot
 ./tobot -config /path/to/config
 ./tobot -config /path/to/config -activities /path/to/activities_dir
-./tobot -help
 ```
 
 # Notes regarding bot usage & tob.lt in overall
@@ -89,4 +102,4 @@ All other fields are listed in README.md file within each module's directory.
   - Moderators would ban you if you level up only one level at a time. Without a warning of course...
   - Moderators would ban you if you level up (all levels) for prolonged period of time. I've got ban & account deleted after non stop clicking for ~28h and daily clicks record was about 14k. xD And no, replying to each message of moderator does not guarantee that you won't be banned. :D
   - All accounts are storing your IPs, so getting your single account removed might remove your other accounts as well.
-  - One moderator approached me with statement that he/she monitored my click intervals and they were identical. `tobot` does not support randomizing wait times between intervals.
+  - One moderator approached me with statement that he/she monitored my click intervals and they were identical. `tobot` does support randomized waiting intervals between clicks. I am not aware if moderators can see if you go offline between actioning (`become_offline` option), but it makes sense to use this config.
