@@ -1,7 +1,5 @@
 # Tobot
 
-# WIP - Work In Progress
-
 Tob.lt bot, written in Go, inspired by Ansible modules and Telegraf plugin designs.
 
 Features:
@@ -84,3 +82,11 @@ All other fields are listed in README.md file within each module's directory.
 ./tobot -config /path/to/config -activities /path/to/activities_dir
 ./tobot -help
 ```
+
+# Notes regarding bot usage & tob.lt in overall
+  - Moderators constantly check via PM if you are human, e.g. "Tikrinu 8512v. atrasyk: Kelmas" or "Tikrinu 9999v kiek bus 5+2?" and something like this. Failure to reply within minutes will result in ban (and likelly account deletion). There is no reliable method to automate replies, even tho I had some success.. :)
+  - Moderators can see your PM, so moving/trading between multiple accounts is not a solution. Not sure about "Siukslynes" - throwing away and picking using other account.
+  - Moderators would ban you if you level up only one level at a time. Without a warning of course...
+  - Moderators would ban you if you level up (all levels) for prolonged period of time. I've got ban & account deleted after non stop clicking for ~28h and daily clicks record was about 14k. xD And no, replying to each message of moderator does not guarantee that you won't be banned. :D
+  - All accounts are storing your IPs, so getting your single account removed might remove your other accounts as well.
+  - One moderator approached me with statement that he/she monitored my click intervals and they were identical. `tobot` does not support randomizing wait times between intervals.
