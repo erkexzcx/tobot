@@ -106,7 +106,8 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
 			log.Println("Zodis atspetas!")
 			newPattern := strings.ReplaceAll(pattern, "_", letter)
-			db.Exec("UPDATE data SET pattern=?, remaining=? WHERE ? LIKE pattern", newPattern, "", newPattern)
+			db.Exec("INSERT OR IGNORE INTO known(word) VALUES(?)", newPattern)
+			db.Exec("DELETE FROM patterns WHERE ? LIKE pattern", pattern)
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
@@ -118,7 +119,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			}
 			remainingLettersString := strings.Join(remainingLettersSlice, "")
 			remainingLettersString = strings.ReplaceAll(remainingLettersString, letter, "")
-			db.Exec("UPDATE data SET pattern=?, remaining=? WHERE ? LIKE pattern", pattern, remainingLettersString, pattern)
+			db.Exec("UPDATE patterns SET pattern=?, remaining=? WHERE ? LIKE pattern", pattern, remainingLettersString, pattern)
 
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
@@ -138,32 +139,34 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		return clickLetter("S")
 	}
 
-	// Find pattern
-	var selectedPattern, selectedRemaining string
-	err = db.QueryRow("SELECT pattern, remaining FROM data WHERE ? LIKE pattern LIMIT 1", pattern).Scan(&selectedPattern, &selectedRemaining)
+	// Attempt to find fully known word
+	var knownWord string
+	err = db.QueryRow("SELECT word FROM known WHERE word LIKE ? LIMIT 1", pattern).Scan(&knownWord)
+	if !errors.Is(err, sql.ErrNoRows) {
+		knownWordSlice := strings.Split(knownWord, "")
+		for _, l := range knownWordSlice {
+			if _, ok := remainingLetters[l]; ok {
+				return clickLetter(l)
+			}
+		}
+	}
 
-	// If no pattern found
+	// Word is unknown, so using patterns technique
+	var selectedPattern, selectedRemaining string
+	err = db.QueryRow("SELECT pattern, remaining FROM patterns WHERE ? LIKE pattern LIMIT 1", pattern).Scan(&selectedPattern, &selectedRemaining)
+
+	// If no pattern was found
 	if errors.Is(err, sql.ErrNoRows) {
 		remainingLettersSlice := make([]string, 0, len(remainingLetters))
 		for l := range remainingLetters {
 			remainingLettersSlice = append(remainingLettersSlice, l)
 		}
 		remainingLettersString := strings.Join(remainingLettersSlice, "")
-		db.Exec("INSERT INTO data(pattern, remaining) values(?, ?)", pattern, remainingLettersString)
+		db.Exec("INSERT INTO patterns(pattern, remaining) values(?, ?)", pattern, remainingLettersString)
 		for k := range remainingLetters {
 			return clickLetter(k)
 		}
 		panic("This should not happen")
-	}
-
-	// If word is fully known (pattern, but without '_' symbols)
-	if selectedRemaining == "" {
-		selectedPatternSlice := strings.Split(selectedPattern, "")
-		for _, l := range selectedPatternSlice {
-			if _, ok := remainingLetters[l]; ok {
-				return clickLetter(l)
-			}
-		}
 	}
 
 	// Default - pattern is found
