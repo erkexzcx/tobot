@@ -22,9 +22,6 @@ var (
 
 var db *sql.DB
 
-const dbQueryFirstMatch = `SELECT word FROM words WHERE word LIKE ? LIMIT 1`
-const dbQueryCount = `SELECT COUNT(word) FROM words WHERE word LIKE ?`
-
 type Kartuves struct{}
 
 func (obj *Kartuves) Validate(settings map[string]string) error {
@@ -108,10 +105,12 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
 			log.Println("Zodis atspetas!")
+			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 1)", strings.ReplaceAll(pattern, "_", letter))
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
 			log.Println("Jus pakartas!")
+			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 0)", pattern)
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 
@@ -119,93 +118,61 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	matchesInDB := matchesInDatabase(pattern)
-	if matchesInDB == 0 {
-		// Click first letter in remaining letters list
+	// Find all results matching required pattern and find the most popular letter in them
+	letters := make(map[string]int, 0)
+	rows, err := db.Query("SELECT word FROM words WHERE word LIKE ?", pattern)
+	if err != nil {
+		return &module.Result{CanRepeat: false, Error: err}
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var word string
+		err = rows.Scan(&word)
+		if err != nil {
+			return &module.Result{CanRepeat: false, Error: err}
+		}
+		word = strings.ToUpper(word)
+		for _, letter := range strings.Split(word, "") {
+			if _, remainingLetterFound := remainingLetters[letter]; remainingLetterFound {
+				if _, found := letters[letter]; found {
+					letters[letter]++
+				} else {
+					letters[letter] = 1
+				}
+			}
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return &module.Result{CanRepeat: false, Error: err}
+	}
+
+	// If no letters were found (e.g. no results from the query), just click on the first one...
+	if len(letters) == 0 {
 		for k := range remainingLetters {
 			return clickLetter(k)
 		}
+		panic("This should not happen")
 	}
 
-	/*
-		Letters frequency in Lithuanian words (without diacrytics)
-		-----------------
-		letter	frequency
-		I	162001
-		A	135308
-		S	117226
-		E	72597
-		T	63720
-		N	62547
-		U	56183
-		K	53220
-		R	50699
-		O	45875
-		L	41797
-		P	31388
-		M	29880
-		D	24531
-		V	24389
-		G	22129
-		Z	16733
-		J	16671
-		B	15099
-		Y	13452
-		C	8500
-		F	2828
-		H	1372
-	*/
-
-	if _, f := remainingLetters["I"]; f {
-		return clickLetter("I")
-	}
-	if _, f := remainingLetters["A"]; f {
+	// S and A letters are the most popular ones, so if it exists - must press it
+	if _, found := letters["A"]; found {
 		return clickLetter("A")
 	}
-	if _, f := remainingLetters["S"]; f {
+	if _, found := letters["S"]; found {
 		return clickLetter("S")
 	}
-	if _, f := remainingLetters["E"]; f {
-		return clickLetter("E")
-	}
-	if _, f := remainingLetters["T"]; f {
-		return clickLetter("T")
-	}
-	if _, f := remainingLetters["N"]; f {
-		return clickLetter("N")
-	}
 
-	firstRes := findFirstMatchInDatabase(pattern)
-	for _, letter := range strings.Split(firstRes, "") {
-		if _, f := remainingLetters[letter]; f {
-			return clickLetter(letter)
+	// Find the most popular letter from the map and click on it
+	var mostPopular string
+	var mostPopularCount int
+	for k, v := range letters {
+		if v > mostPopularCount {
+			mostPopularCount = v
+			mostPopular = k
 		}
 	}
-	// If no letters left in matches
-	for letter := range remainingLetters {
-		return clickLetter(letter)
-	}
-
-	module.DumpHTML(doc)
-	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
-}
-
-func findFirstMatchInDatabase(s string) string {
-	var res string
-	err := db.QueryRow(dbQueryFirstMatch, s).Scan(&res)
-	if err != nil {
-		panic(err)
-	}
-	return res
-}
-
-func matchesInDatabase(s string) int {
-	var count int
-	err := db.QueryRow(dbQueryCount, s).Scan(&count)
-	if err != nil {
-		panic(err)
-	}
-	return count
+	return clickLetter(mostPopular)
 }
 
 func waitUntilGame(doc *goquery.Document) {
@@ -232,7 +199,7 @@ func waitUntilGame(doc *goquery.Document) {
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite3", "file:./kartuves.db")
+	db, err = sql.Open("sqlite3", "file:./kartuves.db?_mutex=full")
 	if err != nil {
 		panic(err)
 	}
