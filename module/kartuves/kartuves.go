@@ -142,8 +142,6 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			}
 		}
 	}
-	log.Println(letters)
-	log.Println(remainingLetters)
 	err = rows.Err()
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
