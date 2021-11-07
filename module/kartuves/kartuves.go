@@ -107,7 +107,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			log.Println("Zodis atspetas!")
 			newPattern := strings.ReplaceAll(pattern, "_", letter)
 			db.Exec("INSERT OR IGNORE INTO known(word) VALUES(?)", newPattern)
-			db.Exec("DELETE FROM patterns WHERE ? LIKE pattern", pattern)
+			db.Exec("DELETE FROM patterns WHERE ? LIKE pattern", newPattern)
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
@@ -138,6 +138,9 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 	if _, found := remainingLetters["S"]; found {
 		return clickLetter("S")
 	}
+	if _, found := remainingLetters["E"]; found {
+		return clickLetter("E")
+	}
 
 	// Attempt to find fully known word
 	var knownWord string
@@ -151,9 +154,14 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		}
 	}
 
-	// Word is unknown, so using patterns technique
+	// Because successfully/unsuccessfully guessed letters do not update patterns,
+	// it has to be done manually. Current pattern might be more up to date than the current one, so
+	// update accordingly.
+	db.Exec("UPDATE patterns SET pattern=? WHERE ? LIKE pattern", pattern, pattern)
+
+	// Find pattern
 	var selectedPattern, selectedRemaining string
-	err = db.QueryRow("SELECT pattern, remaining FROM patterns WHERE ? LIKE pattern LIMIT 1", pattern).Scan(&selectedPattern, &selectedRemaining)
+	err = db.QueryRow("SELECT pattern, remaining FROM patterns WHERE pattern LIKE ? LIMIT 1", pattern).Scan(&selectedPattern, &selectedRemaining)
 
 	// If no pattern was found
 	if errors.Is(err, sql.ErrNoRows) {
