@@ -148,9 +148,11 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 
 	// If no letters were found (e.g. no results from the query), just click on the first one...
 	if len(letters) == 0 {
+		log.Printf("No query results found...")
 		for k := range remainingLetters {
 			return clickLetter(k)
 		}
+		panic("This should not happen")
 	}
 
 	// Find the most popular letter from the map and click on it
@@ -162,6 +164,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			mostPopular = k
 		}
 	}
+	log.Printf("clicking on most popular letter '%s' (occurances=%d)\n", mostPopular, mostPopularCount)
 	return clickLetter(mostPopular)
 }
 
