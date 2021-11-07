@@ -131,6 +131,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		if err != nil {
 			return &module.Result{CanRepeat: false, Error: err}
 		}
+		word = strings.ToUpper(word)
 		for _, letter := range strings.Split(word, "") {
 			if _, remainingLetterFound := remainingLetters[letter]; remainingLetterFound {
 				if _, found := letters[letter]; found {
