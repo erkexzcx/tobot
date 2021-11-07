@@ -132,13 +132,17 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			return &module.Result{CanRepeat: false, Error: err}
 		}
 		word = strings.ToUpper(word)
+		wordLetters := make(map[string]struct{}, len(word))
 		for _, letter := range strings.Split(word, "") {
 			if _, remainingLetterFound := remainingLetters[letter]; remainingLetterFound {
-				if _, found := letters[letter]; found {
-					letters[letter]++
-				} else {
-					letters[letter] = 1
-				}
+				wordLetters[letter] = struct{}{}
+			}
+		}
+		for letter := range wordLetters {
+			if _, found := wordLetters[letter]; found {
+				letters[letter]++
+			} else {
+				letters[letter] = 1
 			}
 		}
 	}
@@ -155,7 +159,10 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		panic("This should not happen")
 	}
 
-	// S and A letters are the most popular ones, so if it exists - must press it
+	// I, A and S letters are the most popular ones, so if it exists - must press it
+	if _, found := letters["I"]; found {
+		return clickLetter("I")
+	}
 	if _, found := letters["A"]; found {
 		return clickLetter("A")
 	}
