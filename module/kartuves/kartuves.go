@@ -155,6 +155,14 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		panic("This should not happen")
 	}
 
+	// S and A letters are the most popular ones, so if it exists - must press it
+	if _, found := letters["A"]; found {
+		return clickLetter("A")
+	}
+	if _, found := letters["S"]; found {
+		return clickLetter("S")
+	}
+
 	// Find the most popular letter from the map and click on it
 	var mostPopular string
 	var mostPopularCount int
