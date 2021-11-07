@@ -108,10 +108,12 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
 			log.Println("Zodis atspetas!")
+			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 1)", pattern)
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
 			log.Println("Jus pakartas!")
+			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 0)", pattern)
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 
@@ -232,7 +234,7 @@ func waitUntilGame(doc *goquery.Document) {
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite3", "file:./kartuves.db")
+	db, err = sql.Open("sqlite3", "file:./kartuves.db?_mutex=full")
 	if err != nil {
 		panic(err)
 	}
