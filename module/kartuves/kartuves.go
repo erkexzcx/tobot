@@ -108,7 +108,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
 			log.Println("Zodis atspetas!")
-			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 1)", pattern)
+			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 1)", strings.ReplaceAll(pattern, "_", letter))
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
