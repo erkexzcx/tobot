@@ -156,6 +156,26 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		panic("This should not happen")
 	}
 
+	// If word is fully known (pattern, but without '_' symbols)
+	if selectedRemaining == "" {
+		selectedPatternSlice := strings.Split(selectedPattern, "")
+		for _, l := range selectedPatternSlice {
+			if _, ok := remainingLetters[l]; ok {
+				return clickLetter(l)
+			}
+		}
+	}
+
+	// Default - pattern is found
+	selectedPatternSlice := strings.Split(selectedPattern, "")
+	for _, l := range selectedPatternSlice {
+		if l == "_" {
+			continue
+		}
+		if _, ok := remainingLetters[l]; ok {
+			return clickLetter(l)
+		}
+	}
 	selectedRemainingSlice := strings.Split(selectedRemaining, "")
 	for _, srLetter := range selectedRemainingSlice {
 		if _, ok := remainingLetters[srLetter]; ok {
