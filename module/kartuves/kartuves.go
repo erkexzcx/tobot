@@ -140,7 +140,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 
 	// Find pattern
 	var selectedPattern, selectedRemaining string
-	err = db.QueryRow("SELECT pattern, remaining FROM data WHERE pattern LIKE ? LIMIT 1", pattern).Scan(&selectedPattern, &selectedRemaining)
+	err = db.QueryRow("SELECT pattern, remaining FROM data WHERE ? LIKE pattern LIMIT 1", pattern).Scan(&selectedPattern, &selectedRemaining)
 
 	// If no pattern found
 	if errors.Is(err, sql.ErrNoRows) {
