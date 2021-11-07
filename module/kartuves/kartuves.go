@@ -149,7 +149,6 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 
 	// If no letters were found (e.g. no results from the query), just click on the first one...
 	if len(letters) == 0 {
-		log.Printf("No query results found for pattern '%s'...\n", pattern)
 		for k := range remainingLetters {
 			return clickLetter(k)
 		}
@@ -165,7 +164,6 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			mostPopular = k
 		}
 	}
-	log.Printf("clicking on most popular letter '%s' (occurances=%d) for pattern '%s'...\n", mostPopular, mostPopularCount, pattern)
 	return clickLetter(mostPopular)
 }
 
