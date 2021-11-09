@@ -105,12 +105,22 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
 			log.Println("Zodis atspetas!")
-			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 1)", strings.ReplaceAll(pattern, "_", letter))
+			newPattern := strings.ReplaceAll(pattern, "_", letter)
+			db.Exec("INSERT OR IGNORE INTO known(word) VALUES(?)", newPattern)
+			db.Exec("DELETE FROM patterns WHERE ? LIKE pattern", newPattern)
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
 			log.Println("Jus pakartas!")
-			db.Exec("INSERT OR IGNORE INTO tried(word, ok) values(?, 0)", pattern)
+
+			remainingLettersSlice := make([]string, 0, len(remainingLetters))
+			for l := range remainingLetters {
+				remainingLettersSlice = append(remainingLettersSlice, l)
+			}
+			remainingLettersString := strings.Join(remainingLettersSlice, "")
+			remainingLettersString = strings.ReplaceAll(remainingLettersString, letter, "")
+			db.Exec("UPDATE patterns SET pattern=?, remaining=? WHERE ? LIKE pattern", pattern, remainingLettersString, pattern)
+
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 
@@ -118,68 +128,77 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// Find all results matching required pattern and find the most popular letter in them
-	letters := make(map[string]int, 0)
-	rows, err := db.Query("SELECT word FROM words WHERE word LIKE ?", pattern)
-	if err != nil {
-		return &module.Result{CanRepeat: false, Error: err}
+	// I, A and S letters are the most popular ones, so if it exists - must press it
+	if _, found := remainingLetters["I"]; found {
+		return clickLetter("I")
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var word string
-		err = rows.Scan(&word)
-		if err != nil {
-			return &module.Result{CanRepeat: false, Error: err}
-		}
-		word = strings.ToUpper(word)
-		wordLetters := make(map[string]struct{}, len(word))
-		for _, letter := range strings.Split(word, "") {
-			if _, remainingLetterFound := remainingLetters[letter]; remainingLetterFound {
-				wordLetters[letter] = struct{}{}
-			}
-		}
-		for letter := range wordLetters {
-			if _, found := wordLetters[letter]; found {
-				letters[letter]++
-			} else {
-				letters[letter] = 1
-			}
-		}
+	if _, found := remainingLetters["A"]; found {
+		return clickLetter("A")
 	}
-	err = rows.Err()
-	if err != nil {
-		return &module.Result{CanRepeat: false, Error: err}
+	if _, found := remainingLetters["S"]; found {
+		return clickLetter("S")
+	}
+	if _, found := remainingLetters["E"]; found {
+		return clickLetter("E")
 	}
 
-	// If no letters were found (e.g. no results from the query), just click on the first one...
-	if len(letters) == 0 {
+	// Attempt to find fully known word
+	var knownWord string
+	err = db.QueryRow("SELECT word FROM known WHERE word LIKE ? LIMIT 1", pattern).Scan(&knownWord)
+	if !errors.Is(err, sql.ErrNoRows) {
+		knownWordSlice := strings.Split(knownWord, "")
+		for _, l := range knownWordSlice {
+			if _, ok := remainingLetters[l]; ok {
+				return clickLetter(l)
+			}
+		}
+	}
+
+	// Because successfully/unsuccessfully guessed letters do not update patterns,
+	// it has to be done manually. Current pattern might be more up to date than the current one, so
+	// update accordingly.
+	db.Exec("UPDATE patterns SET pattern=? WHERE ? LIKE pattern", pattern, pattern)
+
+	// Find pattern
+	var selectedPattern, selectedRemaining string
+	err = db.QueryRow("SELECT pattern, remaining FROM patterns WHERE pattern LIKE ? LIMIT 1", pattern).Scan(&selectedPattern, &selectedRemaining)
+
+	// If no pattern was found
+	if errors.Is(err, sql.ErrNoRows) {
+		remainingLettersSlice := make([]string, 0, len(remainingLetters))
+		for l := range remainingLetters {
+			remainingLettersSlice = append(remainingLettersSlice, l)
+		}
+		remainingLettersString := strings.Join(remainingLettersSlice, "")
+		db.Exec("INSERT INTO patterns(pattern, remaining) values(?, ?)", pattern, remainingLettersString)
 		for k := range remainingLetters {
 			return clickLetter(k)
 		}
 		panic("This should not happen")
 	}
 
-	// I, A and S letters are the most popular ones, so if it exists - must press it
-	if _, found := letters["I"]; found {
-		return clickLetter("I")
-	}
-	if _, found := letters["A"]; found {
-		return clickLetter("A")
-	}
-	if _, found := letters["S"]; found {
-		return clickLetter("S")
-	}
-
-	// Find the most popular letter from the map and click on it
-	var mostPopular string
-	var mostPopularCount int
-	for k, v := range letters {
-		if v > mostPopularCount {
-			mostPopularCount = v
-			mostPopular = k
+	// Default - pattern is found
+	selectedPatternSlice := strings.Split(selectedPattern, "")
+	for _, l := range selectedPatternSlice {
+		if l == "_" {
+			continue
+		}
+		if _, ok := remainingLetters[l]; ok {
+			return clickLetter(l)
 		}
 	}
-	return clickLetter(mostPopular)
+	selectedRemainingSlice := strings.Split(selectedRemaining, "")
+	for _, srLetter := range selectedRemainingSlice {
+		if _, ok := remainingLetters[srLetter]; ok {
+			return clickLetter(srLetter)
+		}
+	}
+
+	// Should not reach this, but click on any letter anyway...
+	for k := range remainingLetters {
+		return clickLetter(k)
+	}
+	return nil
 }
 
 func waitUntilGame(doc *goquery.Document) {
