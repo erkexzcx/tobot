@@ -96,10 +96,57 @@ All other fields are listed in README.md file within each module's directory.
 ./tobot -config /path/to/config -activities /path/to/activities_dir
 ```
 
-# Notes regarding bot usage & tob.lt in overall
+# Notes/Tips regarding tob.lt and this bot
   - Moderators constantly check via PM if you are human, e.g. "Tikrinu 8512v. atrasyk: Kelmas" or "Tikrinu 9999v kiek bus 5+2?" and something like this. Failure to reply within minutes will result in ban (and likelly account deletion). There is no reliable method to automate replies, even tho I had some success.. :)
   - Moderators can see your PM, so moving/trading between multiple accounts is not a solution. Not sure about "Siukslynes" - throwing away and picking using other account.
   - Moderators would ban you if you level up only one level at a time. Without a warning of course...
   - Moderators would ban you if you level up (all levels) for prolonged period of time. I've got ban & account deleted after non stop clicking for ~28h and daily clicks record was about 14k. xD And no, replying to each message of moderator does not guarantee that you won't be banned. :D
   - All accounts are storing your IPs, so getting your single account removed might remove your other accounts as well.
   - One moderator approached me with statement that he/she monitored my click intervals and they were identical. `tobot` does support randomized waiting intervals between clicks. I am not aware if moderators can see if you go offline between actioning (`become_offline` option), but it makes sense to use this config.
+
+# Tips on running 24/7 (sort of)
+
+Start by using below configuration fragment (yes, `become_offline` is `false`, only randomize click intervals):
+```
+# Constantly go offline in order to not stay online 24/7
+become_offline: false
+become_offline_every: 30m,90m
+become_offline_for: 15m,30m
+
+# Randomize wait time between clicks
+randomize_wait: true
+randomize_wait_val: 0ms,4000ms
+```
+
+Then Setup SystemD service `/etc/systemd/system/tobot.service` as per example below:
+```
+[Unit]
+Description=tobot service
+After=network-online.target
+
+[Service]
+User=erikas
+Group=erikas
+WorkingDirectory=/home/erikas/tobot
+ExecStart=/home/erikas/tobot/tobot -config config.yml -activities activities/kartuves
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then enable/start it:
+```
+systemctl daemon-reload
+systemctl enable --now tobot.service
+```
+
+Lastly, setup cronjob to start & stop this bot at 9AM and stop at 9PM:
+```
+# tob.lt bot
+0 7 * * * systemctl start tobot.service
+0 19 * * * systemctl stop tobot.service
+```
+
+By using above setup, bot does around ~5200 (+-300) clicks per day, which is around 5-8 place of the top clickers per day. By not being #1, moderators do not spam you whether you are human, so this is fairly safe amount of clicks per day. :)
