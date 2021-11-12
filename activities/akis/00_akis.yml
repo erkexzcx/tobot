@@ -1,0 +1,3 @@
+name: Akis
+tasks:
+  - _module: akis
