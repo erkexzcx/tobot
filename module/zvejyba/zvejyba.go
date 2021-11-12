@@ -13,15 +13,32 @@ type Zvejyba struct{}
 
 var allowedSettings = map[string][]string{
 	"item": {
+		// Upe
 		"sliekas",
 		"tesla",
 		"karos",
 		"zui",
+
+		// Jura
 		"el",
 		"tink",
 		"zeb",
 		"biz",
 	},
+}
+
+var itemRoot = map[string]string{
+	// Upe
+	"sliekas": "/zvejoti.php?{{ creds }}",
+	"tesla":   "/zvejoti.php?{{ creds }}",
+	"karos":   "/zvejoti.php?{{ creds }}",
+	"zui":     "/zvejoti.php?{{ creds }}",
+
+	// Jura
+	"el":   "/zvejoti.php?{{ creds }}&id=jura",
+	"tink": "/zvejoti.php?{{ creds }}&id=jura",
+	"zeb":  "/zvejoti.php?{{ creds }}&id=jura",
+	"biz":  "/zvejoti.php?{{ creds }}&id=jura",
 }
 
 func (obj *Zvejyba) Validate(settings map[string]string) error {
@@ -61,7 +78,7 @@ func (obj *Zvejyba) Validate(settings map[string]string) error {
 }
 
 func (obj *Zvejyba) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/zvejoti.php?{{ creds }}"
+	path := itemRoot[settings["item"]]
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
