@@ -17,6 +17,10 @@ var allowedSettings = map[string][]string{
 		"tesla",
 		"karos",
 		"zui",
+		"el",
+		"tink",
+		"zeb",
+		"biz",
 	},
 }
 
