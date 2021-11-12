@@ -29,7 +29,7 @@ func (obj *Akis) Perform(p *player.Player, settings map[string]string) *module.R
 
 	for {
 		// Antiflood protection
-		time.Sleep(time.Second)
+		time.Sleep(1500 * time.Millisecond)
 
 		params := url.Values{}
 		params.Add("nr", fmt.Sprint(currentCoins))
