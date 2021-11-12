@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"strings"
+	"time"
 	"tobot/module"
 	"tobot/player"
 )
@@ -27,6 +28,9 @@ func (obj *Akis) Perform(p *player.Player, settings map[string]string) *module.R
 	pathSubmit := "/kazino.php?{{ creds }}&id=akis2"
 
 	for {
+		// Antiflood protection
+		time.Sleep(time.Second)
+
 		params := url.Values{}
 		params.Add("nr", fmt.Sprint(currentCoins))
 		params.Add("null", "Losti")
