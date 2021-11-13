@@ -149,11 +149,13 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			return clickLetter("E")
 		}
 	}
-
-	// Attempt to find fully known word
-	var knownWord string
-	err = db.QueryRow("SELECT word FROM known WHERE word LIKE ? LIMIT 1", pattern).Scan(&knownWord)
-	if !errors.Is(err, sql.ErrNoRows) {
+	if count >= 1 {
+		// Word is known, so let's try to guess it
+		var knownWord string
+		err = db.QueryRow("SELECT word FROM known WHERE word LIKE ? LIMIT 1", pattern).Scan(&knownWord)
+		if err != nil {
+			return &module.Result{CanRepeat: false, Error: err}
+		}
 		knownWordSlice := strings.Split(knownWord, "")
 		for _, l := range knownWordSlice {
 			if _, ok := remainingLetters[l]; ok {
