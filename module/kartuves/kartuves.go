@@ -50,7 +50,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 
 	// Check if we have to wait
 	if doc.Find("div:contains('Zaisti galesite po')").Length() > 0 {
-		waitUntilGame(doc)
+		waitUntilGame(doc, p)
 		return obj.Perform(p, settings)
 	}
 
@@ -211,7 +211,9 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 	return nil
 }
 
-func waitUntilGame(doc *goquery.Document) {
+func waitUntilGame(doc *goquery.Document, p *player.Player) {
+	timeNow := time.Now()
+
 	html, err := doc.Html()
 	if err != nil {
 		log.Println(err)
@@ -229,8 +231,11 @@ func waitUntilGame(doc *goquery.Document) {
 		log.Println(err)
 		return
 	}
+	waitUntil := timeNow.Add(d + 500*time.Millisecond)
 
-	time.Sleep(d + (time.Second / 2))
+	// Go to start page so it does not look that suspicious
+	p.Navigate("/zaisti.php?{{ creds }}", false)
+	time.Sleep(waitUntil.Sub(time.Now()))
 }
 
 func init() {
