@@ -136,11 +136,11 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 	}
 	if count > 1 {
 		// I, A and S letters are the most popular ones, so if it exists - must press it
-		if _, found := remainingLetters["I"]; found {
-			return clickLetter("I")
-		}
 		if _, found := remainingLetters["A"]; found {
 			return clickLetter("A")
+		}
+		if _, found := remainingLetters["I"]; found {
+			return clickLetter("I")
 		}
 		if _, found := remainingLetters["S"]; found {
 			return clickLetter("S")
