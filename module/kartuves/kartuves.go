@@ -111,7 +111,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
-			log.Println("Jus pakartas!")
+			log.Printf("Jus pakartas (%s)!\n", pattern)
 
 			remainingLettersSlice := make([]string, 0, len(remainingLetters))
 			for l := range remainingLetters {
