@@ -2,7 +2,6 @@ package all
 
 import (
 	//Blank imports for modules to register themselves
-	_ "tobot/module/akis"
 	_ "tobot/module/apdirbimas"
 	_ "tobot/module/gaminimas_amatu_potion"
 	_ "tobot/module/gaminimas_ginklai"
