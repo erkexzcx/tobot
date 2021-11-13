@@ -24,7 +24,7 @@ func (obj *Akis) Validate(settings map[string]string) error {
 }
 
 func (obj *Akis) Perform(p *player.Player, settings map[string]string) *module.Result {
-	currentCoins := 10
+	currentCoins := 20
 	pathSubmit := "/kazino.php?{{ creds }}&id=akis2"
 
 	for {
