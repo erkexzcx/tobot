@@ -128,18 +128,26 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// I, A and S letters are the most popular ones, so if it exists - must press it
-	if _, found := remainingLetters["I"]; found {
-		return clickLetter("I")
+	// Guess the most popular letters if more than 1 result is found
+	var count int
+	err = db.QueryRow("SELECT COUNT(word) AS count FROM known WHERE word LIKE ?", pattern).Scan(&count)
+	if err != nil {
+		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if _, found := remainingLetters["A"]; found {
-		return clickLetter("A")
-	}
-	if _, found := remainingLetters["S"]; found {
-		return clickLetter("S")
-	}
-	if _, found := remainingLetters["E"]; found {
-		return clickLetter("E")
+	if count > 1 {
+		// I, A and S letters are the most popular ones, so if it exists - must press it
+		if _, found := remainingLetters["I"]; found {
+			return clickLetter("I")
+		}
+		if _, found := remainingLetters["A"]; found {
+			return clickLetter("A")
+		}
+		if _, found := remainingLetters["S"]; found {
+			return clickLetter("S")
+		}
+		if _, found := remainingLetters["E"]; found {
+			return clickLetter("E")
+		}
 	}
 
 	// Attempt to find fully known word
