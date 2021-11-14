@@ -134,34 +134,49 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if count > 1 {
-		// I, A and S letters are the most popular ones, so if it exists - must press it
-		if _, found := remainingLetters["A"]; found {
-			return clickLetter("A")
-		}
-		if _, found := remainingLetters["I"]; found {
-			return clickLetter("I")
-		}
-		if _, found := remainingLetters["S"]; found {
-			return clickLetter("S")
-		}
-		if _, found := remainingLetters["E"]; found {
-			return clickLetter("E")
-		}
-	}
 	if count >= 1 {
-		// Word is known, so let's try to guess it
-		var knownWord string
-		err = db.QueryRow("SELECT word FROM known WHERE word LIKE ? LIMIT 1", pattern).Scan(&knownWord)
+		// Find the most popular letter
+		letters := make(map[string]int)
+		rows, err := db.Query("SELECT word FROM known WHERE word LIKE ?", pattern)
 		if err != nil {
-			return &module.Result{CanRepeat: false, Error: err}
+			log.Fatalln(err)
 		}
-		knownWordSlice := strings.Split(knownWord, "")
-		for _, l := range knownWordSlice {
-			if _, ok := remainingLetters[l]; ok {
-				return clickLetter(l)
+		defer rows.Close()
+		for rows.Next() {
+			var word string
+			err = rows.Scan(&word)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			tmpLetters := make(map[string]struct{})
+			for _, letter := range strings.Split(word, "") {
+				if _, found := remainingLetters[letter]; found {
+					tmpLetters[letter] = struct{}{}
+				}
+			}
+			for k := range tmpLetters {
+				letters[k] = letters[k] + 1
 			}
 		}
+		err = rows.Err()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		var mostPopularLetter string
+		var mostPopularLetterCount int
+		for k, v := range letters {
+			if v > mostPopularLetterCount {
+				mostPopularLetter = k
+				mostPopularLetterCount = v
+			}
+		}
+
+		if mostPopularLetter == "" {
+			panic("fix me #kartuves-asdf")
+		}
+
+		return clickLetter(mostPopularLetter)
 	}
 
 	// Because successfully/unsuccessfully guessed letters do not update patterns,
