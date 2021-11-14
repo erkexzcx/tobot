@@ -128,14 +128,14 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// Guess the most popular letters if more than 1 result is found
+	// If results found in table "known" matching given pattern, find the most popular letter
+	// within matching words. This also works if only 1 result is found.
 	var count int
 	err = db.QueryRow("SELECT COUNT(word) AS count FROM known WHERE word LIKE ?", pattern).Scan(&count)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 	if count >= 1 {
-		// Find the most popular letter
 		letters := make(map[string]int)
 		rows, err := db.Query("SELECT word FROM known WHERE word LIKE ?", pattern)
 		if err != nil {
