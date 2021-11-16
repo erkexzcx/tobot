@@ -246,11 +246,15 @@ func waitUntilGame(doc *goquery.Document, p *player.Player) {
 		log.Println(err)
 		return
 	}
-	waitUntil := timeNow.Add(d + 500*time.Millisecond)
+	waitUntil := timeNow.Add(d + time.Second)
 
-	// Go to start page so it does not look that suspicious
-	p.Navigate("/zaisti.php?{{ creds }}", false)
-	time.Sleep(waitUntil.Sub(time.Now()))
+	for {
+		// Keep refreshing in order to find more magic lamps
+		p.Navigate("/zaisti.php?{{ creds }}", false)
+		if time.Now().After(waitUntil) {
+			break
+		}
+	}
 }
 
 func init() {

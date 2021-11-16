@@ -99,10 +99,25 @@ var enemyToPageMap = map[string]string{
 	"68": "7",
 
 	// Ugnies žemė
-	// TODO
+	"69": "8",
+	"70": "8",
+	"71": "8",
+	"72": "8",
+	"73": "8",
+	"74": "8",
+	"75": "8",
 
 	// Sniegynas
-	// TODO
+	"76": "9",
+	"77": "9",
+	"78": "9",
+	"79": "9",
+	"80": "9",
+	"81": "9",
+	"82": "9",
+	"83": "9",
+	"84": "9",
+	"85": "9",
 
 	// Mirties sala
 	"86":  "10",
@@ -128,15 +143,22 @@ var enemyToPageMap = map[string]string{
 	"106": "10",
 }
 
-var allowedSlayers = map[string]bool{
-	"1": true,
-	"2": true,
-	"3": true,
-	"4": true,
-	"5": true,
-	"6": true,
-	"7": true,
-	"8": true,
+var allowedSlayers = map[string]struct{}{
+	"1":  {},
+	"2":  {},
+	"3":  {},
+	"4":  {},
+	"5":  {},
+	"6":  {},
+	"7":  {},
+	"8":  {},
+	"9":  {},
+	"10": {},
+	"11": {},
+	"12": {},
+	"13": {},
+	"14": {},
+	"15": {},
 }
 
 func (obj *Slayer) Validate(settings map[string]string) error {
