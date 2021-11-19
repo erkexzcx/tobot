@@ -3,18 +3,17 @@ package player
 import (
 	"sync"
 	"time"
-
-	tb "gopkg.in/tucnak/telebot.v2"
+	"tobot"
 )
 
 type PlayerSettings struct {
 	Nick string
 	Pass string
 
-	MinRTT time.Duration
+	ToTelegram   chan string
+	FromTelegram chan string
 
-	TelegramBot  *tb.Bot
-	TelegramChat *tb.Chat
+	MinRTT time.Duration
 
 	RootLink        string
 	HeaderUserAgent string
@@ -29,6 +28,8 @@ type PlayerSettings struct {
 	RandomizeWait     bool
 	RandomizeWaitFrom time.Duration
 	RandomizeWaitTo   time.Duration
+
+	Activities []*tobot.Activity
 }
 
 func NewPlayer(ps *PlayerSettings) *Player {
@@ -36,16 +37,14 @@ func NewPlayer(ps *PlayerSettings) *Player {
 		nick: ps.Nick,
 		pass: ps.Pass,
 
-		minRTT: ps.MinRTT,
+		toTelegram:   ps.ToTelegram,
+		fromTelegram: ps.FromTelegram,
 
-		telegramBot:  ps.TelegramBot,
-		telegramChat: ps.TelegramChat,
+		minRTT: ps.MinRTT,
 
 		rootLink:        ps.RootLink,
 		headerUserAgent: ps.HeaderUserAgent,
 		headerHost:      ps.HeaderHost,
-
-		becomeOffline: ps.BecomeOffline,
 
 		becomeOfflineEveryFrom: ps.BecomeOfflineEveryFrom,
 		becomeOfflineEveryTo:   ps.BecomeOfflineEveryTo,
@@ -53,21 +52,14 @@ func NewPlayer(ps *PlayerSettings) *Player {
 		becomeOfflineForFrom: ps.BecomeOfflineForFrom,
 		becomeOfflineForTo:   ps.BecomeOfflineForTo,
 
-		randomizeWait: ps.RandomizeWait,
-
 		randomizeWaitFrom: ps.RandomizeWaitFrom,
 		randomizeWaitTo:   ps.RandomizeWaitTo,
 	}
-
-	p.waitingPM = false
-	p.waitingPMMux = sync.Mutex{}
 
 	p.timeUntilMux = sync.Mutex{}
 
 	// Update offline times
 	p.manageBecomeOffline()
-
-	p.initTelegram()
 
 	p.NotifyTelegramSilent("Started!")
 
@@ -78,24 +70,20 @@ type Player struct {
 	nick string
 	pass string
 
-	minRTT time.Duration
+	toTelegram   chan string
+	fromTelegram chan string
 
-	telegramBot  *tb.Bot
-	telegramChat *tb.Chat
+	minRTT time.Duration
 
 	rootLink        string
 	headerUserAgent string
 	headerHost      string
-
-	becomeOffline bool
 
 	becomeOfflineEveryFrom time.Duration
 	becomeOfflineEveryTo   time.Duration
 
 	becomeOfflineForFrom time.Duration
 	becomeOfflineForTo   time.Duration
-
-	randomizeWait bool
 
 	randomizeWaitFrom time.Duration
 	randomizeWaitTo   time.Duration

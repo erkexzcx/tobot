@@ -6,7 +6,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"tobot/config"
 	"tobot/module"
 	"tobot/player"
 )
@@ -16,21 +15,21 @@ type Activity struct {
 	Tasks []map[string]string `yaml:"tasks"`
 }
 
-func Start(p *player.Player, c *config.Config, a []*Activity) {
+func Start(p *player.Player) {
 	// Validate activities
-	for _, a := range a {
-		validateActivity(c, a)
+	for _, a := range p.A {
+		validateActivity(a)
 	}
 
 	// Run activities in a loop
 	for {
-		for _, aa := range a {
-			runActivity(p, c, aa)
+		for _, aa := range p.activities {
+			runActivity(p, aa)
 		}
 	}
 }
 
-func validateActivity(c *config.Config, a *Activity) {
+func validateActivity(a *Activity) {
 	for _, task := range a.Tasks {
 		count, found := task["_count"]
 		if found {
@@ -56,7 +55,7 @@ func validateActivity(c *config.Config, a *Activity) {
 	}
 }
 
-func runActivity(p *player.Player, c *config.Config, a *Activity) {
+func runActivity(p *player.Player, a *Activity) {
 	log.Print("Started '" + a.Name + "'")
 
 	for _, task := range a.Tasks {

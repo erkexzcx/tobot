@@ -88,7 +88,7 @@ func validateConfig(c *Config) error {
 	}
 
 	if c.Settings.BecomeOffline != nil {
-		val, err := strconv.ParseBool(p.Settings.BecomeOffline)
+		val, err := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
 		if c.Settings.BecomeOffline.Enabled != "" && err == nil && val {
 			if c.Settings.BecomeOffline.Every == "" {
 				return errors.New("empty 'settings->become_offline->every' field value")
@@ -100,12 +100,16 @@ func validateConfig(c *Config) error {
 	}
 
 	if c.Settings.RandomizeWait != nil {
-		val, err := strconv.ParseBool(p.Settings.RandomizeWait)
+		val, err := strconv.ParseBool(c.Settings.RandomizeWait.Enabled)
 		if c.Settings.RandomizeWait.Enabled != "" && err == nil && val {
 			if c.Settings.RandomizeWait.WaitVal == "" {
 				return errors.New("empty 'settings->randomize_wait->wait_val' field value")
 			}
 		}
+	}
+
+	if len(c.Players) == 0 {
+		return errors.New("no players specified")
 	}
 
 	for _, p := range c.Players {
