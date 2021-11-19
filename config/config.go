@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"io/ioutil"
+	"strconv"
 	"strings"
 	"time"
 
@@ -10,23 +11,38 @@ import (
 )
 
 type Config struct {
-	RootAddress string `yaml:"root_address"`
-	UserAgent   string `yaml:"user_agent"`
+	RootAddress string        `yaml:"root_address"`
+	MinRTT      time.Duration `yaml:"min_rtt"`
+	Telegram    struct {
+		ApiKey string `yaml:"api_key"`
+		ChatId int64  `yaml:"chat_id"`
+	} `yaml:"telegram"`
+	Settings Settings  `yaml:"settings"`
+	Players  []*Player `yaml:"players"`
+}
 
-	MinRTT time.Duration `yaml:"min_rtt"`
+type Player struct {
+	Nick          string    `yaml:"nick"`
+	Pass          string    `yaml:"pass"`
+	ActivitiesDir string    `yaml:"activities_dir"`
+	Settings      *Settings `yaml:"settings"`
+}
 
-	Nick string `yaml:"nick"`
-	Pass string `yaml:"pass"`
+type Settings struct {
+	UserAgent     string         `yaml:"user_agent"`
+	BecomeOffline *BecomeOffline `yaml:"become_offline"`
+	RandomizeWait *RandomizeWait `yaml:"randomize_wait"`
+}
 
-	TelegramApiKey string `yaml:"telegram_api_key"`
-	TelegramChatId int64  `yaml:"telegram_chat_id"`
+type BecomeOffline struct {
+	Enabled string `yaml:"enabled"`
+	Every   string `yaml:"every"`
+	For     string `yaml:"for"`
+}
 
-	BecomeOffline      bool   `yaml:"become_offline"`
-	BecomeOfflineEvery string `yaml:"become_offline_every"`
-	BecomeOfflineFor   string `yaml:"become_offline_for"`
-
-	RandomizeWait    bool   `yaml:"randomize_wait"`
-	RandomizeWaitVal string `yaml:"randomize_wait_val"`
+type RandomizeWait struct {
+	Enabled string `yaml:"enabled"`
+	WaitVal string `yaml:"wait_val"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -55,42 +71,52 @@ func validateConfig(c *Config) error {
 		return errors.New("empty 'root_address' field value")
 	}
 
-	if c.UserAgent == "" {
-		return errors.New("empty 'user_agent' field value")
-	}
-
-	if c.Nick == "" {
-		return errors.New("empty 'nick' field value")
-	}
-
-	if c.Pass == "" {
-		return errors.New("empty 'pass' field value")
-	}
-
 	if c.MinRTT == 0 {
-		return errors.New("empty 'min_rtt_time' field value")
+		return errors.New("empty 'min_rtt' field value")
 	}
 
-	if c.TelegramApiKey == "" {
-		return errors.New("empty 'telegram_api_key' field value")
+	if c.Telegram.ApiKey == "" {
+		return errors.New("empty 'telegram->api_key' field value")
 	}
 
-	if c.TelegramChatId == 0 {
-		return errors.New("empty 'telegram_chat_id' field value")
+	if c.Telegram.ChatId == 0 {
+		return errors.New("empty 'telegram->chat_id' field value")
 	}
 
-	if c.BecomeOffline {
-		if c.BecomeOfflineEvery == "" {
-			return errors.New("empty 'become_offline_every' field value")
+	if c.Settings.UserAgent == "" {
+		return errors.New("empty 'settings->user_agent' field value")
+	}
+
+	if c.Settings.BecomeOffline != nil {
+		val, err := strconv.ParseBool(p.Settings.BecomeOffline)
+		if c.Settings.BecomeOffline.Enabled != "" && err == nil && val {
+			if c.Settings.BecomeOffline.Every == "" {
+				return errors.New("empty 'settings->become_offline->every' field value")
+			}
+			if c.Settings.BecomeOffline.For == "" {
+				return errors.New("empty 'settings->become_offline->for' field value")
+			}
 		}
-		if c.BecomeOfflineFor == "" {
-			return errors.New("empty 'become_offline_for' field value")
+	}
+
+	if c.Settings.RandomizeWait != nil {
+		val, err := strconv.ParseBool(p.Settings.RandomizeWait)
+		if c.Settings.RandomizeWait.Enabled != "" && err == nil && val {
+			if c.Settings.RandomizeWait.WaitVal == "" {
+				return errors.New("empty 'settings->randomize_wait->wait_val' field value")
+			}
 		}
 	}
 
-	if c.RandomizeWait {
-		if c.RandomizeWaitVal == "" {
-			return errors.New("empty 'randomize_wait_val' field value")
+	for _, p := range c.Players {
+		if p.Nick == "" {
+			return errors.New("empty 'nick' field value")
+		}
+		if p.Pass == "" {
+			return errors.New("empty 'pass' field value")
+		}
+		if p.ActivitiesDir == "" {
+			return errors.New("empty 'activities_dir' field value")
 		}
 	}
 
@@ -101,23 +127,31 @@ func validateConfig(c *Config) error {
 	}
 
 	if c.MinRTT < 1*time.Millisecond {
-		return errors.New("invalid 'min_rtt_time' field value")
+		return errors.New("invalid 'min_rtt' field value")
 	}
 
-	if c.BecomeOffline {
-		if err := checkIntervalInput(c.BecomeOfflineEvery, "become_offline_every"); err != nil {
-			return err
+	if c.Settings.BecomeOffline != nil {
+		if c.Settings.BecomeOffline.Every != "" {
+			if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->become_offline->every"); err != nil {
+				return err
+			}
 		}
-		if err := checkIntervalInput(c.BecomeOfflineFor, "become_offline_for"); err != nil {
-			return err
+		if c.Settings.BecomeOffline.For != "" {
+			if err := checkIntervalInput(c.Settings.BecomeOffline.For, "settings->become_offline->for"); err != nil {
+				return err
+			}
 		}
 	}
 
-	if c.RandomizeWait {
-		if err := checkIntervalInput(c.RandomizeWaitVal, "randomize_wait_val"); err != nil {
-			return err
+	if c.Settings.RandomizeWait != nil {
+		if c.Settings.RandomizeWait.WaitVal != "" {
+			if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->randomize_wait->wait_val"); err != nil {
+				return err
+			}
 		}
 	}
+
+	// players->activities_dir will be "checked" when we start using them...
 
 	return nil
 }

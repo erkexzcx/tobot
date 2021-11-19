@@ -20,16 +20,13 @@ type PlayerSettings struct {
 	HeaderUserAgent string
 	HeaderHost      string
 
-	BecomeOffline bool
-
+	BecomeOffline          bool
 	BecomeOfflineEveryFrom time.Duration
 	BecomeOfflineEveryTo   time.Duration
+	BecomeOfflineForFrom   time.Duration
+	BecomeOfflineForTo     time.Duration
 
-	BecomeOfflineForFrom time.Duration
-	BecomeOfflineForTo   time.Duration
-
-	RandomizeWait bool
-
+	RandomizeWait     bool
 	RandomizeWaitFrom time.Duration
 	RandomizeWaitTo   time.Duration
 }

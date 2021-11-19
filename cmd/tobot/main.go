@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -17,14 +16,11 @@ import (
 
 	_ "tobot/module/all"
 
-	"github.com/PuerkitoBio/goquery"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"gopkg.in/yaml.v2"
 )
 
 var configPath = flag.String("config", "config.yml", "path to config file")
-var activitiesDir = flag.String("activities", "activities", "path to activities directory")
-var shopFlag = flag.Bool("shop", false, "extracts all item codes and their shop pages from the main in-game shop")
 
 func main() {
 	flag.Parse()
@@ -111,77 +107,5 @@ func main() {
 	}
 	p := player.NewPlayer(ps)
 
-	if *shopFlag {
-		parseShopItems(p)
-		return
-	}
-
 	tobot.Start(p, c, a)
-}
-
-func parseShopItems(p *player.Player) {
-	fmt.Println("var itemsPagesMap = map[string]string{")
-
-	doc, err := p.Navigate("/parda.php?{{ creds }}", false)
-	if err != nil {
-		panic(err)
-	}
-
-	doc.Find("a[href*='parda.php?'][href*='id=skyr']").Each(func(i int, s *goquery.Selection) {
-		href, found := s.Attr("href")
-		if !found {
-			panic("'href' attr not found")
-		}
-		link, err := url.Parse(href)
-		if err != nil {
-			panic(err)
-		}
-
-		doc2, err := p.Navigate("/"+link.RequestURI(), false)
-		if err != nil {
-			panic(err)
-		}
-
-		doc2.Find("a[href*='id=pard'][href*='page=']").Each(func(i int, s *goquery.Selection) {
-			href2, found2 := s.Attr("href")
-			if !found2 {
-				panic("'href' attr not found")
-			}
-			link2, err := url.Parse(href2)
-			if err != nil {
-				panic(err)
-			}
-
-			doc3, err := p.Navigate("/"+link2.RequestURI(), false)
-			if err != nil {
-				panic(err)
-			}
-
-			doc3.Find("a[href*='id=parduot'][href*='ka=']").Each(func(i int, s *goquery.Selection) {
-				href3, found3 := s.Attr("href")
-				if !found3 {
-					panic("'href' attr not found")
-				}
-				link3, err := url.Parse(href3)
-				if err != nil {
-					panic(err)
-				}
-
-				query, err := url.ParseQuery(link3.RawQuery)
-				if err != nil {
-					panic(err)
-				}
-
-				ka, f1 := query["ka"]
-				page, f2 := query["page"]
-				if !f1 || !f2 {
-					panic("Either 'ka' or 'page' keys not found in URL...")
-				}
-
-				fmt.Printf("\t\"%s\": \"%s\",\n", ka[0], page[0])
-			})
-		})
-	})
-
-	fmt.Println("}")
 }
