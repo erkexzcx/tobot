@@ -8,7 +8,7 @@ import (
 )
 
 func (p *Player) Println(v ...interface{}) {
-	str := "'" + p.nick + "' says:"
+	str := "[" + p.nick + "]"
 	for _, v := range v {
 		str += fmt.Sprintf(" %v", v)
 	}
