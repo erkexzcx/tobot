@@ -62,6 +62,18 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
+	// If troll killed
+	foundElements = doc.Find("div:contains('Ir trolis krenta negyvas!')").Length()
+	if foundElements > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
+	// If troll does not exist
+	foundElements = doc.Find("div:contains('Trolio nematyt...')").Length()
+	if foundElements > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// If actioned too fast
 	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
 	if foundElements > 0 {
