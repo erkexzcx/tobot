@@ -59,6 +59,8 @@ func Start(out map[string]chan string, tBot *tb.Bot) {
 		SendMessage("reply sent!", false)
 	})
 
+	SendMessage("Program started!", false)
+
 	telegramBot.Start()
 }
 
