@@ -134,10 +134,20 @@ func main() {
 			tmpPlayerRandomizeWaitEnabled = val
 		}
 
+		if c.Settings.BecomeOffline.Every != "" {
+			becomeOfflineEvery := strings.Split(c.Settings.BecomeOffline.Every, ",")
+			playerBecomeOfflineEveryFrom, _ = time.ParseDuration(becomeOfflineEvery[0])
+			playerBecomeOfflineEveryTo, _ = time.ParseDuration(becomeOfflineEvery[1])
+		}
 		if playerConfig.Settings.BecomeOffline.Every != "" {
 			becomeOfflineEvery := strings.Split(playerConfig.Settings.BecomeOffline.Every, ",")
 			playerBecomeOfflineEveryFrom, _ = time.ParseDuration(becomeOfflineEvery[0])
 			playerBecomeOfflineEveryTo, _ = time.ParseDuration(becomeOfflineEvery[1])
+		}
+		if c.Settings.BecomeOffline.For != "" {
+			becomeOfflineFor := strings.Split(c.Settings.BecomeOffline.For, ",")
+			playerBecomeOfflineForFrom, _ = time.ParseDuration(becomeOfflineFor[0])
+			playerBecomeOfflineForTo, _ = time.ParseDuration(becomeOfflineFor[1])
 		}
 		if playerConfig.Settings.BecomeOffline.For != "" {
 			becomeOfflineFor := strings.Split(playerConfig.Settings.BecomeOffline.For, ",")
@@ -151,6 +161,11 @@ func main() {
 			playerBecomeOfflineForTo = 0
 		}
 
+		if c.Settings.RandomizeWait.WaitVal != "" {
+			randomizeWait := strings.Split(c.Settings.RandomizeWait.WaitVal, ",")
+			playerRandomizeWaitFrom, _ = time.ParseDuration(randomizeWait[0])
+			playerRandomizeWaitTo, _ = time.ParseDuration(randomizeWait[1])
+		}
 		if playerConfig.Settings.RandomizeWait.WaitVal != "" {
 			randomizeWait := strings.Split(playerConfig.Settings.RandomizeWait.WaitVal, ",")
 			playerRandomizeWaitFrom, _ = time.ParseDuration(randomizeWait[0])

@@ -31,7 +31,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		timeToWait = MIN_WAIT_TIME - MIN_RTT
 	}
 	time.Sleep(timeToWait)
-	p.randomizeWait()
+	p.randomWait()
 
 	// Perform HTTP request and get response
 	resp, err := p.httpRequest("GET", p.fullLink(path), nil)
@@ -252,7 +252,7 @@ func (p *Player) updateBecomeOfflineTimes() {
 	p.sleepTo = p.sleepFrom.Add(time.Duration(sleepDuration))
 }
 
-func (p *Player) randomizeWait() {
+func (p *Player) randomWait() {
 	if p.randomizeWaitTo != 0 {
 		timeToWait := time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
 		time.Sleep(timeToWait)
