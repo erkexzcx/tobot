@@ -2,7 +2,7 @@
 root_address: http://tob.lt
 
 # Minimum RTT time from your device to tob.lt server. This is used to compensate waiting between clicks.
-# TIP: Use command "ping -c 50 tob.lt", wait until it completes and find "min/max/avg" times.
+# TIP: Use command "ping -c 50 tob.lt", wait until it completes and find "min/max/avg" times. Round to a lower number (e.g. 40.9ms should be 40ms)
 min_rtt: 51ms
 
 # User agent
