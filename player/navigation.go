@@ -16,24 +16,22 @@ const MIN_WAIT_TIME = 575 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game. It cannot click too fast, tracks new PMs
 func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
+	// Mark current time
+	timeNow := time.Now()
+
 	p.manageBecomeOffline()
 
 	// Wait until performing HTTP request
-	timeNow := time.Now()
-	p.timeUntilMux.Lock()
 	waitUntil := p.timeUntilNavigation
 	if action {
 		waitUntil = p.timeUntilAction
 	}
-	p.timeUntilMux.Unlock()
 	timeToWait := waitUntil.Sub(timeNow)
-	if timeToWait < MIN_WAIT_TIME-p.minRTT {
-		timeToWait = MIN_WAIT_TIME - p.minRTT
-	}
-	if p.randomizeWait {
-		timeToWait += time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
+	if timeToWait < MIN_WAIT_TIME-MIN_RTT {
+		timeToWait = MIN_WAIT_TIME - MIN_RTT
 	}
 	time.Sleep(timeToWait)
+	p.randomWait()
 
 	// Perform HTTP request and get response
 	resp, err := p.httpRequest("GET", p.fullLink(path), nil)
@@ -58,12 +56,10 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	}
 
 	// Mark wait time
-	p.timeUntilMux.Lock()
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - MIN_RTT)
 	if action {
 		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc))
 	}
-	p.timeUntilMux.Unlock()
 
 	// Try again if clicked too fast!
 	if isTooFast(doc) {
@@ -84,7 +80,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 
 	// Check if banned
 	if isBanned(doc) {
-		p.NotifyTelegram("player banned")
+		p.NotifyTelegram("player banned", false)
 		return nil, errors.New("player banned")
 	}
 
@@ -100,32 +96,24 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 			return p.Navigate(path, action)
 		}
 
+		// See telegram package - there is regex that MUST match below messages format in order to work
 		if m.moderator {
-			p.NotifyTelegram("User '*" + m.from + "' says: " + m.text)
+			p.NotifyTelegram(fmt.Sprintf("Player '*%s' says: %s", m.from, m.text), false)
 		} else {
-			p.NotifyTelegram("User '" + m.from + "' says: " + m.text)
+			p.NotifyTelegram(fmt.Sprintf("Player '%s' says: %s", m.from, m.text), false)
 		}
 
-		// Lock - Telegram will unlock it
-		p.waitingPMMux.Lock()
-		p.waitingPM = true
-		p.waitingPMMux.Unlock()
+		p.replyMux.Lock()
+		p.waitingForReply = true
+		p.replyMux.Unlock()
 
-		// Wait
-		for {
-			p.waitingPMMux.Lock()
-			waitingState := p.waitingPM
-			p.waitingPMMux.Unlock()
-
-			if !waitingState {
-				break
-			}
-
-			time.Sleep(300)
-		}
+		p.handleScheduledReplies()
 
 		return p.Navigate(path, action)
 	}
+
+	// Check if any new scheduled PMs
+	p.handleScheduledReplies()
 
 	return doc, nil
 }
@@ -137,12 +125,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	fullLink := p.fullLink(path)
 
 	// Wait until performing HTTP request
-	p.timeUntilMux.Lock()
 	timeToWait := time.Until(p.timeUntilNavigation)
-	p.timeUntilMux.Unlock()
-	if p.randomizeWait {
-		timeToWait += time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
-	}
 	time.Sleep(timeToWait)
 
 	// Perform HTTP request and get response
@@ -176,9 +159,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	}
 
 	// Mark wait time
-	p.timeUntilMux.Lock()
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
-	p.timeUntilMux.Unlock()
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - MIN_RTT)
 
 	// Check if landed in anti-cheat check page
 	if isAnticheatPage(doc) {
@@ -191,7 +172,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 
 	// Check if banned
 	if isBanned(doc) {
-		p.NotifyTelegram("player banned")
+		p.NotifyTelegram("player banned", false)
 		return nil, errors.New("player banned")
 	}
 
@@ -219,20 +200,20 @@ func isAnticheatPage(doc *goquery.Document) bool {
 func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
 	timeLeft, found := doc.Find("#countdown").Attr("title")
 	if !found {
-		return MIN_WAIT_TIME - p.minRTT
+		return MIN_WAIT_TIME - MIN_RTT
 	}
 	parsedDuration, err := time.ParseDuration(timeLeft + "s")
 	if err != nil {
 		panic(err)
 	}
-	if parsedDuration > MIN_WAIT_TIME-p.minRTT {
-		return parsedDuration - p.minRTT
+	if parsedDuration > MIN_WAIT_TIME-MIN_RTT {
+		return parsedDuration - MIN_RTT
 	}
-	return MIN_WAIT_TIME - p.minRTT
+	return MIN_WAIT_TIME - MIN_RTT
 }
 
 func (p *Player) fullLink(path string) string {
-	return p.rootLink + strings.ReplaceAll(path, "{{ creds }}", "nick="+p.nick+"&pass="+p.pass)
+	return ROOT_ADDRESS + strings.ReplaceAll(path, "{{ creds }}", "nick="+p.nick+"&pass="+p.pass)
 }
 
 func getRandomInt(min, max int) int {
@@ -244,23 +225,13 @@ func getRandomInt64(min, max int64) int64 {
 }
 
 func (p *Player) manageBecomeOffline() {
-	if !p.becomeOffline {
+	if p.becomeOfflineEveryTo == 0 && p.becomeOfflineForTo == 0 {
 		return
-	}
-
-	if getPausedState() {
-		log.Println("Bot stopped by telegram bot...")
-		for {
-			if !getPausedState() {
-				break
-			}
-			time.Sleep(300 * time.Millisecond)
-		}
-		log.Println("Bot resumed by telegram bot...")
 	}
 
 	timeNow := time.Now()
 
+	// If we are past sleep period, generate new period
 	if timeNow.After(p.sleepTo) {
 		p.updateBecomeOfflineTimes()
 		return
@@ -268,9 +239,8 @@ func (p *Player) manageBecomeOffline() {
 
 	if timeNow.After(p.sleepFrom) && timeNow.Before(p.sleepTo) {
 		sleepDuration := p.sleepTo.Sub(timeNow)
-		log.Println("Sleeping for", sleepDuration.String())
+		p.Println("Sleeping for", sleepDuration.String())
 		time.Sleep(sleepDuration)
-		p.updateBecomeOfflineTimes()
 		return
 	}
 }
@@ -280,4 +250,11 @@ func (p *Player) updateBecomeOfflineTimes() {
 	sleepIn := getRandomInt64(int64(p.becomeOfflineEveryFrom), int64(p.becomeOfflineEveryTo))
 	p.sleepFrom = time.Now().Add(time.Duration(sleepIn))
 	p.sleepTo = p.sleepFrom.Add(time.Duration(sleepDuration))
+}
+
+func (p *Player) randomWait() {
+	if p.randomizeWaitTo != 0 {
+		timeToWait := time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
+		time.Sleep(timeToWait)
+	}
 }

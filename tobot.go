@@ -1,12 +1,7 @@
 package tobot
 
 import (
-	"fmt"
-	"log"
-	"sort"
 	"strconv"
-	"strings"
-	"tobot/config"
 	"tobot/module"
 	"tobot/player"
 )
@@ -16,21 +11,21 @@ type Activity struct {
 	Tasks []map[string]string `yaml:"tasks"`
 }
 
-func Start(p *player.Player, c *config.Config, a []*Activity) {
+func Start(p *player.Player, activities []*Activity) {
 	// Validate activities
-	for _, a := range a {
-		validateActivity(c, a)
+	for _, a := range activities {
+		validateActivity(a)
 	}
 
 	// Run activities in a loop
 	for {
-		for _, aa := range a {
-			runActivity(p, c, aa)
+		for _, aa := range activities {
+			runActivity(p, aa)
 		}
 	}
 }
 
-func validateActivity(c *config.Config, a *Activity) {
+func validateActivity(a *Activity) {
 	for _, task := range a.Tasks {
 		count, found := task["_count"]
 		if found {
@@ -56,8 +51,8 @@ func validateActivity(c *config.Config, a *Activity) {
 	}
 }
 
-func runActivity(p *player.Player, c *config.Config, a *Activity) {
-	log.Print("Started '" + a.Name + "'")
+func runActivity(p *player.Player, a *Activity) {
+	p.Println("Started '" + a.Name + "'")
 
 	for _, task := range a.Tasks {
 		m := module.Modules[task["_module"]]
@@ -68,7 +63,6 @@ func runActivity(p *player.Player, c *config.Config, a *Activity) {
 			endless = true
 		}
 
-		log.Println(moduleSettingsToTitle(task))
 		for {
 			if !endless && count == 0 {
 				break
@@ -77,27 +71,13 @@ func runActivity(p *player.Player, c *config.Config, a *Activity) {
 
 			res := m.Perform(p, task)
 			if res.Error != nil {
-				p.NotifyTelegramSilent("Bot stopping: " + res.Error.Error())
+				p.NotifyTelegram("Bot stopping: "+res.Error.Error(), false)
 				panic(res.Error)
 			}
-			fmt.Print(".")
 
 			if !res.CanRepeat {
 				break
 			}
 		}
-		fmt.Println()
 	}
-}
-
-func moduleSettingsToTitle(m map[string]string) string {
-	list := []string{}
-	for k, v := range m {
-		if k == "_module" {
-			continue
-		}
-		list = append(list, k+":"+v)
-	}
-	sort.StringsAreSorted(list)
-	return "Module: " + m["_module"] + "{" + strings.Join(list, "; ") + "}"
 }
