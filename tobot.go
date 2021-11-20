@@ -1,7 +1,6 @@
 package tobot
 
 import (
-	"fmt"
 	"log"
 	"sort"
 	"strconv"
@@ -67,7 +66,7 @@ func runActivity(p *player.Player, a *Activity) {
 			endless = true
 		}
 
-		log.Println(moduleSettingsToTitle(task))
+		p.Println(moduleSettingsToTitle(task))
 		for {
 			if !endless && count == 0 {
 				break
@@ -79,13 +78,11 @@ func runActivity(p *player.Player, a *Activity) {
 				p.NotifyTelegram("Bot stopping: "+res.Error.Error(), false)
 				panic(res.Error)
 			}
-			fmt.Print(".")
 
 			if !res.CanRepeat {
 				break
 			}
 		}
-		fmt.Println()
 	}
 }
 

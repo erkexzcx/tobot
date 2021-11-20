@@ -1,13 +1,18 @@
 package player
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"tobot/telegram"
 )
 
 func (p *Player) Println(v ...interface{}) {
-	log.Println("'"+p.nick+"' says:", v)
+	str := "'" + p.nick + "' says:"
+	for _, v := range v {
+		str += fmt.Sprintf(" %v", v)
+	}
+	log.Println(str)
 }
 
 func (p *Player) NotifyTelegram(msg string, silent bool) {
