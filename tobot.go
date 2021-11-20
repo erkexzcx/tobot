@@ -1,10 +1,7 @@
 package tobot
 
 import (
-	"log"
-	"sort"
 	"strconv"
-	"strings"
 	"tobot/module"
 	"tobot/player"
 )
@@ -55,7 +52,7 @@ func validateActivity(a *Activity) {
 }
 
 func runActivity(p *player.Player, a *Activity) {
-	log.Print("Started '" + a.Name + "'")
+	p.Println("Started '" + a.Name + "'")
 
 	for _, task := range a.Tasks {
 		m := module.Modules[task["_module"]]
@@ -66,7 +63,6 @@ func runActivity(p *player.Player, a *Activity) {
 			endless = true
 		}
 
-		p.Println(moduleSettingsToTitle(task))
 		for {
 			if !endless && count == 0 {
 				break
@@ -84,16 +80,4 @@ func runActivity(p *player.Player, a *Activity) {
 			}
 		}
 	}
-}
-
-func moduleSettingsToTitle(m map[string]string) string {
-	list := []string{}
-	for k, v := range m {
-		if k == "_module" {
-			continue
-		}
-		list = append(list, k+":"+v)
-	}
-	sort.StringsAreSorted(list)
-	return "Module: " + m["_module"] + "{" + strings.Join(list, "; ") + "}"
 }
