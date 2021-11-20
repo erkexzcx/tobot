@@ -23,6 +23,7 @@ settings:
     enabled: true
     wait_val: 0ms,4000ms # additional duration, <from>,<to>
 
+# Multiple account supported, each can have it's own (part of) overriden settings
 players:
   - nick: mysuperaccount # from URL
     pass: va6T5kr1dcDPl0YiT0Q0ZvZbPeQr5qr812qhki5V49ay4SmowqRw # from URL
@@ -36,6 +37,9 @@ players:
   - nick: myanotheraccount
     pass: ReP982BbrR8NZRF43GxgJC34niv8HHva4eUP7vMxVhCR3AHncbT8
     activities_dir: ./activities/day2
+    settings: # Override certain settings like this
+      become_offline:
+        enabled: false
   - nick: mythirdaccount
     pass: 68nSnf3WZ4EyKbTWqedhahXrPKTQy3DSUaimmLjWbSXYHGneqae9
     activities_dir: ./activities/mycustom
