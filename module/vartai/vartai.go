@@ -63,13 +63,13 @@ func (obj *Vartai) Perform(p *player.Player, settings map[string]string) *module
 	}
 
 	// If vartai destroyed
-	foundElements = doc.Find("div:contains('Ir trolis krenta negyvas!')").Length()
+	foundElements = doc.Find("div:contains('TODO TODO TODO')").Length()
 	if foundElements > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If vartai do not exist
-	foundElements = doc.Find("div:contains('Trolio nematyt...')").Length()
+	foundElements = doc.Find("div:contains('TODO TODO TODO')").Length()
 	if foundElements > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
