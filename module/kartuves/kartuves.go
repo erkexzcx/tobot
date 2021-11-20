@@ -108,7 +108,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			newPattern := strings.ReplaceAll(pattern, "_", letter)
 			db.Exec("INSERT OR IGNORE INTO known(word) VALUES(?)", newPattern)
 			db.Exec("DELETE FROM patterns WHERE ? LIKE pattern", newPattern)
-			return &module.Result{CanRepeat: false, Error: nil}
+			return &module.Result{CanRepeat: true, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
 			p.Println("Jus pakartas (%s)!\n", pattern)
@@ -121,7 +121,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			remainingLettersString = strings.ReplaceAll(remainingLettersString, letter, "")
 			db.Exec("UPDATE patterns SET pattern=?, remaining=? WHERE ? LIKE pattern", pattern, remainingLettersString, pattern)
 
-			return &module.Result{CanRepeat: false, Error: nil}
+			return &module.Result{CanRepeat: true, Error: nil}
 		}
 
 		module.DumpHTML(tmpDoc)
