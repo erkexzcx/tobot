@@ -30,7 +30,7 @@ func (obj *Vartai) Perform(p *player.Player, settings map[string]string) *module
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// If vartai does not exist at the moment - find out how much we need to wait and wait
+	// If vartai does not exist
 	foundElements := doc.Find("div:contains('Pragaro vartų dabar nėra!')").Length()
 	if foundElements > 0 {
 		return obj.Perform(p, settings)
@@ -68,8 +68,11 @@ func (obj *Vartai) Perform(p *player.Player, settings map[string]string) *module
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
-	// If vartai destroyed
-	// TODO
+	// If vartai does not exist
+	foundElements = doc.Find("div:contains('Pragaro vartų dabar nėra!')").Length()
+	if foundElements > 0 {
+		return obj.Perform(p, settings)
+	}
 
 	// If actioned too fast
 	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
