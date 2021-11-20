@@ -59,7 +59,7 @@ func main() {
 
 	// Parse default values
 	var becomeOfflineEveryFrom, becomeOfflineEveryTo, becomeOfflineForFrom, becomeOfflineForTo time.Duration
-	val, err := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
+	val, _ := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
 	if val {
 		playerBecomeOfflineEnabled = true
 		becomeOfflineEvery := strings.Split(c.Settings.BecomeOffline.Every, ",")
@@ -70,7 +70,7 @@ func main() {
 		becomeOfflineForTo, _ = time.ParseDuration(becomeOfflineFor[1])
 	}
 	var randomizeWaitFrom, randomizeWaitTo time.Duration
-	val, err = strconv.ParseBool(c.Settings.RandomizeWait.Enabled)
+	val, _ = strconv.ParseBool(c.Settings.RandomizeWait.Enabled)
 	if val {
 		playerRandomizeWaitEnabled = true
 		randomizeWaitVal := strings.Split(c.Settings.RandomizeWait.WaitVal, ",")
@@ -81,11 +81,11 @@ func main() {
 	// Create map where each player will have it's own channel for messages _to_ players
 	outChannels := make(map[string]chan string)
 
-	var playersActivities map[*player.Player][]*tobot.Activity{}
+	playersActivities := make(map[*player.Player][]*tobot.Activity)
 	for _, playerConfig := range c.Players {
 		// "Merge" activity files
 		a := make([]*tobot.Activity, 0)
-		files, err := filepath.Glob(*&playerConfig.ActivitiesDir + "/*.yml")
+		files, err := filepath.Glob(playerConfig.ActivitiesDir + "/*.yml")
 		if err != nil {
 			log.Fatalln("Failed to read activities .yml files of player '" + playerConfig.Nick + "': " + err.Error())
 		}
