@@ -20,5 +20,6 @@ import (
 	_ "tobot/module/trolis"
 	_ "tobot/module/uogavimas"
 	_ "tobot/module/vartai"
+	_ "tobot/module/vartai_wait"
 	_ "tobot/module/zvejyba"
 )

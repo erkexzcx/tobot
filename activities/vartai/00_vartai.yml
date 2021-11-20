@@ -2,4 +2,5 @@ name: Semti vandeni
 tasks:
   - _module: semimas
   - _module: sventinimas
+  - _module: vartai_wait
   - _module: vartai
