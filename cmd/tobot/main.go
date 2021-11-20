@@ -81,7 +81,7 @@ func main() {
 	// Create map where each player will have it's own channel for messages _to_ players
 	outChannels := make(map[string]chan string)
 
-	var playersActivities map[*player.Player][]*tobot.Activity
+	var playersActivities map[*player.Player][]*tobot.Activity{}
 	for _, playerConfig := range c.Players {
 		// "Merge" activity files
 		a := make([]*tobot.Activity, 0)
