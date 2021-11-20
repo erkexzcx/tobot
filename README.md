@@ -123,7 +123,7 @@ settings:
     wait_val: 0ms,4000ms
 ```
 
-Then Setup SystemD service `/etc/systemd/system/tobot.service` as per example below:
+Then setup SystemD service `/etc/systemd/system/tobot.service` as per example below:
 ```
 [Unit]
 Description=tobot service
