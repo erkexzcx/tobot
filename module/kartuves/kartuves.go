@@ -81,7 +81,7 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 		href, _ := s.Attr("href")
 		hrefURL, err := url.Parse(href)
 		if err != nil {
-			log.Println(err)
+			p.Println(err)
 			return
 		}
 		letterPath := hrefURL.RequestURI()
@@ -104,14 +104,14 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			return &module.Result{CanRepeat: true, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
-			log.Println("Zodis atspetas!")
+			p.Println("Zodis atspetas!")
 			newPattern := strings.ReplaceAll(pattern, "_", letter)
 			db.Exec("INSERT OR IGNORE INTO known(word) VALUES(?)", newPattern)
 			db.Exec("DELETE FROM patterns WHERE ? LIKE pattern", newPattern)
 			return &module.Result{CanRepeat: false, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
-			log.Printf("Jus pakartas (%s)!\n", pattern)
+			p.Println("Jus pakartas (%s)!\n", pattern)
 
 			remainingLettersSlice := make([]string, 0, len(remainingLetters))
 			for l := range remainingLetters {
@@ -231,19 +231,19 @@ func waitUntilGame(doc *goquery.Document, p *player.Player) {
 
 	html, err := doc.Html()
 	if err != nil {
-		log.Println(err)
+		p.Println(err)
 		return
 	}
 
 	matches := reExtractWait.FindStringSubmatch(html)
 	if len(matches) != 2 {
-		log.Println("failed to extract wait time")
+		p.Println("failed to extract wait time")
 		return
 	}
 
 	d, err := time.ParseDuration(matches[1])
 	if err != nil {
-		log.Println(err)
+		p.Println(err)
 		return
 	}
 	waitUntil := timeNow.Add(d + time.Second)

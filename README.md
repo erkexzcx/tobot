@@ -3,14 +3,15 @@
 Tob.lt bot, written in Go, inspired by Ansible modules and Telegraf plugin designs.
 
 Features:
- * Intended for 24/7 uptime. It can be manually paused & resumed using Telegram bot.
+ * Intended for 24/7 uptime (for autoamted stop/resume one should use `crontab` to start/stop this application).
+ * Multi-user support.
  * Modular & customizable routines (examples [here](https://github.com/erkexzcx/tobot/tree/master/activities)).
  * Level-up multiple skills at the same time (full list of them [here](https://github.com/erkexzcx/tobot/tree/master/module)).
  * Automatically solves anti-bot checks (really, you won't even notice them)...
  * Automatically recover from network or `NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!`-like errors.
  * Receive new PMs and reply back via Telegram bot.
- * Can be configured to automatically stop & resume at given customizable & randomized intervals/durations.
  * Maximum clicking performance, uses your provided RTT duration to ensure there is no time wasted when waiting.
+ * Can be configured to randomly sleep for random duration (customizable) as well as add additional delay (customizable) between clicks to behave more human-like.
 
 # Usage
 
@@ -87,13 +88,14 @@ _count - (optional) how many times perform the module action.
 
 All other fields are listed in README.md file within each module's directory.
 
-**Note**: Feel free to use `activities/*` as they are premade templates. E.g. `./tobot -activities activities/day1` works just fine on fresh account (do not forget to look at `activities/day1/reikalavimai.txt`).
+**Note**: Feel free to use `activities/*` as they are premade templates. E.g. `activities/day1` works just fine on fresh account (do not forget to look at `activities/day1/reikalavimai.txt`).
 
 7. Run program
 ```
+./tobot -help
+
 ./tobot
 ./tobot -config /path/to/config
-./tobot -config /path/to/config -activities /path/to/activities_dir
 ```
 
 # Notes/Tips regarding tob.lt and this bot
@@ -106,16 +108,19 @@ All other fields are listed in README.md file within each module's directory.
 
 # Tips on running 24/7 (sort of)
 
-Start by using below configuration fragment (yes, `become_offline` is `false`, only randomize click intervals):
-```
-# Constantly go offline in order to not stay online 24/7
-become_offline: false
-become_offline_every: 30m,90m
-become_offline_for: 15m,30m
+Start by using below configuration fragment which works great:
+```yaml
+settings:
+  # Do not stay online 24/7
+  become_offline:
+    enabled: false # disabled
+    every: 1h,2h
+    for: 30m,60m
 
-# Randomize wait time between clicks
-randomize_wait: true
-randomize_wait_val: 0ms,4000ms
+  # Add additional random delay between clicks
+  randomize_wait:
+    enabled: true
+    wait_val: 0ms,4000ms
 ```
 
 Then Setup SystemD service `/etc/systemd/system/tobot.service` as per example below:
@@ -128,7 +133,7 @@ After=network-online.target
 User=erikas
 Group=erikas
 WorkingDirectory=/home/erikas/tobot
-ExecStart=/home/erikas/tobot/tobot -config config.yml -activities activities/kartuves
+ExecStart=/home/erikas/tobot/tobot -config config.yml
 Restart=always
 RestartSec=60
 
