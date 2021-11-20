@@ -99,8 +99,8 @@ func (p *Player) handleScheduledReplies() {
 
 	p.replyMux.Lock()
 	defer p.replyMux.Unlock()
-
 	for sendTo, message := range p.replyScheduled {
 		p.sendPM(sendTo, message)
+		delete(p.replyScheduled, sendTo)
 	}
 }
