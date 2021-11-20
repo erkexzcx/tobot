@@ -2,7 +2,6 @@ package vartai_wait
 
 import (
 	"errors"
-	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -57,8 +56,8 @@ func (obj *VartaiWait) Perform(p *player.Player, settings map[string]string) *mo
 		durationParts := strings.Split(match[1], ":")
 		durationString := durationParts[0] + "h" + durationParts[1] + "m" + durationParts[2] + "s"
 		duration, _ := time.ParseDuration(durationString)
-		log.Println(duration.String())
 		time.Sleep(duration)
+		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	module.DumpHTML(doc)
