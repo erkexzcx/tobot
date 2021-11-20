@@ -104,15 +104,12 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			return &module.Result{CanRepeat: true, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
-			p.Println("Zodis atspetas!")
 			newPattern := strings.ReplaceAll(pattern, "_", letter)
 			db.Exec("INSERT OR IGNORE INTO known(word) VALUES(?)", newPattern)
 			db.Exec("DELETE FROM patterns WHERE ? LIKE pattern", newPattern)
 			return &module.Result{CanRepeat: true, Error: nil}
 		}
 		if tmpDoc.Find("div:contains('Jus pakartas')").Length() > 0 {
-			p.Println("Jus pakartas (%s)!\n", pattern)
-
 			remainingLettersSlice := make([]string, 0, len(remainingLetters))
 			for l := range remainingLetters {
 				remainingLettersSlice = append(remainingLettersSlice, l)
