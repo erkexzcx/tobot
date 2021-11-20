@@ -30,6 +30,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	if timeToWait < MIN_WAIT_TIME-MIN_RTT {
 		timeToWait = MIN_WAIT_TIME - MIN_RTT
 	}
+	time.Sleep(timeToWait)
 	p.randomizeWait()
 
 	// Perform HTTP request and get response
@@ -224,6 +225,10 @@ func getRandomInt64(min, max int64) int64 {
 }
 
 func (p *Player) manageBecomeOffline() {
+	if p.becomeOfflineEveryTo == 0 && p.becomeOfflineForTo == 0 {
+		return
+	}
+
 	timeNow := time.Now()
 
 	// If we are past sleep period, generate new period
