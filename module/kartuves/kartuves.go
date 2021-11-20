@@ -223,8 +223,6 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 }
 
 func waitUntilGame(doc *goquery.Document, p *player.Player) {
-	timeNow := time.Now()
-
 	html, err := doc.Html()
 	if err != nil {
 		p.Println(err)
@@ -242,15 +240,11 @@ func waitUntilGame(doc *goquery.Document, p *player.Player) {
 		p.Println(err)
 		return
 	}
-	waitUntil := timeNow.Add(d + time.Second)
 
-	for {
-		// Keep refreshing in order to find more magic lamps
-		p.Navigate("/zaisti.php?{{ creds }}", false)
-		if time.Now().After(waitUntil) {
-			break
-		}
-	}
+	// So we appear somewhere in the game...
+	p.Navigate("/zaisti.php?{{ creds }}", false)
+
+	time.Sleep(d + time.Second)
 }
 
 func init() {
