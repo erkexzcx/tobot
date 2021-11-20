@@ -1,0 +1,5 @@
+name: Semti vandeni
+tasks:
+  - _module: semimas
+  - _module: sventinimas
+  - _module: vartai

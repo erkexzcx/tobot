@@ -1,6 +1,6 @@
 # Trolis module
 
-This module allows to trolsi ("Miestas --> Trolis").
+This module allows to fight trolis ("Miestas --> Trolis").
 
 ## Example
 

@@ -14,8 +14,11 @@ import (
 	_ "tobot/module/lydimas"
 	_ "tobot/module/medziokle"
 	_ "tobot/module/parduotuve"
+	_ "tobot/module/semimas"
 	_ "tobot/module/slayer"
+	_ "tobot/module/sventinimas"
 	_ "tobot/module/trolis"
 	_ "tobot/module/uogavimas"
+	_ "tobot/module/vartai"
 	_ "tobot/module/zvejyba"
 )

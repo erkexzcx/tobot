@@ -98,10 +98,10 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			return &module.Result{CanRepeat: false, Error: err}
 		}
 		if tmpDoc.Find("div:contains('Tokios raides zodyje nera.')").Length() > 0 {
-			return &module.Result{CanRepeat: true, Error: nil}
+			return obj.Perform(p, settings)
 		}
 		if tmpDoc.Find("div:contains('Atspejote raide')").Length() > 0 {
-			return &module.Result{CanRepeat: true, Error: nil}
+			return obj.Perform(p, settings)
 		}
 		if tmpDoc.Find("div:contains('Atspejote visa zodi!')").Length() > 0 {
 			newPattern := strings.ReplaceAll(pattern, "_", letter)
@@ -117,7 +117,6 @@ func (obj *Kartuves) Perform(p *player.Player, settings map[string]string) *modu
 			remainingLettersString := strings.Join(remainingLettersSlice, "")
 			remainingLettersString = strings.ReplaceAll(remainingLettersString, letter, "")
 			db.Exec("UPDATE patterns SET pattern=?, remaining=? WHERE ? LIKE pattern", pattern, remainingLettersString, pattern)
-
 			return &module.Result{CanRepeat: true, Error: nil}
 		}
 
