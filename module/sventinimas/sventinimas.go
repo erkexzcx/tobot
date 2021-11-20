@@ -30,6 +30,12 @@ func (obj *Sventinimas) Perform(p *player.Player, settings map[string]string) *m
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
+	// If don't have enough resources
+	foundElements := doc.Find("div:contains('Neturite vandens!')").Length()
+	if foundElements > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Šventinti vandenį')").Attr("href")
 	if !found {
@@ -51,7 +57,7 @@ func (obj *Sventinimas) Perform(p *player.Player, settings map[string]string) *m
 	}
 
 	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements := doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
+	foundElements = doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
 	if foundElements > 0 {
 		return obj.Perform(p, settings)
 	}
