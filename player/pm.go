@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type pm struct {
@@ -79,5 +80,27 @@ func (p *Player) sendPM(to, message string) {
 		log.Fatalln(err)
 		p.sendPM(to, message)
 		return
+	}
+}
+
+func (p *Player) handleScheduledReplies() {
+	for {
+		p.replyMux.Lock()
+		isWaiting := p.waitingForReply
+		p.replyMux.Unlock()
+
+		if isWaiting {
+			time.Sleep(200 * time.Millisecond)
+			continue
+		}
+
+		break
+	}
+
+	p.replyMux.Lock()
+	defer p.replyMux.Unlock()
+
+	for sendTo, message := range p.replyScheduled {
+		p.sendPM(sendTo, message)
 	}
 }

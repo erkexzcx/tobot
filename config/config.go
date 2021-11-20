@@ -13,6 +13,7 @@ import (
 type Config struct {
 	RootAddress string        `yaml:"root_address"`
 	MinRTT      time.Duration `yaml:"min_rtt"`
+	UserAgent   string        `yaml:"user_agent"`
 	Telegram    struct {
 		ApiKey string `yaml:"api_key"`
 		ChatId int64  `yaml:"chat_id"`
@@ -22,27 +23,22 @@ type Config struct {
 }
 
 type Player struct {
-	Nick          string    `yaml:"nick"`
-	Pass          string    `yaml:"pass"`
-	ActivitiesDir string    `yaml:"activities_dir"`
-	Settings      *Settings `yaml:"settings"`
+	Nick          string   `yaml:"nick"`
+	Pass          string   `yaml:"pass"`
+	ActivitiesDir string   `yaml:"activities_dir"`
+	Settings      Settings `yaml:"settings"`
 }
 
 type Settings struct {
-	UserAgent     string         `yaml:"user_agent"`
-	BecomeOffline *BecomeOffline `yaml:"become_offline"`
-	RandomizeWait *RandomizeWait `yaml:"randomize_wait"`
-}
-
-type BecomeOffline struct {
-	Enabled string `yaml:"enabled"`
-	Every   string `yaml:"every"`
-	For     string `yaml:"for"`
-}
-
-type RandomizeWait struct {
-	Enabled string `yaml:"enabled"`
-	WaitVal string `yaml:"wait_val"`
+	BecomeOffline struct {
+		Enabled string `yaml:"enabled"`
+		Every   string `yaml:"every"`
+		For     string `yaml:"for"`
+	} `yaml:"become_offline"`
+	RandomizeWait struct {
+		Enabled string `yaml:"enabled"`
+		WaitVal string `yaml:"wait_val"`
+	} `yaml:"randomize_wait"`
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -75,6 +71,10 @@ func validateConfig(c *Config) error {
 		return errors.New("empty 'min_rtt' field value")
 	}
 
+	if c.UserAgent == "" {
+		return errors.New("empty 'settings->user_agent' field value")
+	}
+
 	if c.Telegram.ApiKey == "" {
 		return errors.New("empty 'telegram->api_key' field value")
 	}
@@ -83,28 +83,20 @@ func validateConfig(c *Config) error {
 		return errors.New("empty 'telegram->chat_id' field value")
 	}
 
-	if c.Settings.UserAgent == "" {
-		return errors.New("empty 'settings->user_agent' field value")
-	}
-
-	if c.Settings.BecomeOffline != nil {
-		val, err := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
-		if c.Settings.BecomeOffline.Enabled != "" && err == nil && val {
-			if c.Settings.BecomeOffline.Every == "" {
-				return errors.New("empty 'settings->become_offline->every' field value")
-			}
-			if c.Settings.BecomeOffline.For == "" {
-				return errors.New("empty 'settings->become_offline->for' field value")
-			}
+	val, err := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
+	if c.Settings.BecomeOffline.Enabled != "" && err == nil && val {
+		if c.Settings.BecomeOffline.Every == "" {
+			return errors.New("empty 'settings->become_offline->every' field value")
+		}
+		if c.Settings.BecomeOffline.For == "" {
+			return errors.New("empty 'settings->become_offline->for' field value")
 		}
 	}
 
-	if c.Settings.RandomizeWait != nil {
-		val, err := strconv.ParseBool(c.Settings.RandomizeWait.Enabled)
-		if c.Settings.RandomizeWait.Enabled != "" && err == nil && val {
-			if c.Settings.RandomizeWait.WaitVal == "" {
-				return errors.New("empty 'settings->randomize_wait->wait_val' field value")
-			}
+	val, err = strconv.ParseBool(c.Settings.RandomizeWait.Enabled)
+	if c.Settings.RandomizeWait.Enabled != "" && err == nil && val {
+		if c.Settings.RandomizeWait.WaitVal == "" {
+			return errors.New("empty 'settings->randomize_wait->wait_val' field value")
 		}
 	}
 
@@ -134,24 +126,20 @@ func validateConfig(c *Config) error {
 		return errors.New("invalid 'min_rtt' field value")
 	}
 
-	if c.Settings.BecomeOffline != nil {
-		if c.Settings.BecomeOffline.Every != "" {
-			if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->become_offline->every"); err != nil {
-				return err
-			}
+	if c.Settings.BecomeOffline.Every != "" {
+		if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->become_offline->every"); err != nil {
+			return err
 		}
-		if c.Settings.BecomeOffline.For != "" {
-			if err := checkIntervalInput(c.Settings.BecomeOffline.For, "settings->become_offline->for"); err != nil {
-				return err
-			}
+	}
+	if c.Settings.BecomeOffline.For != "" {
+		if err := checkIntervalInput(c.Settings.BecomeOffline.For, "settings->become_offline->for"); err != nil {
+			return err
 		}
 	}
 
-	if c.Settings.RandomizeWait != nil {
-		if c.Settings.RandomizeWait.WaitVal != "" {
-			if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->randomize_wait->wait_val"); err != nil {
-				return err
-			}
+	if c.Settings.RandomizeWait.WaitVal != "" {
+		if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->randomize_wait->wait_val"); err != nil {
+			return err
 		}
 	}
 

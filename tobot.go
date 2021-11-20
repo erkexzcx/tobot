@@ -15,15 +15,15 @@ type Activity struct {
 	Tasks []map[string]string `yaml:"tasks"`
 }
 
-func Start(p *player.Player) {
+func Start(p *player.Player, activities []*Activity) {
 	// Validate activities
-	for _, a := range p.A {
+	for _, a := range activities {
 		validateActivity(a)
 	}
 
 	// Run activities in a loop
 	for {
-		for _, aa := range p.activities {
+		for _, aa := range activities {
 			runActivity(p, aa)
 		}
 	}
@@ -76,7 +76,7 @@ func runActivity(p *player.Player, a *Activity) {
 
 			res := m.Perform(p, task)
 			if res.Error != nil {
-				p.NotifyTelegramSilent("Bot stopping: " + res.Error.Error())
+				p.NotifyTelegram("Bot stopping: "+res.Error.Error(), false)
 				panic(res.Error)
 			}
 			fmt.Print(".")

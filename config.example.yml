@@ -5,6 +5,9 @@ root_address: http://tob.lt
 # TIP: Use command "ping -c 50 tob.lt", wait until it completes and find "min/max/avg" times.
 min_rtt: 51ms
 
+# User agent
+user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
+
 # Telegram settings
 telegram:
   api_key: 1234567890:6xYrZZ2s_jrki5qgr8OxVBS566z2ZGF4Co7
@@ -12,7 +15,6 @@ telegram:
 
 # Default settings for all players
 settings:
-  user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
   become_offline: # Go offline at randomized intervals for randomized durations
     enabled: false
     every: 1h,2h # Interval, <from>,<to>
@@ -25,14 +27,15 @@ players:
   - nick: mysuperaccount # from URL
     pass: va6T5kr1dcDPl0YiT0Q0ZvZbPeQr5qr812qhki5V49ay4SmowqRw # from URL
     activities_dir: ./activities/day1
-    settings:
+    settings: # Override certain settings like this
       randomize_wait:
         enabled: false
+      become_offline:
+        enabled: true
+        for: 15m,30m
   - nick: myanotheraccount
     pass: ReP982BbrR8NZRF43GxgJC34niv8HHva4eUP7vMxVhCR3AHncbT8
     activities_dir: ./activities/day2
-    settings:
-      user_agent: Nokia7610/2.0 (5.0509.0) SymbianOS/7.0s Series60/2.1 Profile/MIDP-2.0 Configuration/CLDC-1.0
   - nick: mythirdaccount
     pass: 68nSnf3WZ4EyKbTWqedhahXrPKTQy3DSUaimmLjWbSXYHGneqae9
     activities_dir: ./activities/mycustom

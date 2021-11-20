@@ -19,8 +19,8 @@ func (p *Player) httpRequest(method, link string, body io.Reader) (*http.Respons
 		return nil, err
 	}
 
-	req.Header.Set("Host", p.headerHost)
-	req.Header.Set("User-Agent", p.headerUserAgent)
+	req.Header.Set("Host", HEADER_HOST)
+	req.Header.Set("User-Agent", HEADER_USER_AGENT)
 	req.Header.Set("Accept", "*/*")
 
 	if method == "POST" {
