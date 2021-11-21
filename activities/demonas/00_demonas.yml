@@ -3,7 +3,7 @@ tasks:
   - _module: uogavimas
     item: UO9
 
-# - _module: demonas_wait
+  - _module: demonas_wait
 
   - _module: demonas
     eating: UO9

@@ -37,6 +37,11 @@ func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *modul
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
+	// Demon is still dead
+	if doc.Find("div:contains('Demonas prisikels už')").Length() > 0 {
+		return obj.Perform(p, settings)
+	}
+
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Eiti į kovą su tob demonu!')").Attr("href")
 	if !found {
