@@ -4,6 +4,7 @@ import (
 	//Blank imports for modules to register themselves
 	_ "tobot/module/apdirbimas"
 	_ "tobot/module/demonas"
+	_ "tobot/module/demonas_wait"
 	_ "tobot/module/gaminimas_amatu_potion"
 	_ "tobot/module/gaminimas_ginklai"
 	_ "tobot/module/gaminimas_lankai"
