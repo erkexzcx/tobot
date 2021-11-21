@@ -302,6 +302,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		if maxHealth == 0 {
 			return &module.Result{CanRepeat: false, Error: errors.New("failed to read health bar")}
 		}
+		log.Println("curr health", int(remainingHealth/maxHealth*100), "threshold", threshold)
 		if remainingHealth/maxHealth*100 <= threshold {
 			noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
 			if err != nil {
