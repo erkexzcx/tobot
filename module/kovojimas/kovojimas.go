@@ -283,10 +283,11 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 			threshold = 50
 		}
 		// Find progress bar which contains max available health and current health
-		val, found := doc.Find("img.hp[src^='graph.php'][src$='c=1']").Attr("src")
+		val, found := doc.Find("table:contains('Jūsų'):contains('hp graph')").Find("img.hp[src^='graph.php'][src$='c=1']").Attr("src")
 		if !found {
 			return &module.Result{CanRepeat: false, Error: errors.New("health bar not found")}
 		}
+		log.Println("my super extraction:", val)
 		val = strings.ReplaceAll(val, "graph.php?", "")
 		valPairs := strings.Split(val, "&amp;")
 		var remainingHealth, maxHealth int
