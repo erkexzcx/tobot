@@ -1,3 +1,9 @@
 name: Trolis
+
+# NOTE - there is no implementation/logic on waiting for Trolis to appear.
+# Basically when it appears, run this activity and wait until you get a
+# notification that activity "has failed", which means Trolis has been
+# defeated.
+
 tasks:
   - _module: trolis
