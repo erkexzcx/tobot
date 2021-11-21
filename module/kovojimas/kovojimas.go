@@ -297,9 +297,8 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 				maxHealth, _ = strconv.Atoi(valPairParts[1])
 			}
 			if valPairParts[0] == "yra" {
-				// tmp := strings.Split(valPairParts[1], ".")
-				// remainingHealth, _ = strconv.Atoi(tmp[0])
-				remainingHealth, _ = strconv.Atoi(valPairParts[1])
+				tmp := strings.Split(valPairParts[1], ".")
+				remainingHealth, _ = strconv.Atoi(tmp[0])
 				log.Println("remaining (parsed) health:", remainingHealth)
 			}
 		}
