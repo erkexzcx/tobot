@@ -191,7 +191,7 @@ func main() {
 		playersActivities[p] = playerActivities
 	}
 
-	go telegram.Start(outChannels, telegramBot)
+	telegram.Start(outChannels, telegramBot)
 
 	for p, a := range playersActivities {
 		go tobot.Start(p, a)

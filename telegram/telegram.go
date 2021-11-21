@@ -61,7 +61,7 @@ func Start(out map[string]chan string, tBot *tb.Bot) {
 
 	SendMessage("Program started!", true)
 
-	telegramBot.Start()
+	go telegramBot.Start()
 }
 
 func FormatMessage(nick string, message string) string {
