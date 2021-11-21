@@ -141,6 +141,15 @@ var enemyToPageMap = map[string]string{
 	"104": "10",
 	"105": "10",
 	"106": "10",
+	"107": "10",
+	"108": "10",
+	"109": "10",
+	"110": "10",
+	"111": "10",
+	"112": "10",
+	"113": "10",
+	"114": "10",
+	"115": "10",
 }
 
 var allowedSlayers = map[string]struct{}{
@@ -159,6 +168,8 @@ var allowedSlayers = map[string]struct{}{
 	"13": {},
 	"14": {},
 	"15": {},
+	"16": {},
+	"17": {},
 }
 
 func (obj *Slayer) Validate(settings map[string]string) error {
