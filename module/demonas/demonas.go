@@ -65,7 +65,8 @@ func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *modul
 
 	// If action was a success
 	res := doc.Find("div:contains('Jūs demonui nuimate gyvybių:')").Length() > 0 ||
-		doc.Find("div:contains('Sužalotas negalite kautis prieš demoną. Gyvybės turi būti pilnos.')").Length() > 0
+		doc.Find("div:contains('Sužalotas negalite kautis prieš demoną. Gyvybės turi būti pilnos.')").Length() > 0 ||
+		doc.Find("div:contains('Pasipildykite gyvybes.')").Length() > 0
 	if res {
 		outOfFood, err := eating.Eat(p, settings["eating"])
 		if err != nil {
