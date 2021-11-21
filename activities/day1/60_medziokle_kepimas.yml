@@ -16,16 +16,16 @@ tasks:
   - _module: medziokle
     item: alk
 
-  # Iskepti ir parduoti visus balandzius
+  # Iskepti laimikius
   - _module: kepimas
     item: MS1
     fuel: MA1
+
+  # Parduoti keptus/nekeptus laimikius
   - _module: parduotuve
     action: parduoti
     item: MK1
     amount: 0
-
-  # Parduoti visus kitus laimikius
   - _module: parduotuve
     action: parduoti
     item: MS2

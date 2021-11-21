@@ -14,15 +14,15 @@ tasks:
     item: K1
     amount: 0
 
-  # Apdirbti ir parduoti visus safyrus
+  # Brangakmeniu apdirbimas
   - _module: apdirbimas
     item: AB1
+
+  # Apdirbtu/neapdirbtu brangakmeniu pardavimas
   - _module: parduotuve
     action: parduoti
     item: AB1
     amount: 0
-
-  # Parduoti neapdirbtus ametistus
   - _module: parduotuve
     action: parduoti
     item: NB2

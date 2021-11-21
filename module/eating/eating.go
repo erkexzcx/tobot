@@ -3,9 +3,12 @@ package eating
 import (
 	"errors"
 	"regexp"
+	"strings"
 	"tobot/module"
 	"tobot/player"
 )
+
+type Eating struct{}
 
 var eatables = map[string]struct{}{
 	"MK1":   {},
@@ -76,14 +79,62 @@ var eatables = map[string]struct{}{
 	"KZ20":  {},
 }
 
+var reGyvybes = regexp.MustCompile(`Gyvybės: (\d+)\/(\d+)`)
+
+func (obj *Eating) Validate(settings map[string]string) error {
+	food, found := settings["food"]
+	if !found {
+		return errors.New("missing 'food' field")
+	}
+	if !IsEatable(food) {
+		return errors.New("unknown 'food' field")
+	}
+
+	for k := range settings {
+		if strings.HasPrefix(k, "_") || k == "food" {
+			continue
+		}
+		return errors.New("unrecognized key '" + k + "'")
+	}
+
+	return nil
+}
+
+func (obj *Eating) Perform(p *player.Player, settings map[string]string) *module.Result {
+	path := "/namai.php?{{ creds }}&id=lova"
+
+	// Download page that contains info about health
+	doc, err := p.Navigate(path, false)
+	if err != nil {
+		return &module.Result{CanRepeat: false, Error: err}
+	}
+
+	// Extract health and eat if not full
+	docText := doc.Text()
+	match := reGyvybes.FindStringSubmatch(docText)
+	if len(match) != 3 {
+		return &module.Result{CanRepeat: false, Error: errors.New("unable to find gyvybes regex match")}
+	}
+	if match[1] == match[2] {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+	_, err = Eat(p, settings["food"]) // This loops as long as it takes and then returns value
+	if err != nil {
+		return &module.Result{CanRepeat: false, Error: err}
+	}
+	return &module.Result{CanRepeat: false, Error: nil}
+}
+
+func init() {
+	module.Add("eating", &Eating{})
+}
+
 func IsEatable(item string) bool {
 	if _, found := eatables[item]; found {
 		return true
 	}
 	return false
 }
-
-var reHealth = regexp.MustCompile(`Gyvybės: (\d+)\/(\d+)`)
 
 func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 	path := "/zaisti.php?{{ creds }}&id=valgyti&ka=" + item
@@ -102,7 +153,7 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 	// Check if food was eaten successfully
 	if doc.Find("div:contains('Suvalgyta')").Length() > 0 {
 		docText := doc.Text()
-		match := reHealth.FindStringSubmatch(docText)
+		match := reGyvybes.FindStringSubmatch(docText)
 		if len(match) != 3 {
 			return false, errors.New("unable to find regex match (after eathing health)")
 		}
@@ -113,5 +164,5 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 	}
 
 	module.DumpHTML(doc)
-	return false, errors.New("unknown error occurred (at eating submodule)")
+	return false, errors.New("unknown error occurred (at eating module)")
 }

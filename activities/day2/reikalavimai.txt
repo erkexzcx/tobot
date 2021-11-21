@@ -1,6 +1,0 @@
-Reikia inventoriuje tureti siuos irankius:
-1. Bronzinis kirvis
-2. Alavo kirtiklis
-3. Lazdynine meskere
-
-Ir po lygiai padalinti lygio taskus, kad galetum is 1 hit nukauti pirmo levelio moba.

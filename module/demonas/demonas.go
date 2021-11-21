@@ -6,25 +6,28 @@ import (
 	"net/url"
 	"strings"
 	"tobot/module"
-	"tobot/module/all/eating"
+	"tobot/module/eating"
 	"tobot/player"
 )
 
 type Demonas struct{}
 
 func (obj *Demonas) Validate(settings map[string]string) error {
-	for k, v := range settings {
-		if strings.HasPrefix(k, "_") {
-			continue
-		}
-		if k == "eating" {
-			if !eating.IsEatable(v) {
-				return errors.New("unrecognized value of key '" + k + "'")
-			}
+	food, found := settings["eating"]
+	if !found {
+		return errors.New("missing 'eating' field")
+	}
+	if !eating.IsEatable(food) {
+		return errors.New("unknown 'eating' field")
+	}
+
+	for k := range settings {
+		if strings.HasPrefix(k, "_") || k == "eating" {
 			continue
 		}
 		return errors.New("unrecognized key '" + k + "'")
 	}
+
 	return nil
 }
 

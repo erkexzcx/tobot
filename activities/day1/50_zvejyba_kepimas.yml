@@ -1,7 +1,7 @@
 name: Zvejyba, kepimas ir pardavimas
 tasks:
 
-  # Nusikirsti 5 alksnius krosneles kurui
+  # Nusikirsti 5 alksniu krosneles kurui
   - _module: kirtimas
     _count: 5
     item: MA1
@@ -16,16 +16,16 @@ tasks:
   - _module: zvejyba
     item: sliekas
 
-  # Iskepti ir parduoti visus karosus
+  # Iskepti laimikius
   - _module: kepimas
     item: Z1
     fuel: MA1
+
+  # Parduoti keptus/nekeptus laimikius
   - _module: parduotuve
     action: parduoti
     item: KZ1
     amount: 0
-
-  # Jei pagausim kitas zuvis - tiesiog parduoti
   - _module: parduotuve
     action: parduoti
     item: Z2

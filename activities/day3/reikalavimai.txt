@@ -1,6 +1,0 @@
-Reikia sugebeti is 1 hit nukauti 13 lvl mob'a.
-
-Reikia inventoriuje tureti siuos irankius:
-1. Plieninis kirvis
-2. Kadmio kirtiklis
-3. Spiningas
