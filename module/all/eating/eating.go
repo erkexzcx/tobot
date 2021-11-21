@@ -95,7 +95,7 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 	}
 
 	// Check if ran out of food
-	if doc.Find("Šio maisto neturite!").Length() > 0 {
+	if doc.Find("div:contains('Šio maisto neturite!')").Length() > 0 {
 		return true, nil
 	}
 
