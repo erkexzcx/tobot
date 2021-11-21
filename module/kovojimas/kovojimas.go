@@ -297,15 +297,17 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 				maxHealth, _ = strconv.Atoi(valPairParts[1])
 			}
 			if valPairParts[0] == "yra" {
-				tmp := strings.Split(valPairParts[1], ".")
-				remainingHealth, _ = strconv.Atoi(tmp[0])
+				// tmp := strings.Split(valPairParts[1], ".")
+				// remainingHealth, _ = strconv.Atoi(tmp[0])
+				remainingHealth, _ = strconv.Atoi(valPairParts[1])
+				log.Println("remaining (parsed) health:", remainingHealth)
 			}
 		}
 		if maxHealth == 0 {
 			return &module.Result{CanRepeat: false, Error: errors.New("failed to read health bar")}
 		}
-		log.Println("curr health", int(remainingHealth/maxHealth*100), "threshold", threshold)
-		if remainingHealth/maxHealth*100 <= threshold {
+		log.Println("curr health", int(float64(remainingHealth)/float64(maxHealth)*100), "threshold", threshold)
+		if int(float64(remainingHealth)/float64(maxHealth)*100) <= threshold {
 			noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
 			if err != nil {
 				return &module.Result{CanRepeat: false, Error: err}
