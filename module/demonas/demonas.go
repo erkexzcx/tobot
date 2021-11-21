@@ -1,4 +1,4 @@
-package trolis
+package demonas
 
 import (
 	"errors"
@@ -6,14 +6,21 @@ import (
 	"net/url"
 	"strings"
 	"tobot/module"
+	"tobot/module/all/eating"
 	"tobot/player"
 )
 
-type Trolis struct{}
+type Demonas struct{}
 
-func (obj *Trolis) Validate(settings map[string]string) error {
-	for k := range settings {
+func (obj *Demonas) Validate(settings map[string]string) error {
+	for k, v := range settings {
 		if strings.HasPrefix(k, "_") {
+			continue
+		}
+		if k == "eating" {
+			if !eating.IsEatable(v) {
+				return errors.New("unrecognized value of key '" + k + "'")
+			}
 			continue
 		}
 		return errors.New("unrecognized key '" + k + "'")
@@ -21,8 +28,8 @@ func (obj *Trolis) Validate(settings map[string]string) error {
 	return nil
 }
 
-func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/zaisti.php?{{ creds }}&id=fighttroll"
+func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *module.Result {
+	path := "/kova.php?{{ creds }}&id=tobgod"
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -31,7 +38,7 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 	}
 
 	// Find action link
-	actionLink, found := doc.Find("a[href*='&kd=']:contains('Smogti troliui')").Attr("href")
+	actionLink, found := doc.Find("a[href*='&kd=']:contains('Eiti į kovą su tob demonu!')").Attr("href")
 	if !found {
 		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
@@ -51,21 +58,23 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 	}
 
 	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements := doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
+	foundElements := doc.Find("div:contains('Taip negalima! Turite eiti atgal ir vėl pulti!')").Length()
 	if foundElements > 0 {
 		return obj.Perform(p, settings)
 	}
 
 	// If action was a success
-	foundElements = doc.Find("div:contains('Padaryta žala:')").Length()
-	if foundElements > 0 {
+	res := doc.Find("div:contains('Jūs demonui nuimate gyvybių:')").Length() > 0 ||
+		doc.Find("div:contains('Sužalotas negalite kautis prieš demoną. Gyvybės turi būti pilnos.')").Length() > 0
+	if res {
+		outOfFood, err := eating.Eat(p, settings["eating"])
+		if err != nil {
+			return &module.Result{CanRepeat: true, Error: err}
+		}
+		if outOfFood {
+			return &module.Result{CanRepeat: false, Error: nil}
+		}
 		return &module.Result{CanRepeat: true, Error: nil}
-	}
-
-	// If troll does not exist
-	foundElements = doc.Find("div:contains('Trolio nematyt...')").Length()
-	if foundElements > 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If actioned too fast
@@ -80,5 +89,5 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 }
 
 func init() {
-	module.Add("trolis", &Trolis{})
+	module.Add("demonas", &Demonas{})
 }

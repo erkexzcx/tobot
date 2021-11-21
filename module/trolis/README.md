@@ -10,3 +10,4 @@ This module allows to fight trolis ("Miestas --> Trolis").
 
 **NOTE**: Enable auto eating, this module does not take heal into consideration!
  
+**NOTE**: There is no implementation of waiting until Trolis appears...
