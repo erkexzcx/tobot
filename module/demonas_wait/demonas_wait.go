@@ -38,7 +38,7 @@ func (obj *DemonasWait) Perform(p *player.Player, settings map[string]string) *m
 	}
 
 	// If demonas does not exist at the moment - find out how much we need to wait and wait
-	if doc.Find("div.antr > b:contains('Demonas prisikels už:')").Length() > 0 {
+	if doc.Find("div:contains('Demonas prisikels už:')").Length() > 0 {
 		match := reDemonasTime.FindStringSubmatch(doc.Text())
 		if len(match) != 2 {
 			return &module.Result{CanRepeat: false, Error: errors.New("unable to detect time until demonas spawns")}
