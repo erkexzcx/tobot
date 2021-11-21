@@ -287,7 +287,6 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		if !found {
 			return &module.Result{CanRepeat: false, Error: errors.New("health bar not found")}
 		}
-		log.Println("src", val)
 		val = strings.ReplaceAll(val, "graph.php?", "")
 		valPairs := strings.Split(val, "&") // Yes, this is not &amp;
 		var remainingHealth, maxHealth int
@@ -299,13 +298,11 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 			if valPairParts[0] == "yra" {
 				tmp := strings.Split(valPairParts[1], ".")
 				remainingHealth, _ = strconv.Atoi(tmp[0])
-				log.Println("remaining (parsed) health:", remainingHealth)
 			}
 		}
 		if maxHealth == 0 {
 			return &module.Result{CanRepeat: false, Error: errors.New("failed to read health bar")}
 		}
-		log.Println("curr health", int(float64(remainingHealth)/float64(maxHealth)*100), "threshold", threshold)
 		if int(float64(remainingHealth)/float64(maxHealth)*100) <= threshold {
 			noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
 			if err != nil {
