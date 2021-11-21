@@ -266,14 +266,26 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		return obj.Perform(p, settings)
 	}
 
+	// If actioned too fast
+	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
+	if foundElements > 0 {
+		log.Println("actioned too fast, retrying...")
+		return obj.Perform(p, settings)
+	}
+
 	// Take some variables
 	successWon := doc.Find("div:contains('Nukovėte')").Length() > 0
 	successLoss := doc.Find("div:contains('Jūs pralaimėjote')").Length() > 0
 
-	// If not expected - throw error
-	if !successWon && !successLoss {
+	// If fight lost - throw error
+	if successLoss {
+		return &module.Result{CanRepeat: false, Error: errors.New("fight lost")}
+	}
+
+	// If lost - error is already thrown, so the only way - win. If not won - throw error
+	if !successWon {
 		module.DumpHTML(doc)
-		return &module.Result{CanRepeat: false, Error: errors.New("not sure where we are")}
+		return &module.Result{CanRepeat: false, Error: errors.New("not lost and not won, where are we?")}
 	}
 
 	// Check if we can find health bar and reheal accordingly
@@ -308,40 +320,13 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 			if err != nil {
 				return &module.Result{CanRepeat: false, Error: err}
 			}
-			if successLoss {
-				return &module.Result{CanRepeat: false, Error: errors.New("fight lost")}
-			}
-			if successWon {
-				return &module.Result{CanRepeat: !noFoodLeft, Error: nil}
+			if noFoodLeft {
+				return &module.Result{CanRepeat: false, Error: nil}
 			}
 		}
-		if successLoss {
-			return &module.Result{CanRepeat: false, Error: errors.New("fight lost")}
-		}
-		if successWon {
-			return &module.Result{CanRepeat: true, Error: nil}
-		}
 	}
 
-	// If action was a success
-	if successWon {
-		return &module.Result{CanRepeat: true, Error: nil}
-	}
-
-	// If action was a success, but fight was lost
-	if successLoss {
-		return &module.Result{CanRepeat: false, Error: errors.New("fight lost")}
-	}
-
-	// If actioned too fast
-	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
-	if foundElements > 0 {
-		log.Println("actioned too fast, retrying...")
-		return obj.Perform(p, settings)
-	}
-
-	module.DumpHTML(doc)
-	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
+	return &module.Result{CanRepeat: true, Error: nil}
 }
 
 func init() {
