@@ -255,7 +255,6 @@ func (p *Player) updateBecomeOfflineTimes() {
 func (p *Player) randomWait() {
 	if p.randomizeWaitTo != 0 {
 		timeToWait := time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
-		log.Println("[" + p.nick + "] additionally sleeps " + timeToWait.String())
 		time.Sleep(timeToWait)
 	}
 }
