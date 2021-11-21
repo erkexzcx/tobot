@@ -100,7 +100,7 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 	}
 
 	// Check if food was eaten successfully
-	if doc.Find("div:contains('Suvalgyta')").Length() <= 0 {
+	if doc.Find("div:contains('Suvalgyta')").Length() > 0 {
 		docText := doc.Text()
 		match := reHealth.FindStringSubmatch(docText)
 		if len(match) != 3 {
