@@ -79,7 +79,7 @@ var eatables = map[string]struct{}{
 	"KZ20":  {},
 }
 
-var reGyvybes = regexp.MustCompile(`Gyvybės: (\d+)\/(\d+)`)
+var reGyvybes = regexp.MustCompile(`Gyvybės: (\d+\.?\d*)\/(\d+)`)
 
 func (obj *Eating) Validate(settings map[string]string) error {
 	food, found := settings["food"]
