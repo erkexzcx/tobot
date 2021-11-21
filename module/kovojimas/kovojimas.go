@@ -302,6 +302,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		if maxHealth == 0 {
 			return &module.Result{CanRepeat: false, Error: errors.New("failed to read health bar")}
 		}
+		log.Println("remains", int(remainingHealth/maxHealth*100), "percent and threshold is", threshold)
 		if remainingHealth/maxHealth*100 <= threshold {
 			noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
 			if err != nil {
@@ -314,10 +315,12 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 				return &module.Result{CanRepeat: !noFoodLeft, Error: nil}
 			}
 		}
-
-		// there is an issue if this section is reached
-		module.DumpHTML(doc)
-		return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred in eating section")}
+		if successLoss {
+			return &module.Result{CanRepeat: false, Error: errors.New("fight lost")}
+		}
+		if successWon {
+			return &module.Result{CanRepeat: true, Error: nil}
+		}
 	}
 
 	// If action was a success
