@@ -287,6 +287,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		if !found {
 			return &module.Result{CanRepeat: false, Error: errors.New("health bar not found")}
 		}
+		log.Println("src", val)
 		val = strings.ReplaceAll(val, "graph.php?", "")
 		valPairs := strings.Split(val, "&") // Yes, this is not &amp;
 		var remainingHealth, maxHealth int
