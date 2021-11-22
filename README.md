@@ -1,17 +1,16 @@
 # Tobot
 
-Tob.lt bot, written in Go, inspired by Ansible modules and Telegraf plugin designs.
+The [tob.lt](http://tob.lt/) bot, written in Go. 
 
-Features:
- * Intended for 24/7 uptime (for autoamted stop/resume one should use `crontab` to start/stop this application).
- * Multi-user support.
- * Modular & customizable routines (examples [here](https://github.com/erkexzcx/tobot/tree/master/activities)).
- * Level-up multiple skills at the same time (full list of them [here](https://github.com/erkexzcx/tobot/tree/master/module)).
- * Automatically solves anti-bot checks (really, you won't even notice them)...
+Main features:
+ * Automatically solves anti-bot captchas
+ * Get PM messages and reply to them via Telegram bot
+ * Level up multiple skills at the same time using your very custom routines
+ * Has full support for entities some of the common entities, like `Pragaro Vartai` or `Demonas`.
+ * Multi-player support.
  * Automatically recover from network or `NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!`-like errors.
- * Receive new PMs and reply back via Telegram bot.
- * Maximum clicking performance, uses your provided RTT duration to ensure there is no time wasted when waiting.
- * Can be configured to randomly sleep for random duration (customizable) as well as add additional delay (customizable) between clicks to behave more human-like.
+ * Supports random sleep intervals and random additional wait between clicks (human-like clicking)
+ * Maximum clicking performance - uses your provided RTT duration to compensate network latency duration between clicks.
 
 # Usage
 
@@ -26,12 +25,6 @@ Perform these settings in order to ensure smooth experience:
 * `Zaidimo fonas` - disabled
 
 2. Create Telegram bot: https://core.telegram.org/bots
-
-Set below commands for your bot (using BotFather):
-```
-start - Resume bot
-stop - Pause bot
-```
 
 **Tip from my experience**: Change Telegram bot's notification sound. In my case it was possible in (official/standard) Telegram app --> settings. Otherwise you will miss it at some point. :)
 
