@@ -60,7 +60,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	// Try again if clicked too fast!
 	if isTooFast(doc) {
 		r := getRandomInt(3123, 8765)
-		log.Println("Clicked too fast! Sleeping for " + fmt.Sprintf("%.2f", float64(r)/1000) + "s and trying again...")
+		log.Println("[" + p.nick + "]Clicked too fast! Sleeping for " + fmt.Sprintf("%.2f", float64(r)/1000) + "s and trying again...")
 		time.Sleep(time.Duration(r) * time.Millisecond)
 		return p.Navigate(path, action)
 	}
