@@ -12,7 +12,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const MIN_WAIT_TIME = 500 * time.Millisecond
+const MIN_WAIT_TIME = 625 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game. It cannot click too fast, tracks new PMs
 func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
