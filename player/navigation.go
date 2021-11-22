@@ -116,15 +116,15 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 
 // Submit is used to submit forms in-game.
 func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) {
+	timeNow := time.Now()
+
 	p.manageBecomeOffline()
 
-	fullLink := p.fullLink(path)
-
-	// Wait until performing HTTP request
-	timeToWait := time.Until(p.timeUntilNavigation)
-	time.Sleep(timeToWait)
+	// Wait between HTTP requests
+	time.Sleep(p.timeUntilNavigation.Sub(timeNow))
 
 	// Perform HTTP request and get response
+	fullLink := p.fullLink(path)
 	resp, err := p.httpRequest("POST", fullLink, body)
 	if err != nil {
 		log.Println("Failure occurred (#1): " + err.Error())
@@ -135,7 +135,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	defer resp.Body.Close()
 
 	// Mark timestamp when doc was downloaded
-	timeNow := time.Now()
+	timeNow = time.Now()
 
 	// Create Goquery document out of response body
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
