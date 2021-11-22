@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"tobot/module"
@@ -219,6 +220,8 @@ func (obj *Kovojimas) Validate(settings map[string]string) error {
 	return nil
 }
 
+var reSlayerProgress = regexp.MustCompile(`Atlikta: (\d+) \/ (\d+)`)
+
 func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *module.Result {
 	path := "/kova.php?{{ creds }}&id=kova0&vs=" + settings["vs"] + "&psl=" + enemyToPageMap[settings["vs"]]
 
@@ -230,13 +233,22 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 
 	// If slayer is provided - ensure it is enabled
 	if slayer, found := settings["slayer"]; found {
-		slayerInProgress := doc.Find("div:contains('Jūs vykdote slayer užduotį')").Length() > 0
-		if !slayerInProgress {
+		matches := reSlayerProgress.FindStringSubmatch(doc.Text())
+		// if slayer not enabled
+		if len(matches) != 3 {
 			err := enableSlayer(p, slayer)
 			if err != nil {
 				return &module.Result{CanRepeat: false, Error: err}
 			}
 			return obj.Perform(p, settings)
+		}
+		// if slayer completed
+		if matches[1] == matches[2] {
+			err := finishSlayer(p)
+			if err != nil {
+				return &module.Result{CanRepeat: false, Error: err}
+			}
+			return &module.Result{CanRepeat: false, Error: nil}
 		}
 	}
 
@@ -334,6 +346,24 @@ func init() {
 }
 
 func enableSlayer(p *player.Player, slayer string) error {
+	path := "/slayer.php?{{ creds }}&id=task&nr=" + slayer
+
+	// Download page that contains unique action link
+	doc, err := p.Navigate(path, false)
+	if err != nil {
+		return err
+	}
+
+	// Check if we've got a reward for previously completed slayer contract
+	if doc.Find("div:contains('Jums sėkmingai paskirta užduotis! Grįžę atgal rasite daugiau informacijos apie užduotį.')").Length() >= 0 {
+		return nil
+	}
+
+	module.DumpHTML(doc)
+	return errors.New("enabling slayer contract failed")
+}
+
+func finishSlayer(p *player.Player) error {
 	path := "/slayer.php?{{ creds }}"
 
 	// Download page that contains unique action link
@@ -344,28 +374,9 @@ func enableSlayer(p *player.Player, slayer string) error {
 
 	// Check if successfully enabled
 	if doc.Find("div:contains('Užduotis atlikta!')").Length() > 0 {
-		return enableSlayer(p, slayer)
-	}
-
-	path = "/slayer.php?{{ creds }}&id=task&nr=" + slayer
-
-	// Download page that contains unique action link
-	doc, err = p.Navigate(path, false)
-	if err != nil {
-		return err
-	}
-
-	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements := doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
-	if foundElements > 0 {
-		return enableSlayer(p, slayer)
-	}
-
-	// Check if we've got a reward for previously completed slayer contract
-	if doc.Find("div:contains('Jums sėkmingai paskirta užduotis! Grįžę atgal rasite daugiau informacijos apie užduotį.')").Length() >= 0 {
 		return nil
 	}
 
 	module.DumpHTML(doc)
-	return errors.New("slayer logic failed")
+	return errors.New("unable to finish slayer contract")
 }
