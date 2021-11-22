@@ -12,7 +12,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const MIN_WAIT_TIME = 575 * time.Millisecond
+const MIN_WAIT_TIME = 500 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game. It cannot click too fast, tracks new PMs
 func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
@@ -22,16 +22,12 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	p.manageBecomeOffline()
 
 	// Wait until performing HTTP request
-	waitUntil := p.timeUntilNavigation
 	if action {
-		waitUntil = p.timeUntilAction
+		time.Sleep(p.timeUntilAction.Sub(timeNow))
+	} else {
+		time.Sleep(p.timeUntilNavigation.Sub(timeNow))
+		p.randomWait()
 	}
-	timeToWait := waitUntil.Sub(timeNow)
-	if timeToWait < MIN_WAIT_TIME-MIN_RTT {
-		timeToWait = MIN_WAIT_TIME - MIN_RTT
-	}
-	time.Sleep(timeToWait)
-	p.randomWait()
 
 	// Perform HTTP request and get response
 	resp, err := p.httpRequest("GET", p.fullLink(path), nil)
@@ -58,7 +54,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	// Mark wait time
 	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - MIN_RTT)
 	if action {
-		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc))
+		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc) - MIN_RTT)
 	}
 
 	// Try again if clicked too fast!
@@ -200,16 +196,16 @@ func isAnticheatPage(doc *goquery.Document) bool {
 func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
 	timeLeft, found := doc.Find("#countdown").Attr("title")
 	if !found {
-		return MIN_WAIT_TIME - MIN_RTT
+		return MIN_WAIT_TIME
 	}
 	parsedDuration, err := time.ParseDuration(timeLeft + "s")
 	if err != nil {
 		panic(err)
 	}
-	if parsedDuration > MIN_WAIT_TIME-MIN_RTT {
-		return parsedDuration - MIN_RTT
+	if parsedDuration == 0 {
+		return MIN_WAIT_TIME
 	}
-	return MIN_WAIT_TIME - MIN_RTT
+	return parsedDuration
 }
 
 func (p *Player) fullLink(path string) string {
