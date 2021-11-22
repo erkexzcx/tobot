@@ -205,7 +205,7 @@ func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
 	if parsedDuration == 0 {
 		return MIN_WAIT_TIME
 	}
-	return parsedDuration - 500*time.Millisecond
+	return parsedDuration
 }
 
 func (p *Player) fullLink(path string) string {
