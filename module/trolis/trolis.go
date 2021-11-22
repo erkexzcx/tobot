@@ -51,26 +51,22 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 	}
 
 	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements := doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
 		return obj.Perform(p, settings)
 	}
 
 	// If action was a success
-	foundElements = doc.Find("div:contains('Padaryta žala:')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Padaryta žala:')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
 	// If troll does not exist
-	foundElements = doc.Find("div:contains('Trolio nematyt...')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Trolio nematyt...')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If actioned too fast
-	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
 		log.Println("actioned too fast, retrying...")
 		return obj.Perform(p, settings)
 	}

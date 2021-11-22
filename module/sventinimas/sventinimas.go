@@ -31,8 +31,7 @@ func (obj *Sventinimas) Perform(p *player.Player, settings map[string]string) *m
 	}
 
 	// If don't have enough resources
-	foundElements := doc.Find("div:contains('Neturite vandens!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Neturite vandens!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
@@ -57,26 +56,22 @@ func (obj *Sventinimas) Perform(p *player.Player, settings map[string]string) *m
 	}
 
 	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements = doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
 		return obj.Perform(p, settings)
 	}
 
 	// If action was a success
-	foundElements = doc.Find("div:contains('Vanduo pašventintas')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Vanduo pašventintas')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
 	// If don't have enough resources
-	foundElements = doc.Find("div:contains('Neturite vandens!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Neturite vandens!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If actioned too fast
-	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
 		log.Println("actioned too fast, retrying...")
 		return obj.Perform(p, settings)
 	}

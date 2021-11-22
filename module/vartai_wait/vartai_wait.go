@@ -33,14 +33,12 @@ func (obj *VartaiWait) Perform(p *player.Player, settings map[string]string) *mo
 	}
 
 	// If levels are too weak - throw error
-	foundElements := doc.Find("div:contains('Jūsų damage ir defense vidurkis per žemas, jūs vartams nieko nepadarysite...')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūsų damage ir defense vidurkis per žemas, jūs vartams nieko nepadarysite...')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: errors.New("damage & defense levels are too low")}
 	}
 
 	// If vartai is already open
-	foundElements = doc.Find("a:contains('Galite eiti daužyti vartus!')").Length()
-	if foundElements > 0 {
+	if doc.Find("a:contains('Galite eiti daužyti vartus!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 

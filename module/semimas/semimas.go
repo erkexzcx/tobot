@@ -57,20 +57,17 @@ func (obj *Semimas) Perform(p *player.Player, settings map[string]string) *modul
 	}
 
 	// If action was a success
-	foundElements = doc.Find("div:contains('Pasėmėte vandens')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Pasėmėte vandens')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
 	// If inventory full
-	foundElements = doc.Find("div:contains('Jūsų inventorius jau pilnas!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūsų inventorius jau pilnas!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If actioned too fast
-	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
 		log.Println("actioned too fast, retrying...")
 		return obj.Perform(p, settings)
 	}

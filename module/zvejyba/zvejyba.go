@@ -107,31 +107,26 @@ func (obj *Zvejyba) Perform(p *player.Player, settings map[string]string) *modul
 	}
 
 	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements := doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
 		return obj.Perform(p, settings)
 	}
 
-	foundElements = doc.Find("div:contains('Nepakanka')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Nepakanka')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If action was a success
-	foundElements = doc.Find("div:contains('Pagavote ')").Length() + doc.Find("div:contains('Nieko nepagavote')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Pagavote ')").Length()+doc.Find("div:contains('Nieko nepagavote')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
 	// If inventory full
-	foundElements = doc.Find("div:contains('Jūsų inventorius jau pilnas!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūsų inventorius jau pilnas!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If actioned too fast
-	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
 		log.Println("actioned too fast, retrying...")
 		return obj.Perform(p, settings)
 	}

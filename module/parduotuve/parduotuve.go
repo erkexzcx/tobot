@@ -723,8 +723,7 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 	}
 
 	// If action was a success
-	foundElements := doc.Find("div:contains('Daiktai nupirkti, išleidote ')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Daiktai nupirkti, išleidote ')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
@@ -777,8 +776,7 @@ func sell(p *player.Player, settings map[string]string) *module.Result {
 	}
 
 	// If action was a success
-	foundElements := doc.Find("div:contains('Daiktai parduoti, gavote ')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Daiktai parduoti, gavote ')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 

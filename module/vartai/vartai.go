@@ -31,8 +31,7 @@ func (obj *Vartai) Perform(p *player.Player, settings map[string]string) *module
 	}
 
 	// If vartai does not exist
-	foundElements := doc.Find("div:contains('Pragaro vartų dabar nėra!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Pragaro vartų dabar nėra!')").Length() > 0 {
 		return obj.Perform(p, settings)
 	}
 
@@ -57,26 +56,22 @@ func (obj *Vartai) Perform(p *player.Player, settings map[string]string) *module
 	}
 
 	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	foundElements = doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
 		return obj.Perform(p, settings)
 	}
 
 	// If action was a success
-	foundElements = doc.Find("div:contains('Jūs vartams padarote')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūs vartams padarote')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
 	// If vartai does not exist
-	foundElements = doc.Find("div:contains('Pragaro vartų dabar nėra!')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Pragaro vartų dabar nėra!')").Length() > 0 {
 		return obj.Perform(p, settings)
 	}
 
 	// If actioned too fast
-	foundElements = doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length()
-	if foundElements > 0 {
+	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
 		log.Println("actioned too fast, retrying...")
 		return obj.Perform(p, settings)
 	}
