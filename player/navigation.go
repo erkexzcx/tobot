@@ -219,10 +219,12 @@ func (p *Player) fullLink(path string) string {
 }
 
 func getRandomInt(min, max int) int {
+	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(max-min) + min
 }
 
 func getRandomInt64(min, max int64) int64 {
+	rand.Seed(time.Now().UnixNano())
 	return rand.Int63n(max-min) + min
 }
 
