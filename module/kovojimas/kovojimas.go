@@ -278,7 +278,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	}
 
 	// If actioned too fast
-	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
+	if doc.Find("div:contains('Bandykite po kelių sekundžių, pavargote.')").Length() > 0 {
 		log.Println("actioned too fast, retrying...")
 		return obj.Perform(p, settings)
 	}
