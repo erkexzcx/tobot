@@ -228,6 +228,16 @@ func getRandomInt64(min, max int64) int64 {
 	return rand.Int63n(max-min) + min
 }
 
+func getRandomForAdditionalWait(min, max int64) int64 {
+	rand.Seed(time.Now().UnixNano())
+	number := rand.Int63n(max*2-min) + min
+	// Below logic helps to be more human like :)
+	if number > max {
+		return number / 2
+	}
+	return min
+}
+
 func (p *Player) manageBecomeOffline() {
 	if p.becomeOfflineEveryTo == 0 && p.becomeOfflineForTo == 0 {
 		return
@@ -258,7 +268,7 @@ func (p *Player) updateBecomeOfflineTimes() {
 
 func (p *Player) randomWait() {
 	if p.randomizeWaitTo != 0 {
-		timeToWait := time.Duration(getRandomInt64(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
+		timeToWait := time.Duration(getRandomForAdditionalWait(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
 		time.Sleep(timeToWait)
 	}
 }
