@@ -6,18 +6,28 @@ import (
 	"net/url"
 	"strings"
 	"tobot/module"
+	"tobot/module/eating"
 	"tobot/player"
 )
 
 type Trolis struct{}
 
 func (obj *Trolis) Validate(settings map[string]string) error {
+	food, found := settings["eating"]
+	if !found {
+		return errors.New("missing 'eating' field")
+	}
+	if !eating.IsEatable(food) {
+		return errors.New("unknown 'eating' field")
+	}
+
 	for k := range settings {
-		if strings.HasPrefix(k, "_") {
+		if strings.HasPrefix(k, "_") || k == "eating" {
 			continue
 		}
 		return errors.New("unrecognized key '" + k + "'")
 	}
+
 	return nil
 }
 
@@ -57,6 +67,21 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 
 	// If action was a success
 	if doc.Find("div:contains('Padaryta žala:')").Length() > 0 {
+		if _, found := settings["eating"]; found {
+			currentHealth, _, _, err := eating.ParseHealthPercent(doc.Find("img.hp[src^='graph.php'][src$='c=1']"))
+			if err != nil {
+				return &module.Result{CanRepeat: false, Error: err}
+			}
+			if currentHealth == 0 {
+				noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
+				if err != nil {
+					return &module.Result{CanRepeat: false, Error: err}
+				}
+				if noFoodLeft {
+					return &module.Result{CanRepeat: false, Error: nil}
+				}
+			}
+		}
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 

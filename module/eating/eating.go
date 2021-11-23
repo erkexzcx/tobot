@@ -3,9 +3,12 @@ package eating
 import (
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 	"tobot/module"
 	"tobot/player"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 type Eating struct{}
@@ -165,4 +168,29 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 
 	module.DumpHTML(doc)
 	return false, errors.New("unknown error occurred (at eating module)")
+}
+
+// Extracts current health and max health out of player health bar. Efficient method
+// to find out how much health left after fight/hit
+func ParseHealthPercent(healthBar *goquery.Selection) (remainingHealth, remainingPercent, maxHealth int, err error) {
+	val, found := healthBar.Attr("src")
+	if !found {
+		return 0, 0, 0, errors.New("health bar or it's source not found")
+	}
+	val = strings.ReplaceAll(val, "graph.php?", "")
+	valPairs := strings.Split(val, "&") // Yes, this is not &amp;
+	for _, v := range valPairs {
+		valPairParts := strings.Split(v, "=")
+		if valPairParts[0] == "iki" {
+			maxHealth, _ = strconv.Atoi(valPairParts[1])
+		}
+		if valPairParts[0] == "yra" {
+			tmp := strings.Split(valPairParts[1], ".")
+			remainingHealth, _ = strconv.Atoi(tmp[0])
+		}
+	}
+	if maxHealth == 0 {
+		return 0, 0, 0, errors.New("failed to read health bar values")
+	}
+	return remainingHealth, remainingPercent, int(float64(remainingHealth) / float64(maxHealth) * 100), nil
 }

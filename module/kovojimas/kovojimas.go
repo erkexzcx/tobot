@@ -304,28 +304,11 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		if threshold == 0 {
 			threshold = 50
 		}
-		// Find progress bar which contains max available health and current health
-		val, found := doc.Find("img.hp[src^='graph.php'][src$='c=1']").Eq(1).Attr("src")
-		if !found {
-			return &module.Result{CanRepeat: false, Error: errors.New("health bar not found")}
+		_, currentPercent, _, err := eating.ParseHealthPercent(doc.Find("img.hp[src^='graph.php'][src$='c=1']").Eq(1))
+		if err != nil {
+			return &module.Result{CanRepeat: false, Error: err}
 		}
-		val = strings.ReplaceAll(val, "graph.php?", "")
-		valPairs := strings.Split(val, "&") // Yes, this is not &amp;
-		var remainingHealth, maxHealth int
-		for _, v := range valPairs {
-			valPairParts := strings.Split(v, "=")
-			if valPairParts[0] == "iki" {
-				maxHealth, _ = strconv.Atoi(valPairParts[1])
-			}
-			if valPairParts[0] == "yra" {
-				tmp := strings.Split(valPairParts[1], ".")
-				remainingHealth, _ = strconv.Atoi(tmp[0])
-			}
-		}
-		if maxHealth == 0 {
-			return &module.Result{CanRepeat: false, Error: errors.New("failed to read health bar")}
-		}
-		if int(float64(remainingHealth)/float64(maxHealth)*100) <= threshold {
+		if currentPercent <= threshold {
 			noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
 			if err != nil {
 				return &module.Result{CanRepeat: false, Error: err}
