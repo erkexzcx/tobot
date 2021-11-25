@@ -242,7 +242,7 @@ func waitUntilGame(doc *goquery.Document, p *player.Player) {
 	}
 
 	// Spam inventory so we don't look that suspicious and get more magic lamps
-	waitUntil := time.Now().Add(d * time.Second)
+	waitUntil := time.Now().Add(d)
 	for {
 		if time.Now().After(waitUntil) {
 			break
