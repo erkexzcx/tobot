@@ -85,7 +85,7 @@ func getColorToClickName(p *Player, doc *goquery.Document) string {
 		log.Println("Failed anticheat img #2:", err)
 		return ""
 	}
-	imageLink := ROOT_ADDRESS + "/" + parsedSrc.RequestURI()
+	imageLink := p.rootAddress + "/" + parsedSrc.RequestURI()
 
 	// Download captcha image
 	resp, err := p.httpRequest("GET", imageLink, nil)
@@ -146,7 +146,7 @@ func getColorToLinkMap(p *Player, doc *goquery.Document) (map[string]string, boo
 			failed = true
 			return
 		}
-		imageLink := ROOT_ADDRESS + "/" + parsedSrc.RequestURI()
+		imageLink := p.rootAddress + "/" + parsedSrc.RequestURI()
 
 		// Download image
 		resp, err := p.httpRequest("GET", imageLink, nil)
@@ -187,7 +187,7 @@ func getColorToLinkMap(p *Player, doc *goquery.Document) (map[string]string, boo
 			failed = true
 			return
 		}
-		aLink := ROOT_ADDRESS + "/" + parsedHref.RequestURI()
+		aLink := p.rootAddress + "/" + parsedHref.RequestURI()
 
 		// Add to map
 		colorToLinkMap[color] = aLink

@@ -11,10 +11,8 @@ import (
 )
 
 type Config struct {
-	RootAddress string        `yaml:"root_address"`
-	MinRTT      time.Duration `yaml:"min_rtt"`
-	UserAgent   string        `yaml:"user_agent"`
-	Telegram    struct {
+	MinRTT   time.Duration `yaml:"min_rtt"`
+	Telegram struct {
 		ApiKey string `yaml:"api_key"`
 		ChatId int64  `yaml:"chat_id"`
 	} `yaml:"telegram"`
@@ -30,6 +28,8 @@ type Player struct {
 }
 
 type Settings struct {
+	RootAddress   string `yaml:"root_address"`
+	UserAgent     string `yaml:"user_agent"`
 	BecomeOffline struct {
 		Enabled string `yaml:"enabled"`
 		Every   string `yaml:"every"`
@@ -63,16 +63,8 @@ func validateConfig(c *Config) error {
 
 	// Emptiness checks //
 
-	if c.RootAddress == "" {
-		return errors.New("empty 'root_address' field value")
-	}
-
 	if c.MinRTT == 0 {
 		return errors.New("empty 'min_rtt' field value")
-	}
-
-	if c.UserAgent == "" {
-		return errors.New("empty 'settings->user_agent' field value")
 	}
 
 	if c.Telegram.ApiKey == "" {
@@ -105,6 +97,15 @@ func validateConfig(c *Config) error {
 	}
 
 	for _, p := range c.Players {
+		if p.Settings.RootAddress == "" {
+			return errors.New("empty 'settings->root_address' field value")
+		}
+		if !strings.Contains(p.Settings.RootAddress, "http") {
+			return errors.New("invalid 'settings->root_address' field value")
+		}
+		if p.Settings.UserAgent == "" {
+			return errors.New("empty 'settings->user_agent' field value")
+		}
 		if p.Nick == "" {
 			return errors.New("empty 'nick' field value")
 		}
@@ -117,10 +118,6 @@ func validateConfig(c *Config) error {
 	}
 
 	// Value checks //
-
-	if !strings.Contains(c.RootAddress, "http") {
-		return errors.New("invalid 'root_address' field value")
-	}
 
 	if c.MinRTT < 1*time.Millisecond {
 		return errors.New("invalid 'min_rtt' field value")

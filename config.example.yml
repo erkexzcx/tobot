@@ -1,12 +1,6 @@
-# Root URL, should be left unchanged
-root_address: http://tob.lt
-
 # Minimum RTT time from your device to tob.lt server. This is used to compensate waiting between clicks.
 # TIP: Use command "ping -c 50 tob.lt", wait until it completes and find "min/max/avg" times. Round to a lower number (e.g. 40.9ms should be 40ms)
 min_rtt: 51ms
-
-# User agent
-user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
 
 # Telegram settings
 telegram:
@@ -15,6 +9,8 @@ telegram:
 
 # Default settings for all players
 settings:
+  root_address: http://tob.lt # Root URL, should be left unchanged unless you want to use reverse proxy to hide your real IP
+  user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36 # User agent
   become_offline: # Go offline at randomized intervals for randomized durations
     enabled: false
     every: 1h,2h # Interval, <from>,<to>

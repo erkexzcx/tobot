@@ -7,15 +7,16 @@ import (
 
 // Set values to these variables before using this package
 var (
-	MIN_RTT           time.Duration
-	ROOT_ADDRESS      string
-	HEADER_USER_AGENT string
-	HEADER_HOST       string
+	MIN_RTT time.Duration
 )
 
 type Player struct {
 	nick string
 	pass string
+
+	rootAddress     string
+	headerHost      string
+	headerUserAgent string
 
 	// Settings
 	becomeOfflineEveryFrom time.Duration
@@ -42,6 +43,9 @@ type Player struct {
 func NewPlayer(
 	nick string,
 	pass string,
+	rootAddress string,
+	headerHost string,
+	headerUserAgent string,
 	fromTelegram chan string,
 	becomeOfflineEveryFrom time.Duration,
 	becomeOfflineEveryTo time.Duration,
@@ -53,6 +57,10 @@ func NewPlayer(
 	p := &Player{
 		nick: nick,
 		pass: pass,
+
+		rootAddress:     rootAddress,
+		headerHost:      headerHost,
+		headerUserAgent: headerUserAgent,
 
 		replyScheduled: make(map[string]string),
 		replyMux:       sync.Mutex{},

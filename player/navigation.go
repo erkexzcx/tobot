@@ -215,7 +215,7 @@ func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
 }
 
 func (p *Player) fullLink(path string) string {
-	return ROOT_ADDRESS + strings.ReplaceAll(path, "{{ creds }}", "nick="+p.nick+"&pass="+p.pass)
+	return p.rootAddress + strings.ReplaceAll(path, "{{ creds }}", "nick="+p.nick+"&pass="+p.pass)
 }
 
 func getRandomInt(min, max int) int {

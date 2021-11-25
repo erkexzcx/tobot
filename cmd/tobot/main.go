@@ -34,14 +34,7 @@ func main() {
 	}
 
 	// Set global variables in package "player"
-	parsedLink, err := url.Parse(c.RootAddress)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	player.HEADER_HOST = parsedLink.Host
-	player.HEADER_USER_AGENT = c.UserAgent
 	player.MIN_RTT = c.MinRTT - time.Millisecond
-	player.ROOT_ADDRESS = c.RootAddress
 
 	// Set global variables in package "telegram"
 	telegram.CHAT_ID = c.Telegram.ChatId
@@ -103,6 +96,11 @@ func main() {
 				log.Fatalln(err)
 			}
 			a = append(a, aa)
+		}
+
+		parsedRootAddr, err := url.Parse(playerConfig.Settings.RootAddress)
+		if err != nil {
+			log.Fatalln(err)
 		}
 
 		// Create map and store in outChannels
@@ -179,6 +177,9 @@ func main() {
 		p := player.NewPlayer(
 			playerNick,
 			playerPass,
+			playerConfig.Settings.RootAddress,
+			parsedRootAddr.Host,
+			playerConfig.Settings.UserAgent,
 			playerFromTelegram,
 			playerBecomeOfflineEveryFrom,
 			playerBecomeOfflineEveryTo,
