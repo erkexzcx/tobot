@@ -78,8 +78,13 @@ func validateConfig(c *Config) error {
 	if c.Settings.RootAddress == "" {
 		return errors.New("empty 'settings->root_address' field value")
 	}
+
 	if !strings.Contains(c.Settings.RootAddress, "http") {
 		return errors.New("invalid 'settings->root_address' field value")
+	}
+
+	if c.Settings.UserAgent == "" {
+		return errors.New("empty 'settings->user_agent' field value")
 	}
 
 	val, err := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
@@ -104,9 +109,6 @@ func validateConfig(c *Config) error {
 	}
 
 	for _, p := range c.Players {
-		if p.Settings.UserAgent == "" {
-			return errors.New("empty 'settings->user_agent' field value")
-		}
 		if p.Nick == "" {
 			return errors.New("empty 'nick' field value")
 		}
