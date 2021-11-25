@@ -48,6 +48,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	parsedRootAddr, err := url.Parse(c.Settings.RootAddress)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	var playerBecomeOfflineEnabled, playerRandomizeWaitEnabled bool
 
 	// Parse default values
@@ -98,11 +103,6 @@ func main() {
 			a = append(a, aa)
 		}
 
-		parsedRootAddr, err := url.Parse(playerConfig.Settings.RootAddress)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
 		// Create map and store in outChannels
 		outChannel := make(chan string, 100) // buffered channel
 		outChannels[playerConfig.Nick] = outChannel
@@ -110,6 +110,9 @@ func main() {
 		// Make everything more simple
 		playerNick := playerConfig.Nick
 		playerPass := playerConfig.Pass
+		playerRootAddress := c.Settings.RootAddress
+		playerHeaderHost := parsedRootAddr.Host
+		playerUserAgent := c.Settings.UserAgent
 		playerFromTelegram := outChannel
 		playerBecomeOfflineEveryFrom := becomeOfflineEveryFrom
 		playerBecomeOfflineEveryTo := becomeOfflineEveryTo
@@ -120,6 +123,17 @@ func main() {
 		playerActivities := a
 
 		// Override defalt values for becomeOffline & randomizeWait if specified in player level
+		if playerConfig.Settings.RootAddress != "" {
+			playerRootAddress = playerConfig.Settings.RootAddress
+			tmpParsedRootAddr, err := url.Parse(playerConfig.Settings.RootAddress)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			playerHeaderHost = tmpParsedRootAddr.Host
+		}
+		if playerConfig.Settings.UserAgent != "" {
+			playerUserAgent = playerConfig.Settings.UserAgent
+		}
 
 		tmpPlayerBecomeOfflineEnabled := playerBecomeOfflineEnabled
 		tmpPlayerRandomizeWaitEnabled := playerRandomizeWaitEnabled
@@ -177,9 +191,9 @@ func main() {
 		p := player.NewPlayer(
 			playerNick,
 			playerPass,
-			playerConfig.Settings.RootAddress,
-			parsedRootAddr.Host,
-			playerConfig.Settings.UserAgent,
+			playerRootAddress,
+			playerHeaderHost,
+			playerUserAgent,
 			playerFromTelegram,
 			playerBecomeOfflineEveryFrom,
 			playerBecomeOfflineEveryTo,
