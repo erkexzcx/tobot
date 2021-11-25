@@ -241,10 +241,14 @@ func waitUntilGame(doc *goquery.Document, p *player.Player) {
 		return
 	}
 
-	// So we appear somewhere in the game...
-	p.Navigate("/zaisti.php?{{ creds }}", false)
-
-	time.Sleep(d + time.Second)
+	// Spam inventory so we don't look that suspicious and get more magic lamps
+	waitUntil := time.Now().Add(d * time.Second)
+	for {
+		if time.Now().After(waitUntil) {
+			break
+		}
+		p.Navigate("/zaisti.php?{{ creds }}&id=inventory", false)
+	}
 }
 
 func init() {
