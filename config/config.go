@@ -75,6 +75,13 @@ func validateConfig(c *Config) error {
 		return errors.New("empty 'telegram->chat_id' field value")
 	}
 
+	if c.Settings.RootAddress == "" {
+		return errors.New("empty 'settings->root_address' field value")
+	}
+	if !strings.Contains(c.Settings.RootAddress, "http") {
+		return errors.New("invalid 'settings->root_address' field value")
+	}
+
 	val, err := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
 	if c.Settings.BecomeOffline.Enabled != "" && err == nil && val {
 		if c.Settings.BecomeOffline.Every == "" {
@@ -97,12 +104,6 @@ func validateConfig(c *Config) error {
 	}
 
 	for _, p := range c.Players {
-		if p.Settings.RootAddress == "" {
-			return errors.New("empty 'settings->root_address' field value")
-		}
-		if !strings.Contains(p.Settings.RootAddress, "http") {
-			return errors.New("invalid 'settings->root_address' field value")
-		}
 		if p.Settings.UserAgent == "" {
 			return errors.New("empty 'settings->user_agent' field value")
 		}
