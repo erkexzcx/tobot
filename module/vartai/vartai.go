@@ -67,7 +67,7 @@ func (obj *Vartai) Perform(p *player.Player, settings map[string]string) *module
 
 	// If vartai does not exist
 	if doc.Find("div:contains('Pragaro vartų dabar nėra!')").Length() > 0 {
-		return obj.Perform(p, settings)
+		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If actioned too fast
