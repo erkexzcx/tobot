@@ -11,7 +11,6 @@ import (
 )
 
 type Config struct {
-	MinRTT   time.Duration `yaml:"min_rtt"`
 	Telegram struct {
 		ApiKey string `yaml:"api_key"`
 		ChatId int64  `yaml:"chat_id"`
@@ -28,8 +27,9 @@ type Player struct {
 }
 
 type Settings struct {
-	RootAddress   string `yaml:"root_address"`
-	UserAgent     string `yaml:"user_agent"`
+	RootAddress   string        `yaml:"root_address"`
+	UserAgent     string        `yaml:"user_agent"`
+	MinRTT        time.Duration `yaml:"min_rtt"`
 	BecomeOffline struct {
 		Enabled string `yaml:"enabled"`
 		Every   string `yaml:"every"`
@@ -62,10 +62,6 @@ func NewConfig(path string) (*Config, error) {
 func validateConfig(c *Config) error {
 
 	// Emptiness checks //
-
-	if c.MinRTT == 0 {
-		return errors.New("empty 'min_rtt' field value")
-	}
 
 	if c.Telegram.ApiKey == "" {
 		return errors.New("empty 'telegram->api_key' field value")
@@ -122,7 +118,11 @@ func validateConfig(c *Config) error {
 
 	// Value checks //
 
-	if c.MinRTT < 1*time.Millisecond {
+	if c.Settings.MinRTT == 0 {
+		return errors.New("empty 'min_rtt' field value")
+	}
+
+	if c.Settings.MinRTT < 1*time.Millisecond {
 		return errors.New("invalid 'min_rtt' field value")
 	}
 

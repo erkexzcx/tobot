@@ -5,11 +5,6 @@ import (
 	"time"
 )
 
-// Set values to these variables before using this package
-var (
-	MIN_RTT time.Duration
-)
-
 type Player struct {
 	nick string
 	pass string
@@ -17,6 +12,7 @@ type Player struct {
 	rootAddress     string
 	headerHost      string
 	headerUserAgent string
+	minRTT          time.Duration
 
 	// Settings
 	becomeOfflineEveryFrom time.Duration
@@ -46,6 +42,7 @@ func NewPlayer(
 	rootAddress string,
 	headerHost string,
 	headerUserAgent string,
+	minRTT time.Duration,
 	fromTelegram chan string,
 	becomeOfflineEveryFrom time.Duration,
 	becomeOfflineEveryTo time.Duration,
@@ -61,6 +58,7 @@ func NewPlayer(
 		rootAddress:     rootAddress,
 		headerHost:      headerHost,
 		headerUserAgent: headerUserAgent,
+		minRTT:          minRTT,
 
 		replyScheduled: make(map[string]string),
 		replyMux:       sync.Mutex{},

@@ -33,9 +33,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Set global variables in package "player"
-	player.MIN_RTT = c.MinRTT - time.Millisecond
-
 	// Set global variables in package "telegram"
 	telegram.CHAT_ID = c.Telegram.ChatId
 
@@ -113,6 +110,7 @@ func main() {
 		playerRootAddress := c.Settings.RootAddress
 		playerHeaderHost := parsedRootAddr.Host
 		playerUserAgent := c.Settings.UserAgent
+		playerMinRTT := c.Settings.MinRTT
 		playerFromTelegram := outChannel
 		playerBecomeOfflineEveryFrom := becomeOfflineEveryFrom
 		playerBecomeOfflineEveryTo := becomeOfflineEveryTo
@@ -133,6 +131,9 @@ func main() {
 		}
 		if playerConfig.Settings.UserAgent != "" {
 			playerUserAgent = playerConfig.Settings.UserAgent
+		}
+		if playerConfig.Settings.MinRTT != 0 {
+			playerMinRTT = playerConfig.Settings.MinRTT
 		}
 
 		tmpPlayerBecomeOfflineEnabled := playerBecomeOfflineEnabled
@@ -194,6 +195,7 @@ func main() {
 			playerRootAddress,
 			playerHeaderHost,
 			playerUserAgent,
+			playerMinRTT-time.Millisecond,
 			playerFromTelegram,
 			playerBecomeOfflineEveryFrom,
 			playerBecomeOfflineEveryTo,

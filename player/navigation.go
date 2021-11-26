@@ -52,9 +52,9 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	}
 
 	// Mark wait time
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - MIN_RTT)
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
 	if action {
-		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc) - MIN_RTT)
+		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc) - p.minRTT)
 	}
 	if p.timeUntilAction.Before(p.timeUntilNavigation) {
 		p.timeUntilAction = p.timeUntilNavigation
@@ -158,7 +158,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	}
 
 	// Mark wait time
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - MIN_RTT)
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
 	if p.timeUntilAction.Before(p.timeUntilNavigation) {
 		p.timeUntilAction = p.timeUntilNavigation
 	}

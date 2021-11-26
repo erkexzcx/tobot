@@ -1,30 +1,24 @@
-# Minimum RTT time from your device to tob.lt server. This is used to compensate waiting between clicks.
-# TIP: Use command "ping -c 50 tob.lt", wait until it completes and find "min/max/avg" times. Round to a lower number (e.g. 40.9ms should be 40ms)
-min_rtt: 51ms
-
-# Telegram settings
 telegram:
   api_key: 1234567890:6xYrZZ2s_jrki5qgr8OxVBS566z2ZGF4Co7
   chat_id: 123456789
 
-# Default settings for all players
 settings:
-  root_address: http://tob.lt # Root URL, should be left unchanged unless you want to use reverse proxy to hide your real IP
-  user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36 # User agent
-  become_offline: # Go offline at randomized intervals for randomized durations
+  root_address: http://tob.lt
+  user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
+  min_rtt: 51ms
+  become_offline:
     enabled: false
-    every: 1h,2h # Interval, <from>,<to>
-    for: 30m,60m # Duration, <from>,<to>
-  randomize_wait: # Add random delay between clicks to make them inconsistent and more human-like
+    every: 1h,2h
+    for: 30m,60m
+  randomize_wait:
     enabled: true
-    wait_val: 0ms,4000ms # additional duration, <from>,<to>
+    wait_val: 0ms,4000ms
 
-# Multiple account supported, each can have it's own (part of) overriden settings
 players:
-  - nick: mysuperaccount # from URL
-    pass: va6T5kr1dcDPl0YiT0Q0ZvZbPeQr5qr812qhki5V49ay4SmowqRw # from URL
+  - nick: mysuperaccount
+    pass: va6T5kr1dcDPl0YiT0Q0ZvZbPeQr5qr812qhki5V49ay4SmowqRw
     activities_dir: ./activities/day1
-    settings: # Override certain settings like this
+    settings:
       randomize_wait:
         enabled: false
       become_offline:
@@ -33,7 +27,7 @@ players:
   - nick: myanotheraccount
     pass: ReP982BbrR8NZRF43GxgJC34niv8HHva4eUP7vMxVhCR3AHncbT8
     activities_dir: ./activities/day2
-    settings: # Override certain settings like this
+    settings:
       become_offline:
         enabled: false
   - nick: mythirdaccount
