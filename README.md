@@ -6,7 +6,7 @@ Main features:
  * Automatically solves anti-bot captchas.
  * Get PM messages and reply to them via Telegram.
  * Level up multiple skills at the same time using your very custom routines.
- * Has full support for entities like `Pragaro Vartai` or `Demonas`.
+ * Supports entities like `Pragaro Vartai` and `Demonas`.
  * Multi-player support.
  * Automatically recover from network or `NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!`-like errors.
  * Supports random sleep intervals and random additional wait between clicks (human-like clicking).
