@@ -15,7 +15,13 @@ func DumpHTML(doc *goquery.Document) {
 	log.Println(html)
 }
 
-// Returns true if doc contains "Jūs pavargęs, bandykite vėl po keleto sekundžių.."
+// Returns true if doc contains "Jūs pavargęs, bandykite vėl po keleto sekundžių"-alike message
 func IsActionTooFast(doc *goquery.Document) bool {
-	return doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0
+	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
+		return true
+	}
+	if doc.Find("div:contains('Bandykite po kelių sekundžių, pavargote.')").Length() > 0 {
+		return true
+	}
+	return false
 }
