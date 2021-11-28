@@ -23,6 +23,7 @@ var items = map[string]struct{}{
 	"GR10": {},
 	"GR11": {},
 	"GR12": {},
+	"GR13": {},
 }
 
 func (obj *Grybavimas) Validate(settings map[string]string) error {

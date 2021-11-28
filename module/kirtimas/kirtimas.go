@@ -27,6 +27,11 @@ var items = map[string]struct{}{
 	"MA14": {},
 	"MA15": {},
 	"MA16": {},
+	"MA17": {},
+	"MA18": {},
+	"MA19": {},
+	"MA20": {},
+	"MA21": {},
 }
 
 func (obj *Kirtimas) Validate(settings map[string]string) error {

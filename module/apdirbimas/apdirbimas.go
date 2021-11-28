@@ -25,6 +25,10 @@ var items = map[string]struct{}{
 	"AB12": {},
 	"AB13": {},
 	"AB14": {},
+	"AB15": {},
+	"AB16": {},
+	"AB17": {},
+	"AB18": {},
 }
 
 func (obj *Apdirbimas) Validate(settings map[string]string) error {

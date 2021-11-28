@@ -27,6 +27,13 @@ var items = map[string]struct{}{
 	"O14": {},
 	"O15": {},
 	"O16": {},
+	"O17": {},
+	"O18": {},
+	"O19": {},
+	"O20": {},
+	"O21": {},
+	"O22": {},
+	"O23": {},
 }
 
 func (obj *Kasimas) Validate(settings map[string]string) error {

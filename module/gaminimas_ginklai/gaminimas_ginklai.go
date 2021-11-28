@@ -41,6 +41,13 @@ var items = map[string]struct{}{
 	"K28": {},
 	"K29": {},
 	"K30": {},
+	"K31": {},
+	"K32": {},
+	"K33": {},
+	"K34": {},
+	"K37": {},
+	"K38": {},
+	"K40": {},
 }
 
 func (obj *GaminimasGinklai) Validate(settings map[string]string) error {

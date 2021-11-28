@@ -22,6 +22,8 @@ var items = map[string]struct{}{
 	"UO10": {},
 	"UO11": {},
 	"UO12": {},
+	"UO13": {},
+	"UO14": {},
 }
 
 func (obj *Uogavimas) Validate(settings map[string]string) error {

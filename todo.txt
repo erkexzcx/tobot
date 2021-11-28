@@ -1,4 +1,0 @@
-1. Add handlers of "other levels too low", "your level too low", "you don't have the required tool" and so on...
-2. Fix PM logic, make it configurable.
-3. Fix Slayer logic in case of Slayer time has ended.
-4. Fix furnace logic when fuel burns out.

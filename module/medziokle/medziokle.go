@@ -22,6 +22,11 @@ var items = map[string]struct{}{
 	"ber": {},
 	"skr": {},
 	"sek": {},
+	"bao": {},
+	"mam": {},
+	"gyv": {},
+	"svy": {},
+	"eu":  {},
 }
 
 func (obj *Medziokle) Validate(settings map[string]string) error {

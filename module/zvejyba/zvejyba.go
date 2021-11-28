@@ -19,6 +19,11 @@ var items = map[string]string{
 	"tink":    "/zvejoti.php?{{ creds }}&id=jura",
 	"zeb":     "/zvejoti.php?{{ creds }}&id=jura",
 	"biz":     "/zvejoti.php?{{ creds }}&id=jura",
+	"t1":      "/zvejoti.php?{{ creds }}&id=vandenynas",
+	"t2":      "/zvejoti.php?{{ creds }}&id=vandenynas",
+	"t3":      "/zvejoti.php?{{ creds }}&id=vandenynas",
+	"t4":      "/zvejoti.php?{{ creds }}&id=vandenynas",
+	"t5":      "/zvejoti.php?{{ creds }}&id=vandenynas",
 }
 
 func (obj *Zvejyba) Validate(settings map[string]string) error {

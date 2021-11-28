@@ -27,6 +27,13 @@ var items = map[string]struct{}{
 	"B14": {},
 	"B15": {},
 	"B16": {},
+	"B17": {},
+	"B18": {},
+	"B19": {},
+	"B20": {},
+	"B21": {},
+	"B22": {},
+	"B23": {},
 }
 
 func (obj *Lydimas) Validate(settings map[string]string) error {
