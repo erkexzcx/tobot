@@ -10,58 +10,47 @@ import (
 
 type Kirtimas struct{}
 
-var allowedSettings = map[string][]string{
-	"item": {
-		"MA1",
-		"MA2",
-		"MA3",
-		"MA4",
-		"MA5",
-		"MA6",
-		"MA7",
-		"MA8",
-		"MA9",
-		"MA10",
-		"MA11",
-		"MA12",
-		"MA13",
-		"MA14",
-		"MA15",
-		"MA16",
-	},
+var items = map[string]struct{}{
+	"MA1":  {},
+	"MA2":  {},
+	"MA3":  {},
+	"MA4":  {},
+	"MA5":  {},
+	"MA6":  {},
+	"MA7":  {},
+	"MA8":  {},
+	"MA9":  {},
+	"MA10": {},
+	"MA11": {},
+	"MA12": {},
+	"MA13": {},
+	"MA14": {},
+	"MA15": {},
+	"MA16": {},
 }
 
 func (obj *Kirtimas) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
+	// Check if there are any unknown options
+	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
-		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := items[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
 	}
 
 	return nil

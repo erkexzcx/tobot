@@ -10,110 +10,98 @@ import (
 
 type Kepimas struct{}
 
-var allowedSettings = map[string][]string{
-	"item": {
-		// Nekeptos zuvys
-		"Z1",
-		"Z2",
-		"Z3",
-		"Z4",
-		"Z5",
-		"Z6",
-		"Z7",
-		"Z8",
-		"Z9",
-		"Z10",
-		"Z11",
-		"Z12",
-		"Z13",
-		"Z14",
-		"Z15",
-		"Z16",
+var items = map[string]struct{}{
+	"Z1":   {},
+	"Z2":   {},
+	"Z3":   {},
+	"Z4":   {},
+	"Z5":   {},
+	"Z6":   {},
+	"Z7":   {},
+	"Z8":   {},
+	"Z9":   {},
+	"Z10":  {},
+	"Z11":  {},
+	"Z12":  {},
+	"Z13":  {},
+	"Z14":  {},
+	"Z15":  {},
+	"Z16":  {},
+	"MS1":  {},
+	"MS2":  {},
+	"MS3":  {},
+	"MS4":  {},
+	"MS5":  {},
+	"MS6":  {},
+	"MS7":  {},
+	"MS8":  {},
+	"MS9":  {},
+	"MS10": {},
+	"MS11": {},
+	"MS12": {},
+	"MS13": {},
+	"GR1":  {},
+	"GR2":  {},
+	"GR3":  {},
+	"GR4":  {},
+	"GR5":  {},
+	"GR6":  {},
+	"GR7":  {},
+	"GR8":  {},
+	"GR9":  {},
+	"GR10": {},
+	"GR11": {},
+	"GR12": {},
+}
 
-		// Nekepta mesa
-		"MS1",
-		"MS2",
-		"MS3",
-		"MS4",
-		"MS5",
-		"MS6",
-		"MS7",
-		"MS8",
-		"MS9",
-		"MS10",
-		"MS11",
-		"MS12",
-		"MS13",
-
-		// Nekepti grybai
-		"GR1",
-		"GR2",
-		"GR3",
-		"GR4",
-		"GR5",
-		"GR6",
-		"GR7",
-		"GR8",
-		"GR9",
-		"GR10",
-		"GR11",
-		"GR12",
-	},
-	"fuel": {
-		// Mediena
-		"MA1",
-		"MA2",
-		"MA3",
-		"MA4",
-		"MA5",
-		"MA6",
-		"MA7",
-		"MA8",
-		"MA9",
-		"MA10",
-		"MA11",
-		"MA12",
-		"MA13",
-		"MA14",
-		"MA15",
-		"MA16",
-
-		// Anglis
-		"O6",
-	},
+var fuels = map[string]struct{}{
+	"MA1":  {},
+	"MA2":  {},
+	"MA3":  {},
+	"MA4":  {},
+	"MA5":  {},
+	"MA6":  {},
+	"MA7":  {},
+	"MA8":  {},
+	"MA9":  {},
+	"MA10": {},
+	"MA11": {},
+	"MA12": {},
+	"MA13": {},
+	"MA14": {},
+	"MA15": {},
+	"MA16": {},
+	"O6":   {},
 }
 
 func (obj *Kepimas) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
+	// Check if there are any unknown options
+	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item", "fuel"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
-		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+	if _, found := settings["fuel"]; !found {
+		return errors.New("unrecognized option 'fuel'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := items[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
+	}
+	if _, found := fuels[settings["fuel"]]; !found {
+		return errors.New("unrecognized value of option 'fuel'")
 	}
 
 	return nil

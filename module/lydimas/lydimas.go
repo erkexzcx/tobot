@@ -10,58 +10,47 @@ import (
 
 type Lydimas struct{}
 
-var allowedSettings = map[string][]string{
-	"item": {
-		"B1",
-		"B2",
-		"B3",
-		"B4",
-		"B5",
-		"B6",
-		"B7",
-		"B8",
-		"B9",
-		"B10",
-		"B11",
-		"B12",
-		"B13",
-		"B14",
-		"B15",
-		"B16",
-	},
+var items = map[string]struct{}{
+	"B1":  {},
+	"B2":  {},
+	"B3":  {},
+	"B4":  {},
+	"B5":  {},
+	"B6":  {},
+	"B7":  {},
+	"B8":  {},
+	"B9":  {},
+	"B10": {},
+	"B11": {},
+	"B12": {},
+	"B13": {},
+	"B14": {},
+	"B15": {},
+	"B16": {},
 }
 
 func (obj *Lydimas) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
+	// Check if there are any unknown options
+	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
-		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := items[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
 	}
 
 	return nil

@@ -10,72 +10,61 @@ import (
 
 type GaminimasGinklai struct{}
 
-var allowedSettings = map[string][]string{
-	"item": {
-		"K1",
-		"K2",
-		"K3",
-		"K4",
-		"K5",
-		"K6",
-		"K7",
-		"K8",
-		"K9",
-		"K10",
-		"K11",
-		"K12",
-		"K13",
-		"K14",
-		"K15",
-		"K16",
-		"K17",
-		"K18",
-		"K19",
-		"K20",
-		"K21",
-		"K22",
-		"K23",
-		"K24",
-		"K25",
-		"K26",
-		"K27",
-		"K28",
-		"K29",
-		"K30",
-	},
+var items = map[string]struct{}{
+	"K1":  {},
+	"K2":  {},
+	"K3":  {},
+	"K4":  {},
+	"K5":  {},
+	"K6":  {},
+	"K7":  {},
+	"K8":  {},
+	"K9":  {},
+	"K10": {},
+	"K11": {},
+	"K12": {},
+	"K13": {},
+	"K14": {},
+	"K15": {},
+	"K16": {},
+	"K17": {},
+	"K18": {},
+	"K19": {},
+	"K20": {},
+	"K21": {},
+	"K22": {},
+	"K23": {},
+	"K24": {},
+	"K25": {},
+	"K26": {},
+	"K27": {},
+	"K28": {},
+	"K29": {},
+	"K30": {},
 }
 
 func (obj *GaminimasGinklai) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
+	// Check if there are any unknown options
+	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
-		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := items[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
 	}
 
 	return nil

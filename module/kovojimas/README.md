@@ -24,24 +24,24 @@ Also the same example, level up Slayer skill:
 If you don't kill the mob with 1 hit, you need to track your health and eat something to restore it:
 
 ```yaml
-  - _module: eating      # This module ensures that you have 100% health before first hit
+  - _module: eating    # This module ensures that you have 100% health before first hit
     food: UO10
   - _module: kovojimas
-    vs: 99               # ID of enemy which to fight. Key in URL is 'vs'.
-    eating: UO10         # Food ID which to eat
-    eating_threshold: 50 # (OPTIONAL, default is 50 %) When health is below or equal to health level in %, continously eat to fully restore health
+    vs: 99             # ID of enemy which to fight. Key in URL is 'vs'.
+    food: UO10         # Food ID which to eat
+    food_threshold: 50 # (OPTIONAL, default is 50 %) When health is below or equal to health level in %, continously eat to fully restore health
 ```
 
 Same, but with slayer skill leveling up:
 
 ```yaml
-  - _module: eating      # This module ensures that you have 100% health before first hit
+  - _module: eating    # This module ensures that you have 100% health before first hit
     food: UO10
   - _module: kovojimas
-    vs: 99               # ID of enemy which to fight. Key in URL is 'vs'.
-    slayer: 10           # ID of slayer contract (value is in the URL of "Žudyti 1-10 lygio karius")
-    eating: UO10         # Food ID which to eat
-    eating_threshold: 50 # (OPTIONAL, default is 50 %) When health is below or equal to health level in %, continously eat to fully restore health
+    vs: 99             # ID of enemy which to fight. Key in URL is 'vs'.
+    slayer: 10         # ID of slayer contract (value is in the URL of "Žudyti 1-10 lygio karius")
+    food: UO10         # Food ID which to eat
+    food_threshold: 50 # (OPTIONAL, default is 50 %) When health is below or equal to health level in %, continously eat to fully restore health
 ```
 
 # Slayer levels

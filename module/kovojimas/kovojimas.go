@@ -13,114 +13,94 @@ import (
 
 type Kovojimas struct{}
 
-var enemyToPageMap = map[string]string{
-	// Požemis
-	"0": "0",
-	"1": "0",
-	"2": "0",
-	"3": "0",
-	"4": "0",
-	"5": "0",
-	"6": "0",
-
-	// Miškas
-	"7":  "1",
-	"8":  "1",
-	"9":  "1",
-	"10": "1",
-	"11": "1",
-	"12": "1",
-	"13": "1",
-	"14": "1",
-	"15": "1",
-	"16": "1",
-	"17": "1",
-	"18": "1",
-	"19": "1",
-
-	// Dykuma
-	"20": "2",
-	"21": "2",
-	"22": "2",
-	"23": "2",
-	"24": "2",
-	"25": "2",
-	"26": "2",
-
-	// Užburtas miškas
-	"27": "3",
-	"28": "3",
-	"29": "3",
-	"30": "3",
-	"31": "3",
-	"32": "3",
-	"33": "3",
-	"34": "3",
-
-	// Užburtas kraštas
-	"35": "4",
-	"36": "4",
-	"37": "4",
-	"38": "4",
-	"39": "4",
-	"40": "4",
-	"41": "4",
-	"42": "4",
-	"43": "4",
-
-	// Išmiręs miestelis
-	"44": "5",
-	"45": "5",
-	"46": "5",
-	"47": "5",
-	"48": "5",
-	"49": "5",
-	"50": "5",
-	"51": "5",
-
-	// Apleistas namas
-	"52": "6",
-	"53": "6",
-	"54": "6",
-	"55": "6",
-	"56": "6",
-	"57": "6",
-
-	// Drakonų urvai
-	"58": "7",
-	"59": "7",
-	"60": "7",
-	"61": "7",
-	"62": "7",
-	"63": "7",
-	"64": "7",
-	"65": "7",
-	"66": "7",
-	"67": "7",
-	"68": "7",
-
-	// Ugnies žemė
-	"69": "8",
-	"70": "8",
-	"71": "8",
-	"72": "8",
-	"73": "8",
-	"74": "8",
-	"75": "8",
-
-	// Sniegynas
-	"76": "9",
-	"77": "9",
-	"78": "9",
-	"79": "9",
-	"80": "9",
-	"81": "9",
-	"82": "9",
-	"83": "9",
-	"84": "9",
-	"85": "9",
-
-	// Mirties sala
+// Enemy ID and page ID is needed, so this maps enemy to page: ("<enemy>": "page",)
+var enemyPage = map[string]string{
+	"0":   "0",
+	"1":   "0",
+	"2":   "0",
+	"3":   "0",
+	"4":   "0",
+	"5":   "0",
+	"6":   "0",
+	"7":   "1",
+	"8":   "1",
+	"9":   "1",
+	"10":  "1",
+	"11":  "1",
+	"12":  "1",
+	"13":  "1",
+	"14":  "1",
+	"15":  "1",
+	"16":  "1",
+	"17":  "1",
+	"18":  "1",
+	"19":  "1",
+	"20":  "2",
+	"21":  "2",
+	"22":  "2",
+	"23":  "2",
+	"24":  "2",
+	"25":  "2",
+	"26":  "2",
+	"27":  "3",
+	"28":  "3",
+	"29":  "3",
+	"30":  "3",
+	"31":  "3",
+	"32":  "3",
+	"33":  "3",
+	"34":  "3",
+	"35":  "4",
+	"36":  "4",
+	"37":  "4",
+	"38":  "4",
+	"39":  "4",
+	"40":  "4",
+	"41":  "4",
+	"42":  "4",
+	"43":  "4",
+	"44":  "5",
+	"45":  "5",
+	"46":  "5",
+	"47":  "5",
+	"48":  "5",
+	"49":  "5",
+	"50":  "5",
+	"51":  "5",
+	"52":  "6",
+	"53":  "6",
+	"54":  "6",
+	"55":  "6",
+	"56":  "6",
+	"57":  "6",
+	"58":  "7",
+	"59":  "7",
+	"60":  "7",
+	"61":  "7",
+	"62":  "7",
+	"63":  "7",
+	"64":  "7",
+	"65":  "7",
+	"66":  "7",
+	"67":  "7",
+	"68":  "7",
+	"69":  "8",
+	"70":  "8",
+	"71":  "8",
+	"72":  "8",
+	"73":  "8",
+	"74":  "8",
+	"75":  "8",
+	"76":  "9",
+	"77":  "9",
+	"78":  "9",
+	"79":  "9",
+	"80":  "9",
+	"81":  "9",
+	"82":  "9",
+	"83":  "9",
+	"84":  "9",
+	"85":  "9",
 	"86":  "10",
 	"87":  "10",
 	"88":  "10",
@@ -153,7 +133,7 @@ var enemyToPageMap = map[string]string{
 	"115": "10",
 }
 
-var allowedSlayers = map[string]struct{}{
+var slayers = map[string]struct{}{
 	"1":  {},
 	"2":  {},
 	"3":  {},
@@ -174,45 +154,47 @@ var allowedSlayers = map[string]struct{}{
 }
 
 func (obj *Kovojimas) Validate(settings map[string]string) error {
-	enemy, found := settings["vs"]
-	if !found {
-		return errors.New("missing 'vs' field")
-	}
-	_, found = enemyToPageMap[enemy]
-	if !found {
-		return errors.New("unknown 'vs' field")
-	}
-
-	slayer, found := settings["slayer"]
-	if found {
-		_, found = allowedSlayers[slayer]
-		if !found {
-			return errors.New("unknown value of 'slayer' field")
-		}
-	}
-
-	// If "eating" is set and "eating_threshold" is not, consider "eating_threshold" equal to 50 (%)
-	if item, found := settings["eating"]; found {
-		if !eating.IsEatable(item) {
-			return errors.New("provided value of field 'eating' is not a food")
-		}
-		if threshold, found := settings["eating_threshold"]; found {
-			parsed, err := strconv.Atoi(threshold)
-			if err != nil {
-				return errors.New("provided value of field 'eating_threshold' is not a number (must contain only digits)")
-			}
-			if parsed < 0 || parsed > 100 {
-				return errors.New("provided value of field 'eating_threshold' can only be within a range from 1 to 100")
-			}
-		}
-	}
-
+	// Check if there are any unknown options
 	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-		if k != "vs" && k != "eating" && k != "eating_threshold" && k != "slayer" {
-			return errors.New("unknown '" + k + "' field")
+		for _, s := range []string{"vs", "slayer", "food", "food_threshold"} {
+			if k == s {
+				continue
+			}
+		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["vs"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := enemyPage[settings["vs"]]; !found {
+		return errors.New("unrecognized value of option 'vs'")
+	}
+	if slayer, found := settings["slayer"]; found {
+		if _, found := slayers[slayer]; !found {
+			return errors.New("unrecognized value of option 'slayer'")
+		}
+	}
+
+	// If "food" is set and "food_threshold" is not, consider "food_threshold" equal to 50 (%)
+	if item, found := settings["food"]; found {
+		if !eating.IsFood(item) {
+			return errors.New("unrecognized value of option 'food'")
+		}
+		if threshold, found := settings["food_threshold"]; found {
+			parsed, err := strconv.Atoi(threshold)
+			if err != nil {
+				return errors.New("unrecognized value of option 'food_threshold' (must be a whole number, from 1 to 100)")
+			}
+			if parsed < 0 || parsed > 100 {
+				return errors.New("unrecognized value of option 'food_threshold' (must be a whole number, from 1 to 100)")
+			}
 		}
 	}
 
@@ -222,7 +204,7 @@ func (obj *Kovojimas) Validate(settings map[string]string) error {
 var reSlayerProgress = regexp.MustCompile(`Atlikta: (\d+) \/ (\d+)`)
 
 func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/kova.php?{{ creds }}&id=kova0&vs=" + settings["vs"] + "&psl=" + enemyToPageMap[settings["vs"]]
+	path := "/kova.php?{{ creds }}&id=kova0&vs=" + settings["vs"] + "&psl=" + enemyPage[settings["vs"]]
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -295,8 +277,8 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	}
 
 	// Check if we can find health bar and reheal accordingly
-	if _, found := settings["eating"]; found {
-		threshold, _ := strconv.Atoi(settings["eating_threshold"])
+	if _, found := settings["food"]; found {
+		threshold, _ := strconv.Atoi(settings["food_threshold"])
 		if threshold == 0 {
 			threshold = 50
 		}
@@ -305,7 +287,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 			return &module.Result{CanRepeat: false, Error: err}
 		}
 		if currentPercent <= threshold {
-			noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
+			noFoodLeft, err := eating.Eat(p, settings["food"]) // This function goes on loop, so call this once
 			if err != nil {
 				return &module.Result{CanRepeat: false, Error: err}
 			}

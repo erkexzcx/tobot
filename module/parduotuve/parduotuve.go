@@ -14,12 +14,7 @@ import (
 
 type Parduotuve struct{}
 
-var allowedSettings = map[string][]string{
-	"action": {"pirkti", "parduoti"},
-}
-
-// Regenerate list: go run cmd/tobot/main.go -shop
-var itemsPagesMap = map[string]string{
+var itemPage = map[string]string{
 	"K1":    "1",
 	"K2":    "1",
 	"K3":    "1",
@@ -611,56 +606,39 @@ var itemsPagesMap = map[string]string{
 }
 
 func (obj *Parduotuve) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
-		if strings.HasPrefix(k, "_") || k == "item" || k == "amount" {
+	// Check if there are any unknown options
+	for k := range settings {
+		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item", "action", "amount"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+	if _, found := settings["action"]; !found {
+		return errors.New("unrecognized option 'action'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := itemPage[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
+	}
+	if settings["action"] != "pirkti" && settings["action"] != "parduoti" {
+		return errors.New("unrecognized value of option 'action'")
+	}
+	if countString, found := settings["amount"]; found {
+		_, err := strconv.Atoi(countString)
+		if err != nil {
+			return errors.New("unrecognized value of option 'amount'")
 		}
-	}
-
-	// Check 'item'
-	item, found := settings["item"]
-	if !found {
-		return errors.New("missing key 'item'")
-	}
-	_, found = itemsPagesMap[item]
-	if !found {
-		return errors.New("unrecognized value of key 'item'")
-	}
-
-	//Check 'amount'
-	amount, found := settings["amount"]
-	if !found {
-		return errors.New("missing key 'amount'")
-	}
-	_, err := strconv.Atoi(amount)
-	if err != nil {
-		return errors.New("unrecognized value of key 'amount'")
 	}
 
 	return nil
@@ -676,7 +654,7 @@ func (obj *Parduotuve) Perform(p *player.Player, settings map[string]string) *mo
 var regexPirktiMax = regexp.MustCompile(`Daugiausia galite nusipirkti šių daiktų: <b>(\d+)</b>`)
 
 func buy(p *player.Player, settings map[string]string) *module.Result {
-	page := itemsPagesMap[settings["item"]]
+	page := itemPage[settings["item"]]
 	amount, _ := strconv.Atoi(settings["amount"])
 
 	path := "/parda.php?{{ creds }}&id=pirkt&ka=" + settings["item"] + "&page=" + page
@@ -733,7 +711,7 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 }
 
 func sell(p *player.Player, settings map[string]string) *module.Result {
-	page := itemsPagesMap[settings["item"]]
+	page := itemPage[settings["item"]]
 	amount, _ := strconv.Atoi(settings["amount"])
 
 	path := "/parda.php?{{ creds }}&id=parduot&ka=" + settings["item"] + "&page=" + page
