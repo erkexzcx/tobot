@@ -17,11 +17,28 @@ func DumpHTML(doc *goquery.Document) {
 
 // Returns true if doc contains "Jūs pavargęs, bandykite vėl po keleto sekundžių"-alike message
 func IsActionTooFast(doc *goquery.Document) bool {
-	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
-		return true
+	values := []string{
+		"Jūs pavargęs, bandykite vėl po keleto sekundžių..",
+		"Bandykite po kelių sekundžių, pavargote.",
 	}
-	if doc.Find("div:contains('Bandykite po kelių sekundžių, pavargote.')").Length() > 0 {
-		return true
+	for _, s := range values {
+		if doc.Find("div:contains('"+s+"')").Length() > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// Returns true if doc contains "Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!"-alike message
+func IsInvalidClick(doc *goquery.Document) bool {
+	values := []string{
+		"Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!",
+		"Taip negalima! turite eiti atgal ir vėl pulti!",
+	}
+	for _, s := range values {
+		if doc.Find("div:contains('"+s+"')").Length() > 0 {
+			return true
+		}
 	}
 	return false
 }
