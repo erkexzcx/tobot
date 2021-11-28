@@ -2,7 +2,6 @@ package trolis
 
 import (
 	"errors"
-	"log"
 	"net/url"
 	"strings"
 	"tobot/module"
@@ -13,16 +12,16 @@ import (
 type Trolis struct{}
 
 func (obj *Trolis) Validate(settings map[string]string) error {
-	food, found := settings["eating"]
+	food, found := settings["food"]
 	if !found {
-		return errors.New("missing 'eating' field")
+		return errors.New("missing 'food' field")
 	}
-	if !eating.IsEatable(food) {
-		return errors.New("unknown 'eating' field")
+	if !eating.IsFood(food) {
+		return errors.New("unknown 'food' field")
 	}
 
 	for k := range settings {
-		if strings.HasPrefix(k, "_") || k == "eating" {
+		if strings.HasPrefix(k, "_") || k == "food" {
 			continue
 		}
 		return errors.New("unrecognized key '" + k + "'")
@@ -60,20 +59,19 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
+	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
 	}
 
 	// If action was a success
 	if doc.Find("div:contains('Padaryta žala:')").Length() > 0 {
-		if _, found := settings["eating"]; found {
+		if _, found := settings["food"]; found {
 			currentHealth, _, _, err := eating.ParseHealthPercent(doc.Find("img.hp[src^='graph.php'][src$='c=1']"))
 			if err != nil {
 				return &module.Result{CanRepeat: false, Error: err}
 			}
 			if currentHealth == 0 {
-				noFoodLeft, err := eating.Eat(p, settings["eating"]) // This function goes on loop, so call this once
+				noFoodLeft, err := eating.Eat(p, settings["food"]) // This function goes on loop, so call this once
 				if err != nil {
 					return &module.Result{CanRepeat: false, Error: err}
 				}
@@ -90,12 +88,9 @@ func (obj *Trolis) Perform(p *player.Player, settings map[string]string) *module
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// If actioned too fast
-	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
-		log.Println("actioned too fast, retrying...")
+	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
-
 	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }

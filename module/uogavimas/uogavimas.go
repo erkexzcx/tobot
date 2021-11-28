@@ -2,7 +2,6 @@ package uogavimas
 
 import (
 	"errors"
-	"log"
 	"net/url"
 	"strings"
 	"tobot/module"
@@ -11,55 +10,42 @@ import (
 
 type Uogavimas struct{}
 
-var allowedSettings = map[string][]string{
-	"item": {
-		"UO1",
-		"UO2",
-		"UO3",
-		"UO4",
-		"UO5",
-		"UO6",
-		"UO7",
-		"UO8",
-		"UO9",
-		"UO10",
-		"UO11",
-		"UO12",
-	},
+var items = map[string]struct{}{
+	"UO1":  {},
+	"UO2":  {},
+	"UO3":  {},
+	"UO4":  {},
+	"UO5":  {},
+	"UO6":  {},
+	"UO7":  {},
+	"UO9":  {},
+	"UO10": {},
+	"UO11": {},
+	"UO12": {},
 }
 
 func (obj *Uogavimas) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
-		// Bypass some of the values, because they will be checked manually
+	// Check if there are any unknown options
+	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
-		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := items[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
 	}
 
 	return nil
@@ -94,8 +80,7 @@ func (obj *Uogavimas) Perform(p *player.Player, settings map[string]string) *mod
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
+	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
 	}
 
@@ -109,12 +94,9 @@ func (obj *Uogavimas) Perform(p *player.Player, settings map[string]string) *mod
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// If actioned too fast
-	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
-		log.Println("actioned too fast, retrying...")
+	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
-
 	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }

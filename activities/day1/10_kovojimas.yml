@@ -10,8 +10,8 @@ tasks:
   - _module: kovojimas
     vs: 0
     slayer: 1
-    eating: UO1
-    eating_threshold: 30 # 30% should be enough as rat only does 1hp of total damage at a time
+    food: UO1
+    food_threshold: 30 # 30% should be enough as rat only does 1hp of total damage at a time
 
   # slayer terminates above module (or lack of food), therefore sell remaining berries (if any) to free up inventory
   - _module: parduotuve

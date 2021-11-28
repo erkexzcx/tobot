@@ -2,7 +2,6 @@ package demonas
 
 import (
 	"errors"
-	"log"
 	"net/url"
 	"strings"
 	"tobot/module"
@@ -13,19 +12,27 @@ import (
 type Demonas struct{}
 
 func (obj *Demonas) Validate(settings map[string]string) error {
-	food, found := settings["eating"]
-	if !found {
-		return errors.New("missing 'eating' field")
-	}
-	if !eating.IsEatable(food) {
-		return errors.New("unknown 'eating' field")
-	}
-
+	// Check if there are any unknown options
 	for k := range settings {
-		if strings.HasPrefix(k, "_") || k == "eating" {
+		if strings.HasPrefix(k, "_") {
 			continue
 		}
-		return errors.New("unrecognized key '" + k + "'")
+		for _, s := range []string{"food"} {
+			if k == s {
+				continue
+			}
+		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["food"]; !found {
+		return errors.New("unrecognized option 'food'")
+	}
+
+	// Check if there are any unexpected values
+	if !eating.IsFood(settings["food"]) {
+		return errors.New("unrecognized value of option 'food'")
 	}
 
 	return nil
@@ -65,8 +72,7 @@ func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *modul
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	if doc.Find("div:contains('Taip negalima! Turite eiti atgal ir vėl pulti!')").Length() > 0 {
+	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
 	}
 
@@ -75,7 +81,7 @@ func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *modul
 		doc.Find("div:contains('Sužalotas negalite kautis prieš demoną. Gyvybės turi būti pilnos.')").Length() > 0 ||
 		doc.Find("div:contains('Pasipildykite gyvybes.')").Length() > 0
 	if res {
-		outOfFood, err := eating.Eat(p, settings["eating"])
+		outOfFood, err := eating.Eat(p, settings["food"])
 		if err != nil {
 			return &module.Result{CanRepeat: true, Error: err}
 		}
@@ -85,12 +91,9 @@ func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *modul
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
-	// If actioned too fast
-	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
-		log.Println("actioned too fast, retrying...")
+	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
-
 	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }

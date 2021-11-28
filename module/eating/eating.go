@@ -85,19 +85,27 @@ var eatables = map[string]struct{}{
 var reGyvybes = regexp.MustCompile(`Gyvybės: (\d+\.?\d*)\/(\d+)`)
 
 func (obj *Eating) Validate(settings map[string]string) error {
-	food, found := settings["food"]
-	if !found {
-		return errors.New("missing 'food' field")
-	}
-	if !IsEatable(food) {
-		return errors.New("unknown 'food' field")
-	}
-
+	// Check if there are any unknown options
 	for k := range settings {
-		if strings.HasPrefix(k, "_") || k == "food" {
+		if strings.HasPrefix(k, "_") {
 			continue
 		}
-		return errors.New("unrecognized key '" + k + "'")
+		for _, s := range []string{"food"} {
+			if k == s {
+				continue
+			}
+		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["food"]; !found {
+		return errors.New("unrecognized option 'food'")
+	}
+
+	// Check if there are any unexpected values
+	if !IsFood(settings["food"]) {
+		return errors.New("unrecognized value of option 'food'")
 	}
 
 	return nil
@@ -132,7 +140,7 @@ func init() {
 	module.Add("eating", &Eating{})
 }
 
-func IsEatable(item string) bool {
+func IsFood(item string) bool {
 	if _, found := eatables[item]; found {
 		return true
 	}

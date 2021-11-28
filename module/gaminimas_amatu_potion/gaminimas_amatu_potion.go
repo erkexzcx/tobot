@@ -2,7 +2,6 @@ package gaminimas_amatu_potion
 
 import (
 	"errors"
-	"log"
 	"net/url"
 	"strings"
 	"tobot/module"
@@ -12,54 +11,43 @@ import (
 type GaminimasAmatuPotion struct{}
 
 // In shop items found as 'PA1' instead of '1'
-var allowedSettings = map[string][]string{
-	"item": {
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"10",
-		"11",
-		"12",
-	},
+var items = map[string]struct{}{
+	"1":  {},
+	"2":  {},
+	"3":  {},
+	"4":  {},
+	"5":  {},
+	"6":  {},
+	"7":  {},
+	"8":  {},
+	"9":  {},
+	"10": {},
+	"11": {},
+	"12": {},
 }
 
 func (obj *GaminimasAmatuPotion) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
+	// Check if there are any unknown options
+	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
-		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := items[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
 	}
 
 	return nil
@@ -99,8 +87,7 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
+	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
 	}
 
@@ -109,12 +96,9 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
-	// If actioned too fast
-	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
-		log.Println("actioned too fast, retrying...")
+	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
-
 	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }

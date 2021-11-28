@@ -9,5 +9,5 @@ This module allows to fight demonas ("Kovu laukas --> Sunaikintas kraštas").
 ```yaml
   - _module: demonas_wait
   - _module: demonas
-    eating: UO9
+    food: UO9
 ```

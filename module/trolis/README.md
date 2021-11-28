@@ -16,7 +16,7 @@ More advanced, with eating:
   - _module: eating
     food: UO1
   - _module: trolis
-    eating: UO1
+    food: UO1
 ```
 
-**NOTE**: There is no implementation of waiting until Trolis appears...
+**NOTE**: There is no implementation of waiting until Trolis appears. It just goes to the next task, which might lead to page refresh-loop if the only task in activity is `trolis`...

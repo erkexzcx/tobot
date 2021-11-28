@@ -2,7 +2,6 @@ package apdirbimas
 
 import (
 	"errors"
-	"log"
 	"net/url"
 	"strings"
 	"tobot/module"
@@ -11,56 +10,45 @@ import (
 
 type Apdirbimas struct{}
 
-var allowedSettings = map[string][]string{
-	"item": {
-		"AB1",
-		"AB2",
-		"AB3",
-		"AB4",
-		"AB5",
-		"AB6",
-		"AB7",
-		"AB8",
-		"AB9",
-		"AB10",
-		"AB11",
-		"AB12",
-		"AB13",
-		"AB14",
-	},
+var items = map[string]struct{}{
+	"AB1":  {},
+	"AB2":  {},
+	"AB3":  {},
+	"AB4":  {},
+	"AB5":  {},
+	"AB6":  {},
+	"AB7":  {},
+	"AB8":  {},
+	"AB9":  {},
+	"AB10": {},
+	"AB11": {},
+	"AB12": {},
+	"AB13": {},
+	"AB14": {},
 }
 
 func (obj *Apdirbimas) Validate(settings map[string]string) error {
-	// Check for missing keys
-	for k := range allowedSettings {
-		_, found := settings[k]
-		if !found {
-			return errors.New("missing key '" + k + "'")
-		}
-	}
-
-	for k, v := range settings {
+	// Check if there are any unknown options
+	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-
-		// Check for unknown keys
-		_, found := allowedSettings[k]
-		if !found {
-			return errors.New("unrecognized key '" + k + "'")
-		}
-
-		// Check for unknown value
-		found = false
-		for _, el := range allowedSettings[k] {
-			if el == v {
-				found = true
-				break
+		for _, s := range []string{"item"} {
+			if k == s {
+				continue
 			}
 		}
-		if !found {
-			return errors.New("unrecognized value of key '" + k + "'")
-		}
+		return errors.New("unrecognized option '" + k + "'")
+	}
+
+	// Check if any mandatory option is missing
+	if _, found := settings["item"]; !found {
+		return errors.New("unrecognized option 'item'")
+	}
+
+	// Check if there are any unexpected values
+	if _, found := items[settings["item"]]; !found {
+		return errors.New("unrecognized value of option 'item'")
 	}
 
 	return nil
@@ -100,8 +88,7 @@ func (obj *Apdirbimas) Perform(p *player.Player, settings map[string]string) *mo
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Above function might retry in some cases, so if page asks us to go back and try again - lets do it:
-	if doc.Find("div:contains('Taip negalima! turite eiti atgal ir vėl bandyti atlikti veiksmą!')").Length() > 0 {
+	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
 	}
 
@@ -110,12 +97,9 @@ func (obj *Apdirbimas) Perform(p *player.Player, settings map[string]string) *mo
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
-	// If actioned too fast
-	if doc.Find("div:contains('Jūs pavargęs, bandykite vėl po keleto sekundžių..')").Length() > 0 {
-		log.Println("actioned too fast, retrying...")
+	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
-
 	module.DumpHTML(doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
