@@ -159,12 +159,16 @@ func (obj *Kovojimas) Validate(settings map[string]string) error {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
+		unknownField := true
 		for _, s := range []string{"vs", "slayer", "food", "food_threshold"} {
 			if k == s {
-				continue
+				unknownField = false
+				break
 			}
 		}
-		return errors.New("unrecognized option '" + k + "'")
+		if unknownField {
+			return errors.New("unrecognized option '" + k + "'")
+		}
 	}
 
 	// Check if any mandatory option is missing
