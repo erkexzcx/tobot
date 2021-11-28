@@ -2,7 +2,6 @@ package kovojimas
 
 import (
 	"errors"
-	"log"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -277,9 +276,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		return obj.Perform(p, settings)
 	}
 
-	// If actioned too fast
-	if doc.Find("div:contains('Bandykite po kelių sekundžių, pavargote.')").Length() > 0 {
-		log.Println("actioned too fast, retrying...")
+	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
 
@@ -295,7 +292,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	// If lost - error is already thrown, so the only way - win. If not won - throw error
 	if !successWon {
 		module.DumpHTML(doc)
-		return &module.Result{CanRepeat: false, Error: errors.New("not lost and not won, where are we?")}
+		return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 	}
 
 	// Check if we can find health bar and reheal accordingly

@@ -1,10 +1,7 @@
 package module
 
 import (
-	"log"
 	"tobot/player"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 type Module interface {
@@ -21,13 +18,4 @@ func Add(name string, m Module) {
 type Result struct {
 	CanRepeat bool  // 'true' if OK, 'false' if inventory is full or resources (needed for activity) has depleted
 	Error     error // E.g. banned or anything else unexpected
-}
-
-func DumpHTML(doc *goquery.Document) {
-	html, err := doc.Html()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	log.Println(html)
 }
