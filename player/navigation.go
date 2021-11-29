@@ -60,6 +60,18 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		p.timeUntilAction = p.timeUntilNavigation
 	}
 
+	// Check if account does not exist/deleted
+	if isPlayerNotExist(doc) {
+		p.NotifyTelegram("player deleted or does not exist", false)
+		return nil, errors.New("player deleted or does not exist")
+	}
+
+	// Check if banned
+	if isBanned(doc) {
+		p.NotifyTelegram("player banned", false)
+		return nil, errors.New("player banned")
+	}
+
 	// Try again if clicked too fast!
 	if isTooFast(doc) {
 		r := getRandomInt(3123, 8765)
@@ -75,12 +87,6 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 			log.Println("Anti cheat procedure failed...")
 		}
 		return p.Navigate(path, action)
-	}
-
-	// Check if banned
-	if isBanned(doc) {
-		p.NotifyTelegram("player banned", false)
-		return nil, errors.New("player banned")
 	}
 
 	// Check if has new PMs - for now notify the user and panic
@@ -149,6 +155,18 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 		return p.Submit(path, body)
 	}
 
+	// Check if account does not exist/deleted
+	if isPlayerNotExist(doc) {
+		p.NotifyTelegram("player deleted or does not exist", false)
+		return nil, errors.New("player deleted or does not exist")
+	}
+
+	// Check if banned
+	if isBanned(doc) {
+		p.NotifyTelegram("player banned", false)
+		return nil, errors.New("player banned")
+	}
+
 	// Try again if clicked too fast!
 	if isTooFast(doc) {
 		r := getRandomInt(3123, 8765)
@@ -172,12 +190,6 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 		return p.Submit(path, body)
 	}
 
-	// Check if banned
-	if isBanned(doc) {
-		p.NotifyTelegram("player banned", false)
-		return nil, errors.New("player banned")
-	}
-
 	return doc, nil
 }
 
@@ -193,6 +205,10 @@ func isBanned(doc *goquery.Document) bool {
 	// <b>Jūs užbanintas.<br/>
 	return doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 ||
 		doc.Find("div:contains('Jūs užbanintas.')").Length() > 0
+}
+
+func isPlayerNotExist(doc *goquery.Document) bool {
+	return doc.Find("div:contains('Blogi duomenys!')").Length() > 0
 }
 
 func isAnticheatPage(doc *goquery.Document) bool {
