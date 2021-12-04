@@ -75,7 +75,7 @@ func (p *Player) sendPM(to, message string) error {
 	body := strings.NewReader(params.Encode())
 
 	// Additional wait is needed to avoid "Palauk kelias sekundes ir bandykite vėl." error when sending
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// Submit request
 	_, err := p.Submit(path, body)
