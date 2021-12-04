@@ -66,7 +66,7 @@ func (p *Player) getLastPM() (*pm, error) {
 	}, nil
 }
 
-func (p *Player) sendPM(to, message string) {
+func (p *Player) sendPM(to, message string) error {
 	path := "/meniu.php?{{ creds }}&id=siusti_pm&kam=" + to + "&ka="
 
 	params := url.Values{}
@@ -76,11 +76,7 @@ func (p *Player) sendPM(to, message string) {
 
 	// Submit request
 	_, err := p.Submit(path, body)
-	if err != nil {
-		log.Fatalln(err)
-		p.sendPM(to, message)
-		return
-	}
+	return err
 }
 
 func (p *Player) handleScheduledReplies() {
@@ -100,7 +96,11 @@ func (p *Player) handleScheduledReplies() {
 	p.replyMux.Lock()
 	defer p.replyMux.Unlock()
 	for sendTo, message := range p.replyScheduled {
-		p.sendPM(sendTo, message)
+		err := p.sendPM(sendTo, message)
+		if err != nil {
+			log.Fatalln(err)
+			return
+		}
 		delete(p.replyScheduled, sendTo)
 	}
 }
