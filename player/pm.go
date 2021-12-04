@@ -2,6 +2,7 @@ package player
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/url"
 	"regexp"
@@ -75,7 +76,12 @@ func (p *Player) sendPM(to, message string) error {
 	body := strings.NewReader(params.Encode())
 
 	// Submit request
-	_, err := p.Submit(path, body)
+	doc, err := p.Submit(path, body)
+	if err != nil {
+		panic(err)
+	}
+	asd, _ := doc.Html()
+	fmt.Println(asd)
 	return err
 }
 
