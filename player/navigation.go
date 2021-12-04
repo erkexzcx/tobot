@@ -89,7 +89,10 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		return p.Navigate(path, action)
 	}
 
-	// Check if has new PMs - for now notify the user and panic
+	// Send scheduled PMs
+	p.handleScheduledReplies()
+
+	// Check if has new PMs
 	if hasNewPM(doc) {
 		m, err := p.getLastPM()
 		if err != nil {
@@ -116,9 +119,6 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 
 		return p.Navigate(path, action)
 	}
-
-	// Check if any new scheduled PMs
-	p.handleScheduledReplies()
 
 	return doc, nil
 }
