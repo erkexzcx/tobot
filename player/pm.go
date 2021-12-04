@@ -2,7 +2,6 @@ package player
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/url"
 	"regexp"
@@ -75,13 +74,11 @@ func (p *Player) sendPM(to, message string) error {
 	params.Add("null", "Siųsti")
 	body := strings.NewReader(params.Encode())
 
+	// Additional wait is needed to avoid "Palauk kelias sekundes ir bandykite vėl." error when sending
+	time.Sleep(5 * time.Second)
+
 	// Submit request
-	doc, err := p.Submit(path, body)
-	if err != nil {
-		panic(err)
-	}
-	asd, _ := doc.Html()
-	fmt.Println(asd)
+	_, err := p.Submit(path, body)
 	return err
 }
 
