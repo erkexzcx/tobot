@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 type pm struct {
@@ -66,7 +68,7 @@ func (p *Player) getLastPM() (*pm, error) {
 	}, nil
 }
 
-func (p *Player) sendPM(to, message string) error {
+func (p *Player) sendPM(to, message string, doc *goquery.Document) error {
 	path := "/meniu.php?{{ creds }}&id=siusti_pm&kam=" + to + "&ka="
 
 	params := url.Values{}
@@ -74,15 +76,16 @@ func (p *Player) sendPM(to, message string) error {
 	params.Add("null", "Siųsti")
 	body := strings.NewReader(params.Encode())
 
-	// Additional wait is needed to avoid "Palauk kelias sekundes ir bandykite vėl." error when sending
-	time.Sleep(10 * time.Second)
+	// Need to wait in order to workaround "Palauk kelias sekundes ir bandykite vėl." error when sending
+	sleepDuration := p.extractWaitTime(doc) - p.minRTT
+	time.Sleep(sleepDuration)
 
 	// Submit request
 	_, err := p.Submit(path, body)
 	return err
 }
 
-func (p *Player) handleScheduledReplies() {
+func (p *Player) handleScheduledReplies(doc *goquery.Document) {
 	for {
 		p.replyMux.Lock()
 		isWaiting := p.waitingForReply
@@ -99,7 +102,7 @@ func (p *Player) handleScheduledReplies() {
 	p.replyMux.Lock()
 	defer p.replyMux.Unlock()
 	for sendTo, message := range p.replyScheduled {
-		err := p.sendPM(sendTo, message)
+		err := p.sendPM(sendTo, message, doc)
 		if err != nil {
 			log.Fatalln(err)
 			return

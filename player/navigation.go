@@ -90,7 +90,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	}
 
 	// Send scheduled PMs
-	p.handleScheduledReplies()
+	p.handleScheduledReplies(doc)
 
 	// Check if has new PMs
 	if hasNewPM(doc) {
@@ -115,7 +115,7 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		p.waitingForReply = true
 		p.replyMux.Unlock()
 
-		p.handleScheduledReplies()
+		p.handleScheduledReplies(doc)
 
 		return p.Navigate(path, action)
 	}
