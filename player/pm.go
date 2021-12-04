@@ -95,7 +95,6 @@ func (p *Player) handleScheduledReplies() {
 
 	p.replyMux.Lock()
 	defer p.replyMux.Unlock()
-	log.Println("Length of queue:", len(p.replyScheduled))
 	for sendTo, message := range p.replyScheduled {
 		err := p.sendPM(sendTo, message)
 		if err != nil {
