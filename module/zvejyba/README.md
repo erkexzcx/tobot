@@ -6,5 +6,5 @@ This module allows to perform actions in "Upe".
 
 ```yaml
   - _module: zvejyba
-    item: sliekas
+    item: sliekas # take this value from the URL
 ```
