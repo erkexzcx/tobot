@@ -47,11 +47,20 @@ Sell max amount of items
     item: MA1
 ```
 
-Sell max-1 amount of items (1 item will remain in inventory, the rest of the items will be sold)
+Same as above
 
 ```yaml
   - _module: parduotuve
     action: parduoti
     item: MA1
     amount: 0
+```
+
+Sell max-1 amount of items (1 item will remain in inventory, the rest of the items will be sold)
+
+```yaml
+  - _module: parduotuve
+    action: parduoti
+    item: MA1
+    amount: -1
 ```
