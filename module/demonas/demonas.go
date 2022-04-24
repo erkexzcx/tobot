@@ -21,8 +21,8 @@ func (obj *Demonas) Validate(settings map[string]string) error {
 			if k == s {
 				continue
 			}
+			return errors.New("unrecognized option '" + k + "'")
 		}
-		return errors.New("unrecognized option '" + k + "'")
 	}
 
 	// Check if any mandatory option is missing

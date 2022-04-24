@@ -94,13 +94,13 @@ func (obj *Eating) Validate(settings map[string]string) error {
 			if k == s {
 				continue
 			}
+			return errors.New("unrecognized option '" + k + "'")
 		}
-		return errors.New("unrecognized option '" + k + "'")
 	}
 
 	// Check if any mandatory option is missing
 	if _, found := settings["food"]; !found {
-		return errors.New("unrecognized option 'food'")
+		return errors.New("missing option 'food'")
 	}
 
 	// Check if there are any unexpected values

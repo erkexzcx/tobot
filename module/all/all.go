@@ -10,7 +10,6 @@ import (
 	_ "tobot/module/gaminimas_ginklai"
 	_ "tobot/module/gaminimas_lankai"
 	_ "tobot/module/grybavimas"
-	_ "tobot/module/kartuves"
 	_ "tobot/module/kasimas"
 	_ "tobot/module/kepimas"
 	_ "tobot/module/kirtimas"
