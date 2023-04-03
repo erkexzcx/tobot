@@ -3,7 +3,7 @@ package player
 import (
 	"crypto/md5"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/url"
 	"regexp"
@@ -94,7 +94,7 @@ func getColorToClickName(p *Player, doc *goquery.Document) string {
 		return ""
 	}
 	defer resp.Body.Close()
-	content, err := ioutil.ReadAll(resp.Body)
+	content, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("Failed anticheat img #4:", err)
 		return ""
@@ -156,7 +156,7 @@ func getColorToLinkMap(p *Player, doc *goquery.Document) (map[string]string, boo
 			return
 		}
 		defer resp.Body.Close()
-		content, err := ioutil.ReadAll(resp.Body)
+		content, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Println("Failed anticheat #4:", err)
 			failed = true

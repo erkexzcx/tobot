@@ -75,6 +75,14 @@ func validateConfig(c *Config) error {
 		return errors.New("empty 'telegram->chat_id' field value")
 	}
 
+	if c.OpenAI.ApiKey == "" {
+		return errors.New("empty 'openai->api_key' field value")
+	}
+
+	if c.OpenAI.Instructions == "" {
+		return errors.New("empty 'openai->instructions' field value")
+	}
+
 	if c.Settings.RootAddress == "" {
 		return errors.New("empty 'settings->root_address' field value")
 	}

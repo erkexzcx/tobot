@@ -13,5 +13,6 @@ require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/otiai10/mint v1.4.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/sashabaranov/go-openai v1.5.8
 	golang.org/x/net v0.8.0 // indirect
 )

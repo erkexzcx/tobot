@@ -33,8 +33,10 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// Set global variables in package "telegram"
+	// Set global variables
 	telegram.CHAT_ID = c.Telegram.ChatId
+	player.OPENAI_API_KEY = c.OpenAI.ApiKey
+	player.OPENAI_INSTRUCTIONS = c.OpenAI.Instructions
 
 	// Connect to Telegram bot
 	telegramBot, err := tb.NewBot(tb.Settings{

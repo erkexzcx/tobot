@@ -4,7 +4,7 @@ telegram:
 
 openai:
   api_key: XX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  instructions: Each message is a PM, reply in Lithuanian (no diacritics, mistakes), solve tasks, be aggressive like you busy, short answers (1-4 words).
+  instructions: Reply in Lithuanian (no diacritics, mistakes), answer in 1 word only, no questions, be aggressive
 
 settings:
   root_address: http://tob.lt

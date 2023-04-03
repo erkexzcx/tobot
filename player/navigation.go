@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"tobot/telegram"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -102,10 +103,19 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		}
 
 		// See telegram package - there is regex that MUST match below messages format in order to work
-		if m.moderator {
-			p.NotifyTelegram(fmt.Sprintf("Player '*%s' says: %s", m.from, m.text), false)
-		} else {
-			p.NotifyTelegram(fmt.Sprintf("Player '%s' says: %s", m.from, m.text), false)
+		// if m.moderator {
+		// 	p.NotifyTelegram(fmt.Sprintf("Player '*%s' says: %s", m.from, m.text), false)
+		// } else {
+		// 	p.NotifyTelegram(fmt.Sprintf("Player '%s' says: %s", m.from, m.text), false)
+		// }
+		generatedReply := getAIReply(m.text)
+		if generatedReply == "" {
+			generatedReply = "Nesupratau?"
+		}
+		err = p.sendPM(m.from, generatedReply, doc)
+		if err != nil {
+			log.Println("Failed to send PM: " + err.Error())
+			telegram.SendMessage(fmt.Sprintf("Failed to send PM to %s: %s", m.from, err.Error()), false)
 		}
 
 		return p.Navigate(path, action)
@@ -226,18 +236,21 @@ func (p *Player) fullLink(path string) string {
 }
 
 func getRandomInt(min, max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max-min) + min
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+	return random.Intn(max-min) + min
 }
 
 func getRandomInt64(min, max int64) int64 {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Int63n(max-min) + min
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+	return random.Int63n(max-min) + min
 }
 
 func getRandomForAdditionalWait(min, max int64) int64 {
-	rand.Seed(time.Now().UnixNano())
-	number := rand.Int63n(max*2-min) + min
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+	number := random.Int63n(max*2-min) + min
 	// Below logic helps to be more human like :)
 	if number > max {
 		return number / 2
