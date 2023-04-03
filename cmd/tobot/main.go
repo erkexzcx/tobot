@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
 	"log"
 	"net/url"
+	"os"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -88,7 +88,7 @@ func main() {
 			if strings.HasPrefix(path.Base(f), "_") {
 				continue // Skip '_*.yml' files
 			}
-			contents, err := ioutil.ReadFile(f)
+			contents, err := os.ReadFile(f)
 			if err != nil {
 				log.Fatalln(err)
 			}

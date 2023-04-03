@@ -19,9 +19,9 @@ go run cmd/pm/main.go -nick aaaaa -pass aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -57,7 +57,7 @@ func main() {
 		0,
 	)
 
-	accountsString, err := ioutil.ReadFile(*flagAccounts)
+	accountsString, err := os.ReadFile(*flagAccounts)
 	if err != nil {
 		panic(err)
 	}

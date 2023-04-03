@@ -2,6 +2,10 @@ telegram:
   api_key: 1234567890:6xYrZZ2s_jrki5qgr8OxVBS566z2ZGF4Co7
   chat_id: 123456789
 
+openai:
+  api_key: XX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  instructions: Each message is a PM, reply in Lithuanian (no diacritics, mistakes), solve tasks, be aggressive like you busy, short answers (1-4 words).
+
 settings:
   root_address: http://tob.lt
   user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36

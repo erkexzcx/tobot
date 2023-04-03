@@ -31,9 +31,8 @@ type Player struct {
 	sleepTo   time.Time
 
 	// Needed for replies
-	replyScheduled  map[string]string
-	replyMux        sync.Mutex
-	waitingForReply bool // Player should freeze until reply is received
+	replyScheduled map[string]string
+	replyMux       sync.Mutex
 }
 
 func NewPlayer(
@@ -78,9 +77,6 @@ func NewPlayer(
 
 	// Init becomeOffline from/to fields
 	p.manageBecomeOffline()
-
-	// Init reply mechanism (for incoming replies via Telegram)
-	go p.listenTelegramMessages(fromTelegram)
 
 	// If service is restarted, we get lots of "too fast" messages, let's wait before first click
 	p.timeUntilNavigation = time.Now().Add(MIN_WAIT_TIME - p.minRTT)

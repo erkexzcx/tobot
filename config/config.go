@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -15,6 +15,10 @@ type Config struct {
 		ApiKey string `yaml:"api_key"`
 		ChatId int64  `yaml:"chat_id"`
 	} `yaml:"telegram"`
+	OpenAI struct {
+		ApiKey       string `yaml:"api_key"`
+		Instructions string `yaml:"instructions"`
+	} `yaml:"openai"`
 	Settings Settings  `yaml:"settings"`
 	Players  []*Player `yaml:"players"`
 }
@@ -42,7 +46,7 @@ type Settings struct {
 }
 
 func NewConfig(path string) (*Config, error) {
-	contents, err := ioutil.ReadFile(path)
+	contents, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

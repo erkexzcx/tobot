@@ -89,9 +89,6 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		return p.Navigate(path, action)
 	}
 
-	// Send scheduled PMs
-	p.handleScheduledReplies(doc)
-
 	// Check if has new PMs
 	if hasNewPM(doc) {
 		m, err := p.getLastPM()
@@ -110,12 +107,6 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		} else {
 			p.NotifyTelegram(fmt.Sprintf("Player '%s' says: %s", m.from, m.text), false)
 		}
-
-		p.replyMux.Lock()
-		p.waitingForReply = true
-		p.replyMux.Unlock()
-
-		p.handleScheduledReplies(doc)
 
 		return p.Navigate(path, action)
 	}

@@ -84,29 +84,3 @@ func (p *Player) sendPM(to, message string, doc *goquery.Document) error {
 	_, err := p.Submit(path, body)
 	return err
 }
-
-func (p *Player) handleScheduledReplies(doc *goquery.Document) {
-	for {
-		p.replyMux.Lock()
-		isWaiting := p.waitingForReply
-		p.replyMux.Unlock()
-
-		if isWaiting {
-			time.Sleep(200 * time.Millisecond)
-			continue
-		}
-
-		break
-	}
-
-	p.replyMux.Lock()
-	defer p.replyMux.Unlock()
-	for sendTo, message := range p.replyScheduled {
-		err := p.sendPM(sendTo, message, doc)
-		if err != nil {
-			log.Fatalln(err)
-			return
-		}
-		delete(p.replyScheduled, sendTo)
-	}
-}
