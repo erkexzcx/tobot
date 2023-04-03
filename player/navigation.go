@@ -108,15 +108,30 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		// } else {
 		// 	p.NotifyTelegram(fmt.Sprintf("Player '%s' says: %s", m.from, m.text), false)
 		// }
+
+		sender := m.from
+		if m.moderator {
+			sender = "*" + sender
+		}
+
+		log.Printf("Received PM from %s: %s", sender, m.text)
+		telegram.SendMessage(fmt.Sprintf("Received PM from %s: %s", sender, m.text), false)
+
 		generatedReply := getAIReply(m.text)
 		if generatedReply == "" {
 			generatedReply = "Nesupratau?"
 		}
+
+		time.Sleep(3 * time.Second)
 		err = p.sendPM(m.from, generatedReply, doc)
-		if err != nil {
-			log.Println("Failed to send PM: " + err.Error())
-			telegram.SendMessage(fmt.Sprintf("Failed to send PM to %s: %s", m.from, err.Error()), false)
+
+		msg := fmt.Sprintf("Failed to send PM reply to %s with generated text '%s': %s", sender, generatedReply, err.Error())
+		if err == nil {
+			msg = fmt.Sprintf("Successfully sent PM reply to %s with generated text '%s'", sender, generatedReply)
 		}
+
+		log.Println(msg)
+		telegram.SendMessage(msg, false)
 
 		return p.Navigate(path, action)
 	}
