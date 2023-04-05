@@ -125,9 +125,9 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 		time.Sleep(3 * time.Second)
 		err = p.sendPM(m.from, generatedReply, doc)
 
-		msg := fmt.Sprintf("Failed to send PM reply to %s with generated text '%s': %s", sender, generatedReply, err.Error())
-		if err == nil {
-			msg = fmt.Sprintf("Successfully sent PM reply to %s with generated text '%s'", sender, generatedReply)
+		msg := fmt.Sprintf("Successfully sent PM reply to %s with generated text '%s'", sender, generatedReply)
+		if err != nil {
+			msg = fmt.Sprintf("Failed to send PM reply to %s with generated text '%s': %s", sender, generatedReply, err.Error())
 		}
 
 		log.Println(msg)

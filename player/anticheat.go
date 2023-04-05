@@ -66,8 +66,15 @@ func (p *Player) solveAnticheat(doc *goquery.Document) bool {
 			return false
 		}
 
-		// Return status
-		return doc.Find("div:contains('Galite žaisti toliau.')").Length() > 0
+		success := doc.Find("div:contains('Galite žaisti toliau.')").Length() > 0
+		if success {
+			log.Println("Anti-cheat passed")
+			return true
+		}
+		log.Println("Failed anticheat main #99:", err)
+		contents, _ := doc.Html()
+		log.Println(contents)
+		return false
 	}
 	log.Println("Anti-cheat ran out of time and failed")
 	return false

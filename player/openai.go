@@ -16,6 +16,9 @@ var (
 var openai_client *openai.Client
 
 func getAIReply(msg string) string {
+	if openai_client == nil {
+		openai_client = openai.NewClient(OPENAI_API_KEY)
+	}
 	resp, err := openai_client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
@@ -40,8 +43,4 @@ func getAIReply(msg string) string {
 	}
 
 	return resp.Choices[0].Message.Content
-}
-
-func init() {
-	openai_client = openai.NewClient(OPENAI_API_KEY)
 }
