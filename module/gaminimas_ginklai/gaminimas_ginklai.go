@@ -95,11 +95,6 @@ func (obj *GaminimasGinklai) Perform(p *player.Player, settings map[string]strin
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// Ignore if level too low
-	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
-	}
-
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Kalti')").Attr("href")
 	if !found {
@@ -122,6 +117,11 @@ func (obj *GaminimasGinklai) Perform(p *player.Player, settings map[string]strin
 
 	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
+	}
+
+	// Ignore if level too low
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If action was a success

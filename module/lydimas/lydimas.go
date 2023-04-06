@@ -76,11 +76,6 @@ func (obj *Lydimas) Perform(p *player.Player, settings map[string]string) *modul
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Ignore if level too low
-	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
-	}
-
 	// Check if not depleted
 	if doc.Find("b:contains('Nepakanka žaliavų!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
@@ -108,6 +103,11 @@ func (obj *Lydimas) Perform(p *player.Player, settings map[string]string) *modul
 
 	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
+	}
+
+	// Ignore if level too low
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If action was a success
