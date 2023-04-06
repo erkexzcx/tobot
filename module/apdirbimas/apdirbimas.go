@@ -71,6 +71,8 @@ func (obj *Apdirbimas) Perform(p *player.Player, settings map[string]string) *mo
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
+	module.DumpHTML(doc)
+
 	// Ignore if level too low
 	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
