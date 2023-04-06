@@ -134,13 +134,13 @@ func (obj *Kepimas) Perform(p *player.Player, settings map[string]string) *modul
 		return obj.Perform(p, settings)
 	}
 
-	// Check if not depleted
-	if doc.Find("b:contains('Nebeturite ko kepti!')").Length() > 0 {
+	// Ignore if level too low
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// Ignore if level too low
-	if doc.Find(":contains('lygis per žemas')").Length() > 0 {
+	// Check if not depleted
+	if doc.Find("b:contains('Nebeturite ko kepti!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 

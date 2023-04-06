@@ -72,7 +72,7 @@ func (obj *GaminimasAmatuPotion) Perform(p *player.Player, settings map[string]s
 	}
 
 	// Ignore if level too low
-	if doc.Find(":contains('lygis per žemas')").Length() > 0 {
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
