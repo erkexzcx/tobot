@@ -7,7 +7,52 @@ tasks:
   - _module: gaminimas_amatu_potion
     item: 1
 
+  # Parduoti visus turimus amatu potion
   - _module: parduotuve
     action: parduoti
     item: PA1
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA2
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA3
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA7
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA8
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA9
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA10
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA11
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: PA12
     amount: 0

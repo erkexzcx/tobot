@@ -7,7 +7,48 @@ tasks:
   - _module: gaminimas_lankai
     item: L1
 
+  # Parduoti visus turimus lankus, isskyrus palikti viena
   - _module: parduotuve
     action: parduoti
     item: L1
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L2
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L3
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L4
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L5
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L6
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L7
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L8
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L9
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L10
+    amount: -1
+  - _module: parduotuve
+    action: parduoti
+    item: L11
     amount: -1

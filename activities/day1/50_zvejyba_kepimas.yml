@@ -1,7 +1,7 @@
 name: Zvejyba, kepimas ir pardavimas
 tasks:
 
-  # Nusikirsti 5 alksniu krosneles kurui
+  # Nusikirsti 5 malkas krosneles kurenimui
   - _module: kirtimas
     _count: 5
     item: MA1
@@ -16,15 +16,62 @@ tasks:
   - _module: zvejyba
     item: sliekas
 
-  # Iskepti laimikius
+  # Iskepti visus laimikius
   - _module: kepimas
     item: Z1
     fuel: MA1
+  - _module: kepimas
+    item: Z2
+    fuel: MA1
+  - _module: kepimas
+    item: Z3
+    fuel: MA1
+  - _module: kepimas
+    item: Z4
+    fuel: MA1
+  - _module: kepimas
+    item: Z5
+    fuel: MA1
+  - _module: kepimas
+    item: Z6
+    fuel: MA1
+  - _module: kepimas
+    item: Z7
+    fuel: MA1
+  - _module: kepimas
+    item: Z8
+    fuel: MA1
+  - _module: kepimas
+    item: Z9
+    fuel: MA1
+  - _module: kepimas
+    item: Z10
+    fuel: MA1
+  ## Plukes nekiapamos
+  # - _module: kepimas
+  #   item: Z11
+  #   fuel: MA1
+  ## Varles nekepiamos
+  # - _module: kepimas
+  #   item: Z12
+  #   fuel: MA1
+  - _module: kepimas
+    item: Z13
+    fuel: MA1
+  - _module: kepimas
+    item: Z14
+    fuel: MA1
+  - _module: kepimas
+    item: Z15
+    fuel: MA1
+  - _module: kepimas
+    item: Z16
+    fuel: MA1
 
-  # Parduoti keptus/nekeptus laimikius
+  # Parduoti visus neiskeptus laimikius
   - _module: parduotuve
     action: parduoti
-    item: KZ1
+    item: Z1
     amount: 0
   - _module: parduotuve
     action: parduoti
@@ -34,14 +81,128 @@ tasks:
     action: parduoti
     item: Z3
     amount: 0
-
-  # Varles nekepiamos - parduoti
+  - _module: parduotuve
+    action: parduoti
+    item: Z4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z7
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z8
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z9
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z10
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z11
+    amount: 0
   - _module: parduotuve
     action: parduoti
     item: Z12
     amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z13
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z14
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z15
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: Z16
+    amount: 0
 
-  # parduoti nepanaudotas alksnio malkas
+  # Parduoti visus iskeptus laimikius
+  - _module: parduotuve
+    action: parduoti
+    item: KZ1
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ2
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ3
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ7
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ8
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ9
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ10
+    amount: 0
+  ## Plukes nekiapamos
+  # - _module: parduotuve
+  #   action: parduoti
+  #   item: KZ11
+  #   amount: 0
+  ## Varles nekepiamos
+  # - _module: parduotuve
+  #   action: parduoti
+  #   item: KZ12
+  #   amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ13
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ14
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ15
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ16
+    amount: 0
+
+  # parduoti nepanaudotas malkas
   - _module: parduotuve
     action: parduoti
     item: MA1

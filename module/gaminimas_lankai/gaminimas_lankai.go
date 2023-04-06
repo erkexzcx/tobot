@@ -74,6 +74,11 @@ func (obj *GaminimasLankai) Perform(p *player.Player, settings map[string]string
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
+	// Ignore if level too low
+	if doc.Find(":contains('lygis per žemas')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Gaminti')").Attr("href")
 	if !found {
