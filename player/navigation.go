@@ -84,9 +84,11 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	// Check if landed in anti-cheat check page
 	if isAnticheatPage(doc) {
 		res := p.solveAnticheat(doc)
+		time.Sleep(MIN_WAIT_TIME - p.minRTT)
 		if !res {
 			log.Println("Anti cheat procedure failed...")
 		}
+		time.Sleep(MIN_WAIT_TIME - p.minRTT)
 		return p.Navigate(path, action)
 	}
 
@@ -200,6 +202,7 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 	// Check if landed in anti-cheat check page
 	if isAnticheatPage(doc) {
 		res := p.solveAnticheat(doc)
+		time.Sleep(MIN_WAIT_TIME - p.minRTT)
 		if !res {
 			log.Println("Anti cheat procedure failed...")
 		}
