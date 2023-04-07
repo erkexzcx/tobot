@@ -16,31 +16,31 @@ tasks:
     amount: 0
 
   # Brangakmeniu apdirbimas
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB1
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB2
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB3
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB4
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB5
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB6
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB7
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB8
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB9
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB10
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB11
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB12
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB13
 
   # Parduoti visus imanomus apdirbtus brangakmenis

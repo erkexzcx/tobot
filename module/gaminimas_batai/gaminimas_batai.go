@@ -1,4 +1,4 @@
-package apdirbimas
+package gaminimas_batai
 
 import (
 	"errors"
@@ -8,30 +8,25 @@ import (
 	"tobot/player"
 )
 
-type Apdirbimas struct{}
+type GaminimasBatai struct{}
 
 var items = map[string]struct{}{
-	"AB1":  {},
-	"AB2":  {},
-	"AB3":  {},
-	"AB4":  {},
-	"AB5":  {},
-	"AB6":  {},
-	"AB7":  {},
-	"AB8":  {},
-	"AB9":  {},
-	"AB10": {},
-	"AB11": {},
-	"AB12": {},
-	"AB13": {},
-	"AB14": {},
-	"AB15": {},
-	"AB16": {},
-	"AB17": {},
-	"AB18": {},
+	"BA1":  {},
+	"BA2":  {},
+	"BA3":  {},
+	"BA4":  {},
+	"BA5":  {},
+	"BA6":  {},
+	"BA7":  {},
+	"BA8":  {},
+	"BA9":  {},
+	"BA10": {},
+	"BA11": {},
+	"BA12": {},
+	"BA13": {},
 }
 
-func (obj *Apdirbimas) Validate(settings map[string]string) error {
+func (obj *GaminimasBatai) Validate(settings map[string]string) error {
 	// Check if there are any unknown options
 	for k := range settings {
 		if strings.HasPrefix(k, "_") {
@@ -62,8 +57,8 @@ func (obj *Apdirbimas) Validate(settings map[string]string) error {
 	return nil
 }
 
-func (obj *Apdirbimas) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/dirbtuves.php?{{ creds }}&id=bapd0&ka=" + settings["item"]
+func (obj *GaminimasBatai) Perform(p *player.Player, settings map[string]string) *module.Result {
+	path := "/dirbtuves.php?{{ creds }}&id=fmat0&ka=" + settings["item"]
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -72,12 +67,12 @@ func (obj *Apdirbimas) Perform(p *player.Player, settings map[string]string) *mo
 	}
 
 	// Check if not depleted
-	if doc.Find("b:contains('Neužtenka neapdirbtų akmenų!')").Length() > 0 {
+	if doc.Find("b:contains('Nepakanka žaliavų!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// Find action link
-	actionLink, found := doc.Find("a[href*='&kd=']:contains('Apdirbti')").Attr("href")
+	actionLink, found := doc.Find("a[href*='&kd=']:contains('Gaminti')").Attr("href")
 	if !found {
 		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
@@ -106,7 +101,7 @@ func (obj *Apdirbimas) Perform(p *player.Player, settings map[string]string) *mo
 	}
 
 	// If action was a success
-	if doc.Find("div:contains('Apdirbta: ')").Length() > 0 {
+	if doc.Find("div:contains('Pagaminta:')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
@@ -118,5 +113,5 @@ func (obj *Apdirbimas) Perform(p *player.Player, settings map[string]string) *mo
 }
 
 func init() {
-	module.Add("apdirbimas", &Apdirbimas{})
+	module.Add("gaminimas_batai", &GaminimasBatai{})
 }
