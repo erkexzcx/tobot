@@ -58,7 +58,7 @@ func (obj *GaminimasBatai) Validate(settings map[string]string) error {
 }
 
 func (obj *GaminimasBatai) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/dirbtuves.php?{{ creds }}&id=fmat0&ka=" + settings["item"]
+	path := "/dirbtuves.php?{{ creds }}&id=fmat0&ka=" + settings["item"] + "&page=3"
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
