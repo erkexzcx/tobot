@@ -6,5 +6,5 @@ This module allows to perform actions in "Dirbtuves -> Gaminti batus".
 
 ```yaml
   - _module: gaminimas_batai
-    item: L1
+    item: BA1
 ```

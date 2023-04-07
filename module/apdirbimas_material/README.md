@@ -6,5 +6,5 @@ This module allows to perform actions in "Dirbtuves -> Išdirbti materialus".
 
 ```yaml
   - _module: apdirbimas_material
-    item: L1
+    item: AM1
 ```
