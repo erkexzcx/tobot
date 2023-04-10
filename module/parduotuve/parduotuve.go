@@ -808,7 +808,7 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 	path := "/parda.php?{{ creds }}&id=pirkt&ka=" + settings["item"] + "&page=" + page
 	pathSubmit := "/parda.php?{{ creds }}&id=perku&ka=" + settings["item"] + "&page=" + page
 
-	// Download page that contains unique action link
+	// Download page that contains max items we can buy
 	doc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
@@ -838,7 +838,7 @@ func buy(p *player.Player, settings map[string]string) *module.Result {
 
 	log.Println("Buying:", buyAmount)
 	params := url.Values{}
-	params.Add("kiekis", fmt.Sprint(buyAmount))
+	params.Add("kiekis", strconv.Itoa(buyAmount))
 	params.Add("null", "Pirkti")
 	body := strings.NewReader(params.Encode())
 
