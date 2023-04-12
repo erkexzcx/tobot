@@ -175,16 +175,14 @@ tasks:
     action: parduoti
     item: KZ10
     amount: 0
-  ## Plukes nekiapamos
-  # - _module: parduotuve
-  #   action: parduoti
-  #   item: KZ11
-  #   amount: 0
-  ## Varles nekepiamos
-  # - _module: parduotuve
-  #   action: parduoti
-  #   item: KZ12
-  #   amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ11
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: KZ12
+    amount: 0
   - _module: parduotuve
     action: parduoti
     item: KZ13
