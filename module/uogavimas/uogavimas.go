@@ -18,6 +18,7 @@ var items = map[string]struct{}{
 	"UO5":  {},
 	"UO6":  {},
 	"UO7":  {},
+	"UO8":  {},
 	"UO9":  {},
 	"UO10": {},
 	"UO11": {},
