@@ -5,6 +5,6 @@ This module allows to perform actions in "dirbtuves -> apdirbti brangakmenius".
 ## Example
 
 ```yaml
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB1
 ```

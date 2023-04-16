@@ -1,4 +1,4 @@
-package apdirbimas_brangakmeniai
+package apdirbimas_dragon
 
 import (
 	"errors"
@@ -8,62 +8,25 @@ import (
 	"tobot/player"
 )
 
-type ApdirbimasBrangakmeniai struct{}
+type ApdirbimasDragon struct{}
 
-var items = map[string]struct{}{
-	"AB1":  {},
-	"AB2":  {},
-	"AB3":  {},
-	"AB4":  {},
-	"AB5":  {},
-	"AB6":  {},
-	"AB7":  {},
-	"AB8":  {},
-	"AB9":  {},
-	"AB10": {},
-	"AB11": {},
-	"AB12": {},
-	"AB13": {},
-	"AB14": {},
-	"AB15": {},
-	"AB16": {},
-	"AB17": {},
-	"AB18": {},
-}
-
-func (obj *ApdirbimasBrangakmeniai) Validate(settings map[string]string) error {
+func (obj *ApdirbimasDragon) Validate(settings map[string]string) error {
 	// Check if there are any unknown options
 	for k := range settings {
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
 		unknownField := true
-		for _, s := range []string{"item"} {
-			if k == s {
-				unknownField = false
-				break
-			}
-		}
 		if unknownField {
 			return errors.New("unrecognized option '" + k + "'")
 		}
 	}
 
-	// Check if any mandatory option is missing
-	if _, found := settings["item"]; !found {
-		return errors.New("unrecognized option 'item'")
-	}
-
-	// Check if there are any unexpected values
-	if _, found := items[settings["item"]]; !found {
-		return errors.New("unrecognized value of option 'item'")
-	}
-
 	return nil
 }
 
-func (obj *ApdirbimasBrangakmeniai) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/dirbtuves.php?{{ creds }}&id=bapd0&ka=" + settings["item"]
+func (obj *ApdirbimasDragon) Perform(p *player.Player, settings map[string]string) *module.Result {
+	path := "/dirbtuves.php?{{ creds }}&id="
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -71,13 +34,8 @@ func (obj *ApdirbimasBrangakmeniai) Perform(p *player.Player, settings map[strin
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
-	// Check if not depleted
-	if doc.Find("b:contains('Neužtenka neapdirbtų akmenų!')").Length() > 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
-	}
-
 	// Find action link
-	actionLink, found := doc.Find("a[href*='&kd=']:contains('Apdirbti')").Attr("href")
+	actionLink, found := doc.Find("a[href*='&kd=']:contains('Apdirbti dragon akmenį')").Attr("href")
 	if !found {
 		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
@@ -100,13 +58,18 @@ func (obj *ApdirbimasBrangakmeniai) Perform(p *player.Player, settings map[strin
 		return obj.Perform(p, settings)
 	}
 
+	// Ignore if no more akmenys
+	if doc.Find(":contains('Nepakanka dragon akmenų')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// Ignore if level too low
 	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If action was a success
-	if doc.Find("div:contains('Apdirbta: ')").Length() > 0 {
+	if doc.Find("div:contains('Akmuo apdirbtas: ')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
@@ -118,5 +81,5 @@ func (obj *ApdirbimasBrangakmeniai) Perform(p *player.Player, settings map[strin
 }
 
 func init() {
-	module.Add("apdirbimas_brangakmeniai", &ApdirbimasBrangakmeniai{})
+	module.Add("apdirbimas_dragon", &ApdirbimasDragon{})
 }

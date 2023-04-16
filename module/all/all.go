@@ -3,6 +3,7 @@ package all
 import (
 	//Blank imports for modules to register themselves
 	_ "tobot/module/apdirbimas_brangakmeniai"
+	_ "tobot/module/apdirbimas_dragon"
 	_ "tobot/module/apdirbimas_material"
 	_ "tobot/module/demonas"
 	_ "tobot/module/demonas_wait"
