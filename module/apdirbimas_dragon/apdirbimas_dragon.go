@@ -69,7 +69,7 @@ func (obj *ApdirbimasDragon) Perform(p *player.Player, settings map[string]strin
 	}
 
 	// If action was a success
-	if doc.Find("div:contains('Akmuo apdirbtas: ')").Length() > 0 {
+	if doc.Find("div:contains('Akmuo apdirbtas')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
