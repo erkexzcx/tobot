@@ -1,4 +1,4 @@
-# Lanku gaminimo module
+# Amatu gaminimo module
 
 This module allows to perform actions in "Namelis -> Gaminti amatu potion".
 

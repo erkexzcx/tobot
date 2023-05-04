@@ -9,6 +9,7 @@ import (
 	_ "tobot/module/gaminimas_amatu_potion"
 	_ "tobot/module/gaminimas_ginklai"
 	_ "tobot/module/gaminimas_lankai"
+	_ "tobot/module/gaminimas_super_amatu_potion"
 	_ "tobot/module/grybavimas"
 	_ "tobot/module/kasimas"
 	_ "tobot/module/kepimas"
