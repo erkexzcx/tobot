@@ -11,8 +11,6 @@ import (
 var telegramBot *tb.Bot
 
 var replacer strings.Replacer = *strings.NewReplacer(
-	".", "\\.",
-	"!", "\\!",
 	"_", "\\_",
 	"*", "\\*",
 	"[", "\\[",
@@ -27,6 +25,10 @@ var replacer strings.Replacer = *strings.NewReplacer(
 	"-", "\\-",
 	"=", "\\=",
 	"|", "\\|",
+	"{", "\\{",
+	"}", "\\}",
+	".", "\\.",
+	"!", "\\!",
 )
 
 func SendMessageToTelegram(message string) {
@@ -45,6 +47,7 @@ func ForwardMessageToTelegram(rawMessage string, rawNick string, messageReceived
 func formatForwardableTelegramMessage(rawMessage string, rawNick string, messageReceived bool) string {
 	sanitizedMessage := replacer.Replace(rawMessage)
 	sanitizedNick := replacer.Replace(rawNick)
+	tb.
 	if messageReceived {
 		return fmt.Sprintf("*Received from %s:*\n_%s_", sanitizedNick, sanitizedMessage)
 	} else {
