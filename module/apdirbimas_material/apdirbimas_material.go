@@ -1,4 +1,4 @@
-package uogavimas
+package apdirbimas_material
 
 import (
 	"errors"
@@ -8,26 +8,25 @@ import (
 	"tobot/player"
 )
 
-type Uogavimas struct{}
+type ApdirbimasMaterial struct{}
 
 var items = map[string]struct{}{
-	"UO1":  {},
-	"UO2":  {},
-	"UO3":  {},
-	"UO4":  {},
-	"UO5":  {},
-	"UO6":  {},
-	"UO7":  {},
-	"UO8":  {},
-	"UO9":  {},
-	"UO10": {},
-	"UO11": {},
-	"UO12": {},
-	"UO13": {},
-	"UO14": {},
+	"AM1":  {},
+	"AM2":  {},
+	"AM3":  {},
+	"AM4":  {},
+	"AM5":  {},
+	"AM6":  {},
+	"AM7":  {},
+	"AM8":  {},
+	"AM9":  {},
+	"AM10": {},
+	"AM11": {},
+	"AM12": {},
+	"AM13": {},
 }
 
-func (obj *Uogavimas) Validate(settings map[string]string) error {
+func (obj *ApdirbimasMaterial) Validate(settings map[string]string) error {
 	// Check if there are any unknown options
 	for k := range settings {
 		if strings.HasPrefix(k, "_") {
@@ -58,8 +57,8 @@ func (obj *Uogavimas) Validate(settings map[string]string) error {
 	return nil
 }
 
-func (obj *Uogavimas) Perform(p *player.Player, settings map[string]string) *module.Result {
-	path := "/miskas.php?{{ creds }}&id=renkuuogas0&ka=" + settings["item"]
+func (obj *ApdirbimasMaterial) Perform(p *player.Player, settings map[string]string) *module.Result {
+	path := "/dirbtuves.php?{{ creds }}&id=fmat0&ka=" + settings["item"] + "&page=1"
 
 	// Download page that contains unique action link
 	doc, err := p.Navigate(path, false)
@@ -67,8 +66,13 @@ func (obj *Uogavimas) Perform(p *player.Player, settings map[string]string) *mod
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
+	// Check if not depleted
+	if doc.Find("b:contains('Nepakanka žaliavų!')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// Find action link
-	actionLink, found := doc.Find("a[href*='&kd=']:contains('Rinkti')").Attr("href")
+	actionLink, found := doc.Find("a[href*='&kd=']:contains('Gaminti')").Attr("href")
 	if !found {
 		module.DumpHTML(doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
@@ -91,14 +95,14 @@ func (obj *Uogavimas) Perform(p *player.Player, settings map[string]string) *mod
 		return obj.Perform(p, settings)
 	}
 
-	// If action was a success
-	if doc.Find("div:contains('Uoga nuskinta: ')").Length() > 0 {
-		return &module.Result{CanRepeat: true, Error: nil}
+	// Ignore if level too low
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	// If inventory full
-	if doc.Find("div:contains('Jūsų inventorius jau pilnas!')").Length() > 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
+	// If action was a success
+	if doc.Find("div:contains('Pagaminta:')").Length() > 0 {
+		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
 	if module.IsActionTooFast(doc) {
@@ -109,5 +113,5 @@ func (obj *Uogavimas) Perform(p *player.Player, settings map[string]string) *mod
 }
 
 func init() {
-	module.Add("uogavimas", &Uogavimas{})
+	module.Add("apdirbimas_material", &ApdirbimasMaterial{})
 }

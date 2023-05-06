@@ -119,6 +119,11 @@ func (obj *GaminimasGinklai) Perform(p *player.Player, settings map[string]strin
 		return obj.Perform(p, settings)
 	}
 
+	// Ignore if level too low
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// If action was a success
 	if doc.Find("div:contains('Nukalta: ')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}

@@ -9,21 +9,144 @@ tasks:
 
   - _module: gaminimas_ginklai
     item: K1
+
   - _module: parduotuve
     action: parduoti
     item: K1
     amount: 0
 
   # Brangakmeniu apdirbimas
-  - _module: apdirbimas
+  - _module: apdirbimas_brangakmeniai
     item: AB1
+  - _module: apdirbimas_brangakmeniai
+    item: AB2
+  - _module: apdirbimas_brangakmeniai
+    item: AB3
+  - _module: apdirbimas_brangakmeniai
+    item: AB4
+  - _module: apdirbimas_brangakmeniai
+    item: AB5
+  - _module: apdirbimas_brangakmeniai
+    item: AB6
+  - _module: apdirbimas_brangakmeniai
+    item: AB7
+  - _module: apdirbimas_brangakmeniai
+    item: AB8
+  - _module: apdirbimas_brangakmeniai
+    item: AB9
+  - _module: apdirbimas_brangakmeniai
+    item: AB10
+  - _module: apdirbimas_brangakmeniai
+    item: AB11
+  - _module: apdirbimas_brangakmeniai
+    item: AB12
+  - _module: apdirbimas_brangakmeniai
+    item: AB13
 
-  # Apdirbtu/neapdirbtu brangakmeniu pardavimas
+  # Parduoti visus imanomus apdirbtus brangakmenis
   - _module: parduotuve
     action: parduoti
     item: AB1
     amount: 0
   - _module: parduotuve
     action: parduoti
+    item: AB2
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB3
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB7
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB8
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB9
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB10
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB11
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB12
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: AB13
+    amount: 0
+
+  # Parduoti visus imanomus neapdirbtus brangakmenis
+  - _module: parduotuve
+    action: parduoti
+    item: NB1
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
     item: NB2
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB3
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB7
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB8
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB9
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB10
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB11
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB12
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: NB13
     amount: 0

@@ -67,7 +67,7 @@ func (obj *GaminimasSuperAmatuPotion) Perform(p *player.Player, settings map[str
 	}
 
 	// Check if not depleted
-	if doc.Find("b:contains('Nepakanka reikiamų grybų!')").Length() > 0 {
+	if doc.Find(":contains('Nepakanka reikiamų uogų!')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
@@ -93,6 +93,11 @@ func (obj *GaminimasSuperAmatuPotion) Perform(p *player.Player, settings map[str
 
 	if module.IsInvalidClick(doc) {
 		return obj.Perform(p, settings)
+	}
+
+	// Ignore if level too low
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	// If action was a success

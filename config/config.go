@@ -1,10 +1,7 @@
 package config
 
 import (
-	"errors"
-	"io/ioutil"
-	"strconv"
-	"strings"
+	"os"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -15,6 +12,12 @@ type Config struct {
 		ApiKey string `yaml:"api_key"`
 		ChatId int64  `yaml:"chat_id"`
 	} `yaml:"telegram"`
+	OpenAI struct {
+		ApiKey       string  `yaml:"api_key"`
+		Model        string  `yaml:"model"`
+		Temperature  float32 `yaml:"temperature"`
+		Instructions string  `yaml:"instructions"`
+	} `yaml:"openai"`
 	Settings Settings  `yaml:"settings"`
 	Players  []*Player `yaml:"players"`
 }
@@ -27,142 +30,74 @@ type Player struct {
 }
 
 type Settings struct {
-	RootAddress   string        `yaml:"root_address"`
-	UserAgent     string        `yaml:"user_agent"`
-	MinRTT        time.Duration `yaml:"min_rtt"`
+	RootAddress   *string        `yaml:"root_address,omitempty"`
+	UserAgent     *string        `yaml:"user_agent,omitempty"`
+	MinRTT        *time.Duration `yaml:"min_rtt,omitempty"`
 	BecomeOffline struct {
-		Enabled string `yaml:"enabled"`
-		Every   string `yaml:"every"`
-		For     string `yaml:"for"`
+		Enabled *bool            `yaml:"enabled,omitempty"`
+		Every   *[]time.Duration `yaml:"every,omitempty"`
+		For     *[]time.Duration `yaml:"for,omitempty"`
 	} `yaml:"become_offline"`
 	RandomizeWait struct {
-		Enabled string `yaml:"enabled"`
-		WaitVal string `yaml:"wait_val"`
+		Enabled     *bool            `yaml:"enabled,omitempty"`
+		WaitVal     *[]time.Duration `yaml:"wait_val,omitempty"`
+		Probability *float64         `yaml:"probability,omitempty"`
 	} `yaml:"randomize_wait"`
 }
 
 func NewConfig(path string) (*Config, error) {
-	contents, err := ioutil.ReadFile(path)
+	// Read config from the file
+	contents, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
+	// Parse config as YAML
 	var c Config
 	if err := yaml.Unmarshal(contents, &c); err != nil {
 		return nil, err
 	}
 
+	// Fill (overriden) player settings with global settings
+	for _, p := range c.Players {
+		fillPlayerSettings(p, &c.Settings)
+	}
+
+	// Validate config
 	err = validateConfig(&c)
 	if err != nil {
 		return nil, err
 	}
+
 	return &c, nil
 }
 
-func validateConfig(c *Config) error {
-
-	// Emptiness checks //
-
-	if c.Telegram.ApiKey == "" {
-		return errors.New("empty 'telegram->api_key' field value")
+func fillPlayerSettings(p *Player, c *Settings) {
+	if p.Settings.RootAddress == nil {
+		p.Settings.RootAddress = c.RootAddress
 	}
-
-	if c.Telegram.ChatId == 0 {
-		return errors.New("empty 'telegram->chat_id' field value")
+	if p.Settings.UserAgent == nil {
+		p.Settings.UserAgent = c.UserAgent
 	}
-
-	if c.Settings.RootAddress == "" {
-		return errors.New("empty 'settings->root_address' field value")
+	if p.Settings.MinRTT == nil {
+		p.Settings.MinRTT = c.MinRTT
 	}
-
-	if !strings.Contains(c.Settings.RootAddress, "http") {
-		return errors.New("invalid 'settings->root_address' field value")
+	if p.Settings.BecomeOffline.Enabled == nil {
+		p.Settings.BecomeOffline.Enabled = c.BecomeOffline.Enabled
 	}
-
-	if c.Settings.UserAgent == "" {
-		return errors.New("empty 'settings->user_agent' field value")
+	if p.Settings.BecomeOffline.Every == nil {
+		p.Settings.BecomeOffline.Every = c.BecomeOffline.Every
 	}
-
-	val, err := strconv.ParseBool(c.Settings.BecomeOffline.Enabled)
-	if c.Settings.BecomeOffline.Enabled != "" && err == nil && val {
-		if c.Settings.BecomeOffline.Every == "" {
-			return errors.New("empty 'settings->become_offline->every' field value")
-		}
-		if c.Settings.BecomeOffline.For == "" {
-			return errors.New("empty 'settings->become_offline->for' field value")
-		}
+	if p.Settings.BecomeOffline.For == nil {
+		p.Settings.BecomeOffline.For = c.BecomeOffline.For
 	}
-
-	val, err = strconv.ParseBool(c.Settings.RandomizeWait.Enabled)
-	if c.Settings.RandomizeWait.Enabled != "" && err == nil && val {
-		if c.Settings.RandomizeWait.WaitVal == "" {
-			return errors.New("empty 'settings->randomize_wait->wait_val' field value")
-		}
+	if p.Settings.RandomizeWait.Enabled == nil {
+		p.Settings.RandomizeWait.Enabled = c.RandomizeWait.Enabled
 	}
-
-	if len(c.Players) == 0 {
-		return errors.New("no players specified")
+	if p.Settings.RandomizeWait.WaitVal == nil {
+		p.Settings.RandomizeWait.WaitVal = c.RandomizeWait.WaitVal
 	}
-
-	for _, p := range c.Players {
-		if p.Nick == "" {
-			return errors.New("empty 'nick' field value")
-		}
-		if p.Pass == "" {
-			return errors.New("empty 'pass' field value")
-		}
-		if p.ActivitiesDir == "" {
-			return errors.New("empty 'activities_dir' field value")
-		}
+	if p.Settings.RandomizeWait.Probability == nil {
+		p.Settings.RandomizeWait.Probability = c.RandomizeWait.Probability
 	}
-
-	// Value checks //
-
-	if c.Settings.MinRTT == 0 {
-		return errors.New("empty 'min_rtt' field value")
-	}
-
-	if c.Settings.MinRTT < 1*time.Millisecond {
-		return errors.New("invalid 'min_rtt' field value")
-	}
-
-	if c.Settings.BecomeOffline.Every != "" {
-		if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->become_offline->every"); err != nil {
-			return err
-		}
-	}
-	if c.Settings.BecomeOffline.For != "" {
-		if err := checkIntervalInput(c.Settings.BecomeOffline.For, "settings->become_offline->for"); err != nil {
-			return err
-		}
-	}
-
-	if c.Settings.RandomizeWait.WaitVal != "" {
-		if err := checkIntervalInput(c.Settings.BecomeOffline.Every, "settings->randomize_wait->wait_val"); err != nil {
-			return err
-		}
-	}
-
-	// players->activities_dir will be "checked" when we start using them...
-
-	return nil
-}
-
-func checkIntervalInput(input, field string) error {
-	pairs := strings.SplitN(input, ",", 2)
-	if len(pairs) != 2 {
-		return errors.New("invalid '" + field + "' field value")
-	}
-	int1, err1 := time.ParseDuration(pairs[0])
-	int2, err2 := time.ParseDuration(pairs[1])
-	if err1 != nil {
-		return errors.New("invalid '" + field + "' field value")
-	}
-	if err2 != nil {
-		return errors.New("invalid '" + field + "' field value")
-	}
-	if int1 > int2 {
-		return errors.New("invalid '" + field + "' field value - first value is higher than the second")
-	}
-	return nil
 }

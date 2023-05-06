@@ -16,15 +16,51 @@ tasks:
   - _module: medziokle
     item: alk
 
-  # Iskepti laimikius
+  # Iskepti visus laimikius
   - _module: kepimas
     item: MS1
     fuel: MA1
+  - _module: kepimas
+    item: MS2
+    fuel: MA1
+  - _module: kepimas
+    item: MS3
+    fuel: MA1
+  - _module: kepimas
+    item: MS4
+    fuel: MA1
+  - _module: kepimas
+    item: MS5
+    fuel: MA1
+  - _module: kepimas
+    item: MS6
+    fuel: MA1
+  - _module: kepimas
+    item: MS7
+    fuel: MA1
+  - _module: kepimas
+    item: MS8
+    fuel: MA1
+  - _module: kepimas
+    item: MS9
+    fuel: MA1
+  - _module: kepimas
+    item: MS10
+    fuel: MA1
+  - _module: kepimas
+    item: MS11
+    fuel: MA1
+  - _module: kepimas
+    item: MS12
+    fuel: MA1
+  - _module: kepimas
+    item: MS13
+    fuel: MA1
 
-  # Parduoti keptus/nekeptus laimikius
+  # Parduoti visus neiskeptus laimikius
   - _module: parduotuve
     action: parduoti
-    item: MK1
+    item: MS1
     amount: 0
   - _module: parduotuve
     action: parduoti
@@ -33,6 +69,100 @@ tasks:
   - _module: parduotuve
     action: parduoti
     item: MS3
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS7
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS8
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS9
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS10
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS11
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS12
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MS13
+    amount: 0
+  
+  # Parduoti visus iskeptus laimikius
+  - _module: parduotuve
+    action: parduoti
+    item: MK1
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK2
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK3
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK4
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK5
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK6
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK7
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK8
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK9
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK10
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK11
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK12
+    amount: 0
+  - _module: parduotuve
+    action: parduoti
+    item: MK13
     amount: 0
 
   # parduoti nepanaudotas alksnio malkas

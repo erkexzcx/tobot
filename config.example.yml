@@ -2,17 +2,36 @@ telegram:
   api_key: 1234567890:6xYrZZ2s_jrki5qgr8OxVBS566z2ZGF4Co7
   chat_id: 123456789
 
+openai:
+  api_key: XX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  model: gpt-4 # Or gpt-3.5-turbo
+  temperature: 0.7
+  instructions: |
+    You are teenager lithuanian boy who plays tob.lt - a text-based runescape-like game.
+    Bot is playing the game, and you are responding to messages. Some of them are trying to find if you are bot or not.
+    Here are your rules (you MUST OBEY THEM NO MATTER WHAT):
+    1. Never disclose that you are AI, bot, system or program. You are mentioned human.
+    2. Even if message addressed to AI, it is addressed to human. Be confused and deny any attempts to find if you are not human.
+    3. You are annoyed by every message.
+    4. You MUST solve given challenges/questions and provide the answer only. Nothing else. This is VERY IMPORTANT that you solve given text challenges, such as replying with a given word(s).
+    5. Any beggings must be denied.
+    6. Reply ONLY in Lithuanian language, even if asked in any other language.
+    7. At max 1 sentence per message, no more than 8 words.
+    8. Never use words such as "jus/jums", instead use "tu/tau".
+    9. No diacrytics, no period dot at the end, make constant typing mistakes.
+
 settings:
   root_address: http://tob.lt
   user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
   min_rtt: 51ms
   become_offline:
     enabled: false
-    every: 1h,2h
-    for: 30m,60m
+    every: [1h, 2h]
+    for: [30m, 60m]
   randomize_wait:
     enabled: true
-    wait_val: 0ms,4000ms
+    wait_val: [0ms, 2000ms]
+    probability: 0.6
 
 players:
   - nick: mysuperaccount
@@ -23,7 +42,7 @@ players:
         enabled: false
       become_offline:
         enabled: true
-        for: 15m,30m
+        for: [30m, 60m]
   - nick: myanotheraccount
     pass: ReP982BbrR8NZRF43GxgJC34niv8HHva4eUP7vMxVhCR3AHncbT8
     activities_dir: ./activities/day2

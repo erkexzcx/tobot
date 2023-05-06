@@ -163,6 +163,11 @@ func (obj *Kepimas) Perform(p *player.Player, settings map[string]string) *modul
 		return obj.Perform(p, settings)
 	}
 
+	// Ignore if level too low
+	if doc.Find("div:contains('lygis per žemas')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// If need fuel
 	if doc.Find("div:contains('Ugnis užgeso...!')").Length() > 0 {
 		err := addFuel(p, settings)
