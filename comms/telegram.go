@@ -2,6 +2,7 @@ package comms
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	tb "gopkg.in/tucnak/telebot.v2"
@@ -32,7 +33,11 @@ func SendMessageToTelegram(message string) {
 
 func ForwardMessageToTelegram(rawMessage string, rawNick string, messageReceived bool) {
 	telegramMessage := formatForwardableTelegramMessage(rawMessage, rawNick, messageReceived)
-	sendTelegramMessage(telegramMessage)
+	err := sendTelegramMessage(telegramMessage)
+	if err != nil {
+		log.Println("Failed to send message to Telegram:", err.Error())
+		sendTelegramMessage("Failed to send message to Telegram: " + err.Error())
+	}
 }
 
 func formatForwardableTelegramMessage(rawMessage string, rawNick string, messageReceived bool) string {
@@ -45,12 +50,13 @@ func formatForwardableTelegramMessage(rawMessage string, rawNick string, message
 	}
 }
 
-func sendTelegramMessage(msg string) {
-	telegramBot.Send(
+func sendTelegramMessage(msg string) error {
+	_, err := telegramBot.Send(
 		&tb.Chat{ID: appConfig.Telegram.ChatId},
 		msg,
 		&tb.SendOptions{
 			ParseMode: tb.ModeMarkdownV2,
 		},
 	)
+	return err
 }
