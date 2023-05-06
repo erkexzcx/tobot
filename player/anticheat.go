@@ -177,7 +177,7 @@ func getColorClickableMatrix(p *Player, doc *goquery.Document) (map[string]strin
 			returnableError = errors.New("Failed to parse clickable captcha image link URL: " + err.Error())
 			return
 		}
-		colorNameToLink[color] = parsedHref.RequestURI()
+		colorNameToLink[color] = "/" + parsedHref.RequestURI() // For some reasons it misses "/" at the beginning of the link
 	})
 
 	return colorNameToLink, returnableError

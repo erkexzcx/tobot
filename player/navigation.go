@@ -107,6 +107,11 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		return p.openLink(path, action, method, body)
 	}
 
+	// Check if anti-cheat failed and we are greeted with annoying message
+	if doc.Find("div:contains('Praėjo spalvos paspaudimo laikas')").Length() > 0 {
+		return p.openLink(path, action, method, body)
+	}
+
 	// Checks if there are new PMs
 	if doc.Find("a[href*='id=pm']:contains('Yra naujų PM')").Length() > 0 {
 		p.dealWithPMs()
