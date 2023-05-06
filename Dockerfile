@@ -19,5 +19,6 @@ RUN apk add --no-cache \
     tesseract-ocr \
     tesseract-ocr-data-lit \
     ca-certificates
-COPY --from=build-env /build/tobot /app/tobot
-ENTRYPOINT ["/app/tobot"]
+COPY --from=build-env /build/tobot /tobot
+WORKDIR /
+ENTRYPOINT ["/tobot"]

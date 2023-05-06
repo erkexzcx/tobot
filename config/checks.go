@@ -79,10 +79,10 @@ func checkSettings(s *Settings, where string) error {
 		return fmt.Errorf("missing '%s' field value (at %s)", "become_offline->enabled", where)
 	}
 	if *s.BecomeOffline.Enabled {
-		if s.BecomeOffline.Every == nil || len(*s.BecomeOffline.Every) != 2 || (*s.BecomeOffline.Every)[0] < (*s.BecomeOffline.Every)[1] {
+		if s.BecomeOffline.Every == nil || len(*s.BecomeOffline.Every) != 2 || (*s.BecomeOffline.Every)[0] > (*s.BecomeOffline.Every)[1] {
 			return fmt.Errorf("missing or invalid '%s' field value (at %s)", "become_offline->every", where)
 		}
-		if s.BecomeOffline.For == nil || len(*s.BecomeOffline.For) != 2 || (*s.BecomeOffline.For)[0] < (*s.BecomeOffline.For)[1] {
+		if s.BecomeOffline.For == nil || len(*s.BecomeOffline.For) != 2 || (*s.BecomeOffline.For)[0] > (*s.BecomeOffline.For)[1] {
 			return fmt.Errorf("missing or invalid '%s' field value (at %s)", "become_offline->for", where)
 		}
 	}
@@ -90,7 +90,7 @@ func checkSettings(s *Settings, where string) error {
 		return fmt.Errorf("missing '%s' field value (at %s)", "randomize_wait->enabled", where)
 	}
 	if *s.RandomizeWait.Enabled {
-		if s.RandomizeWait.WaitVal == nil || len(*s.RandomizeWait.WaitVal) != 2 || (*s.RandomizeWait.WaitVal)[0] < (*s.RandomizeWait.WaitVal)[1] {
+		if s.RandomizeWait.WaitVal == nil || len(*s.RandomizeWait.WaitVal) != 2 || (*s.RandomizeWait.WaitVal)[0] > (*s.RandomizeWait.WaitVal)[1] {
 			return fmt.Errorf("missing or invalid '%s' field value (at %s)", "randomize_wait->wait_val", where)
 		}
 		if s.RandomizeWait.Probability == nil || *s.RandomizeWait.Probability > 1 || *s.RandomizeWait.Probability < 0 {

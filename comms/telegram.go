@@ -30,17 +30,18 @@ func SendMessageToTelegram(message string) {
 	sendTelegramMessage(message)
 }
 
-func ForwardMessageToTelegram(rawMessage string, nick string, received bool) {
-	telegramMessage := formatForwardableTelegramMessage(rawMessage, nick, received)
+func ForwardMessageToTelegram(rawMessage string, rawNick string, messageReceived bool) {
+	telegramMessage := formatForwardableTelegramMessage(rawMessage, rawNick, messageReceived)
 	sendTelegramMessage(telegramMessage)
 }
 
-func formatForwardableTelegramMessage(rawMessage string, nick string, received bool) string {
+func formatForwardableTelegramMessage(rawMessage string, rawNick string, messageReceived bool) string {
 	sanitizedMessage := replacer.Replace(rawMessage)
-	if received {
-		return fmt.Sprintf("*Received from %s:*\n_%s_", nick, sanitizedMessage)
+	sanitizedNick := replacer.Replace(rawNick)
+	if messageReceived {
+		return fmt.Sprintf("*Received from %s:*\n_%s_", sanitizedNick, sanitizedMessage)
 	} else {
-		return fmt.Sprintf("*Sent to %s:*\n_%s_", nick, sanitizedMessage)
+		return fmt.Sprintf("*Sent to %s:*\n_%s_", sanitizedNick, sanitizedMessage)
 	}
 }
 
