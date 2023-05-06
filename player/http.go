@@ -19,8 +19,9 @@ func (p *Player) httpRequest(method, link string, body io.Reader) (*http.Respons
 		return nil, err
 	}
 
-	req.Header.Set("Host", p.headerHost)
-	req.Header.Set("User-Agent", p.headerUserAgent)
+	parsedAddr, _ := url.Parse(link)
+	req.Header.Set("Host", parsedAddr.Host)
+	req.Header.Set("User-Agent", *p.Config.Settings.UserAgent)
 	req.Header.Set("Accept", "*/*")
 
 	if method == "POST" {
@@ -36,6 +37,7 @@ func (p *Player) httpRequest(method, link string, body io.Reader) (*http.Respons
 		return resp, nil
 	}
 
+	// Close only if non 2** status code
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 && resp.StatusCode < 400 {

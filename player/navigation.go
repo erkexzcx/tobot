@@ -2,25 +2,35 @@ package player
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"math/rand"
 	"strings"
 	"time"
-	"tobot/telegram"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 const MIN_WAIT_TIME = 625 * time.Millisecond
 
-// Navigate is used to navigate & perform activities in-game. It cannot click too fast, tracks new PMs
+// Navigate is used to navigate & perform activities in-game.
 func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
-	// Mark current time
+	return p.openLink(path, action, "GET", nil)
+}
+
+// Submit is used to submit forms in-game.
+func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) {
+	return p.openLink(path, false, "POST", body)
+}
+
+func (p *Player) openLink(path string, action bool, method string, body io.Reader) (*goquery.Document, error) {
+	// Remember the timestamp
 	timeNow := time.Now()
 
-	p.manageBecomeOffline()
+	// Check if we have to become offline
+	if !action && method == "GET" {
+		p.manageBecomeOffline()
+	}
 
 	// Wait until performing HTTP request
 	if action {
@@ -31,182 +41,61 @@ func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
 	}
 
 	// Perform HTTP request and get response
-	resp, err := p.httpRequest("GET", p.fullLink(path), nil)
+	fullLink := p.renderFullLink(path)
+	resp, err := p.httpRequest(method, fullLink, body)
 	if err != nil {
-		log.Println("Failure occurred (#1): " + err.Error())
+		log.Println("Failed to perform HTTP request:" + err.Error())
 		log.Println("Sleeping for 5 seconds and trying again...")
 		time.Sleep(5 * time.Second)
-		return p.Navigate(path, action)
+		return p.openLink(path, action, method, body)
 	}
 	defer resp.Body.Close()
 
 	// Mark timestamp when doc was downloaded
 	timeNow = time.Now()
 
-	// Create Goquery document out of response body
+	// Create GoQuery document out of response body
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Println("Failure occurred (#2): " + err.Error())
+		log.Println("Failed to download HTTP response for GoQuery document:" + err.Error())
 		log.Println("Sleeping for 5 seconds and trying again...")
 		time.Sleep(5 * time.Second)
-		return p.Navigate(path, action)
+		return p.openLink(path, action, method, body)
 	}
 
-	// Mark wait time
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
+	// Remember until when we have to wait before opening another link
+	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - *p.Config.Settings.MinRTT)
 	if action {
-		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc) - p.minRTT)
-	}
-	if p.timeUntilAction.Before(p.timeUntilNavigation) {
+		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc) - *p.Config.Settings.MinRTT)
+	} else {
 		p.timeUntilAction = p.timeUntilNavigation
 	}
 
-	// Check if account does not exist/deleted
+	// Checks where did we land
 	if isPlayerNotExist(doc) {
-		p.NotifyTelegram("player deleted or does not exist", false)
 		return nil, errors.New("player deleted or does not exist")
 	}
-
-	// Check if banned
 	if isBanned(doc) {
-		p.NotifyTelegram("player banned", false)
 		return nil, errors.New("player banned")
 	}
-
-	// Try again if clicked too fast!
 	if isTooFast(doc) {
-		r := getRandomInt(3123, 8765)
-		log.Println("[" + p.nick + "]Clicked too fast! Sleeping for " + fmt.Sprintf("%.2f", float64(r)/1000) + "s and trying again...")
-		time.Sleep(time.Duration(r) * time.Millisecond)
-		return p.Navigate(path, action)
+		log.Println("[" + p.Config.Nick + "] Clicked too fast and now sleeps for 15 seconds...")
+		time.Sleep(15 * time.Second)
+		return p.openLink(path, action, method, body)
 	}
-
-	// Check if landed in anti-cheat check page
 	if isAnticheatPage(doc) {
-		res := p.solveAnticheat(doc)
-		time.Sleep(MIN_WAIT_TIME - p.minRTT)
-		if !res {
-			log.Println("Anti cheat procedure failed...")
+		err := p.solveAnticheat(doc)
+		if err != nil {
+			log.Println("Successfully solved anti-cheat check")
+		} else {
+			log.Printf("Failed to solve anti-cheat check: %s", err.Error())
 		}
-		time.Sleep(MIN_WAIT_TIME - p.minRTT)
-		return p.Navigate(path, action)
+		return p.openLink(path, action, method, body)
 	}
 
-	// Check if has new PMs
+	// Checks if there are new PMs
 	if hasNewPM(doc) {
-		m, err := p.getLastPM()
-		if err != nil {
-			panic(err)
-		}
-
-		// Ignore @sistema
-		if m.from == "" {
-			return p.Navigate(path, action)
-		}
-
-		// See telegram package - there is regex that MUST match below messages format in order to work
-		// if m.moderator {
-		// 	p.NotifyTelegram(fmt.Sprintf("Player '*%s' says: %s", m.from, m.text), false)
-		// } else {
-		// 	p.NotifyTelegram(fmt.Sprintf("Player '%s' says: %s", m.from, m.text), false)
-		// }
-
-		sender := m.from
-		if m.moderator {
-			sender = "*" + sender
-		}
-
-		log.Printf("Received PM from %s: %s", sender, m.text)
-		telegram.SendMessage(fmt.Sprintf("Received PM from %s: %s", sender, m.text), false)
-
-		generatedReply := getAIReply(m.text)
-		if generatedReply == "" {
-			generatedReply = "Nesupratau?"
-		}
-
-		time.Sleep(3 * time.Second)
-		err = p.sendPM(m.from, generatedReply, doc)
-
-		msg := fmt.Sprintf("Successfully sent PM reply to %s with generated text '%s'", sender, generatedReply)
-		if err != nil {
-			msg = fmt.Sprintf("Failed to send PM reply to %s with generated text '%s': %s", sender, generatedReply, err.Error())
-		}
-
-		log.Println(msg)
-		telegram.SendMessage(msg, false)
-
-		return p.Navigate(path, action)
-	}
-
-	return doc, nil
-}
-
-// Submit is used to submit forms in-game.
-func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) {
-	timeNow := time.Now()
-
-	p.manageBecomeOffline()
-
-	// Wait between HTTP requests
-	time.Sleep(p.timeUntilNavigation.Sub(timeNow))
-
-	// Perform HTTP request and get response
-	fullLink := p.fullLink(path)
-	resp, err := p.httpRequest("POST", fullLink, body)
-	if err != nil {
-		log.Println("Failure occurred (#1): " + err.Error())
-		log.Println("Sleeping for 5 seconds and trying again...")
-		time.Sleep(5 * time.Second)
-		return p.Submit(path, body)
-	}
-	defer resp.Body.Close()
-
-	// Mark timestamp when doc was downloaded
-	timeNow = time.Now()
-
-	// Create Goquery document out of response body
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		log.Println("Failure occurred (#2): " + err.Error())
-		log.Println("Sleeping for 5 seconds and trying again...")
-		time.Sleep(5 * time.Second)
-		return p.Submit(path, body)
-	}
-
-	// Check if account does not exist/deleted
-	if isPlayerNotExist(doc) {
-		p.NotifyTelegram("player deleted or does not exist", false)
-		return nil, errors.New("player deleted or does not exist")
-	}
-
-	// Check if banned
-	if isBanned(doc) {
-		p.NotifyTelegram("player banned", false)
-		return nil, errors.New("player banned")
-	}
-
-	// Try again if clicked too fast!
-	if isTooFast(doc) {
-		r := getRandomInt(3123, 8765)
-		log.Println("[" + p.nick + "]Clicked too fast! Sleeping for " + fmt.Sprintf("%.2f", float64(r)/1000) + "s and trying again...")
-		time.Sleep(time.Duration(r) * time.Millisecond)
-		return p.Submit(path, body)
-	}
-
-	// Mark wait time
-	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - p.minRTT)
-	if p.timeUntilAction.Before(p.timeUntilNavigation) {
-		p.timeUntilAction = p.timeUntilNavigation
-	}
-
-	// Check if landed in anti-cheat check page
-	if isAnticheatPage(doc) {
-		res := p.solveAnticheat(doc)
-		time.Sleep(MIN_WAIT_TIME - p.minRTT)
-		if !res {
-			log.Println("Anti cheat procedure failed...")
-		}
-		return p.Submit(path, body)
+		p.dealWithPMs()
 	}
 
 	return doc, nil
@@ -221,7 +110,6 @@ func isTooFast(doc *goquery.Document) bool {
 }
 
 func isBanned(doc *goquery.Document) bool {
-	// <b>Jūs užbanintas.<br/>
 	return doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 ||
 		doc.Find("div:contains('Jūs užbanintas.')").Length() > 0
 }
@@ -249,8 +137,8 @@ func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
 	return parsedDuration
 }
 
-func (p *Player) fullLink(path string) string {
-	return p.rootAddress + strings.ReplaceAll(path, "{{ creds }}", "nick="+p.nick+"&pass="+p.pass)
+func (p *Player) renderFullLink(path string) string {
+	return *p.Config.Settings.RootAddress + strings.ReplaceAll(path, "{{ creds }}", "nick="+p.Config.Nick+"&pass="+p.Config.Pass)
 }
 
 func getRandomInt(min, max int) int {
@@ -289,6 +177,7 @@ func (p *Player) manageBecomeOffline() {
 		return
 	}
 
+	// If we have to sleep - sleep now
 	if timeNow.After(p.sleepFrom) && timeNow.Before(p.sleepTo) {
 		sleepDuration := p.sleepTo.Sub(timeNow)
 		p.Println("Sleeping for", sleepDuration.String())
