@@ -66,6 +66,11 @@ func (obj *GaminimasSuperAmatuPotion) Perform(p *player.Player, settings map[str
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 
+	// Check if not depleted
+	if doc.Find(":contains('Nepakanka reikiamų uogų!')").Length() > 0 {
+		return &module.Result{CanRepeat: false, Error: nil}
+	}
+
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Gaminti')").Attr("href")
 	if !found {
@@ -98,11 +103,6 @@ func (obj *GaminimasSuperAmatuPotion) Perform(p *player.Player, settings map[str
 	// If action was a success
 	if doc.Find("div:contains('Pagaminta: ')").Length() > 0 {
 		return &module.Result{CanRepeat: true, Error: nil}
-	}
-
-	// Check if not depleted
-	if doc.Find(":contains('Nepakanka reikiamų uogų!')").Length() > 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
 	if module.IsActionTooFast(doc) {
