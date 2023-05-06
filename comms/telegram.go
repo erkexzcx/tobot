@@ -12,6 +12,7 @@ var telegramBot *tb.Bot
 
 var replacer strings.Replacer = *strings.NewReplacer(
 	".", "\\.",
+	"!", "\\!",
 	"_", "\\_",
 	"*", "\\*",
 	"[", "\\[",
