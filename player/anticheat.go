@@ -45,16 +45,9 @@ func (p *Player) solveAnticheat(doc *goquery.Document) error {
 	}
 
 	// Click on the found colour
-	resp, err := p.httpRequest("GET", colorClickableMatrix[color], nil)
+	doc, err = p.Navigate(colorClickableMatrix[color], false)
 	if err != nil {
 		return errors.New("Failed to click color " + color + ": " + err.Error())
-	}
-	defer resp.Body.Close()
-
-	// Convert response to goquery document
-	doc, err = goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		return errors.New("Failed to convert response to goquery document: " + err.Error())
 	}
 
 	// Check if we passed the anti-cheat
@@ -67,7 +60,6 @@ func (p *Player) solveAnticheat(doc *goquery.Document) error {
 	contents, _ := doc.Html()
 	log.Println(contents)
 	return errors.New("Failed to pass anti-cheat due unknown reason (color: " + color + ")")
-
 }
 
 // Fun fact: re-downloading captcha image gives the same color text, but formatted differently,
@@ -121,7 +113,7 @@ func getColorToClickName(p *Player, doc *goquery.Document) (string, error) {
 			}
 		}
 
-		// If not returned - try the same again in the next loop
+		// If not returned - try the same again in the next loop...
 	}
 
 	return "", errors.New("reached too many tries to read color from the captcha image")
@@ -179,16 +171,13 @@ func getColorClickableMatrix(p *Player, doc *goquery.Document) (map[string]strin
 			return
 		}
 
-		// Create image click link
+		// Create image click link and add to the map
 		parsedHref, err := url.Parse(href)
 		if err != nil {
 			returnableError = errors.New("Failed to parse clickable captcha image link URL: " + err.Error())
 			return
 		}
-		aLink := *p.Config.Settings.RootAddress + "/" + parsedHref.RequestURI()
-
-		// Add to map
-		colorNameToLink[color] = aLink
+		colorNameToLink[color] = parsedHref.RequestURI()
 	})
 
 	return colorNameToLink, returnableError
