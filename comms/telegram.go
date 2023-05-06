@@ -48,9 +48,9 @@ func formatForwardableTelegramMessage(rawMessage string, rawNick string, message
 	sanitizedMessage := replacer.Replace(rawMessage)
 	sanitizedNick := replacer.Replace(rawNick)
 	if messageReceived {
-		return fmt.Sprintf("*Received from %s:*\n_%s_", sanitizedNick, sanitizedMessage)
+		return fmt.Sprintf("*Received from %s:*\n%s", sanitizedNick, sanitizedMessage)
 	} else {
-		return fmt.Sprintf("*Sent to %s:*\n%s", sanitizedNick, sanitizedMessage)
+		return fmt.Sprintf("*Sent to %s:*\n_%s_", sanitizedNick, sanitizedMessage)
 	}
 }
 
