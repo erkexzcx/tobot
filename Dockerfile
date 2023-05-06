@@ -11,8 +11,6 @@ ADD . /build
 WORKDIR /build
 RUN go build -a -ldflags '-s -w' -o tobot ./cmd/tobot/main.go
 
-# TODO - anti cheat always fail, no idea why
-
 ## Create image
 FROM alpine:3.17
 RUN apk add --no-cache \
