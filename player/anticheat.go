@@ -2,6 +2,7 @@ package player
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -29,144 +30,135 @@ var MD5SumToColor = map[string]string{
 
 var reColor = regexp.MustCompile(`[^a-zA-Z]`)
 
-func (p *Player) solveAnticheat(doc *goquery.Document) bool {
-	// Get map of color -> linkToClick
-	colorToLinkMap, ok := getColorToLinkMap(p, doc)
-	if !ok {
-		log.Println("Failed anticheat main #1")
-		return false
+func (p *Player) solveAnticheat(doc *goquery.Document) error {
+	// From the goquery Document, get matrix of clickable colours in a
+	// form of map[colorName]linkToClickForThatColor...
+	colorClickableMatrix, err := getColorClickableMatrix(p, doc)
+	if err != nil {
+		return err
 	}
 
-	// Find which color we should click, according to each color's MD5 checksum.\
-	//
-	// Fun fact: re-downloading captcha image gives the same color text, but formatted differently,
-	// therefore keep refreshing until you successfully read it.
-	for i := 0; i < getRandomInt(20, 30); i++ {
-
-		// Find color name
-		color := getColorToClickName(p, doc)
-		if color == "" {
-			continue
-		}
-		if color == "nieko" {
-			log.Println("Anti-cheat ran out of time and failed")
-			return false
-		}
-
-		// Click the color
-		resp, err := p.httpRequest("GET", colorToLinkMap[color], nil)
-		if err != nil {
-			log.Println("Failed anticheat main #2:", err)
-			return false
-		}
-		defer resp.Body.Close()
-		doc, err = goquery.NewDocumentFromReader(resp.Body)
-		if err != nil {
-			log.Println("Failed anticheat main #3:", err)
-			return false
-		}
-
-		success := doc.Find("div:contains('Galite žaisti toliau.')").Length() > 0
-		if success {
-			log.Println("Anti-cheat passed")
-			return true
-		}
-		log.Println("Failed anticheat main #99:", err)
-		contents, _ := doc.Html()
-		log.Println(contents)
-		return false
+	// Read captcha image to understand which color we have to click
+	color, err := getColorToClickName(p, doc)
+	if err != nil {
+		return err
 	}
-	log.Println("Anti-cheat ran out of time and failed")
-	return false
+
+	// Click on the found colour
+	resp, err := p.httpRequest("GET", colorClickableMatrix[color], nil)
+	if err != nil {
+		return errors.New("Failed to click color " + color + ": " + err.Error())
+	}
+	defer resp.Body.Close()
+
+	// Convert response to goquery document
+	doc, err = goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		return errors.New("Failed to convert response to goquery document: " + err.Error())
+	}
+
+	// Check if we passed the anti-cheat
+	success := doc.Find("div:contains('Galite žaisti toliau.')").Length() > 0
+	if success {
+		return nil
+	}
+
+	// Check if something went wrong
+	contents, _ := doc.Html()
+	log.Println(contents)
+	return errors.New("Failed to pass anti-cheat due unknown reason (color: " + color + ")")
+
 }
 
-func getColorToClickName(p *Player, doc *goquery.Document) string {
+// Fun fact: re-downloading captcha image gives the same color text, but formatted differently,
+// therefore keep refreshing until you successfully read it.
+func getColorToClickName(p *Player, doc *goquery.Document) (string, error) {
 	// Extract link of captcha
 	src, found := doc.Find("img[src*='spalva.php']").Attr("src")
 	if !found {
-		log.Println("Failed anticheat img #1: image attribute 'src' not found")
-		return ""
+		return "", errors.New("failed to find captcha image (src attribute not found)")
 	}
+
+	// Get image link
 	parsedSrc, err := url.Parse(src)
 	if err != nil {
-		log.Println("Failed anticheat img #2:", err)
-		return ""
+		return "", errors.New("Failed to parse captcha image link: " + err.Error())
 	}
-	imageLink := p.rootAddress + "/" + parsedSrc.RequestURI()
+	imageLink := *p.Config.Settings.RootAddress + "/" + parsedSrc.RequestURI()
 
-	// Download captcha image
-	resp, err := p.httpRequest("GET", imageLink, nil)
-	if err != nil {
-		log.Println("Failed anticheat img #3:", err)
-		return ""
-	}
-	defer resp.Body.Close()
-	content, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Println("Failed anticheat img #4:", err)
-		return ""
-	}
-
-	// Read text from image
-	tessClient.SetImageFromBytes(content)
-	text, err := tessClient.Text()
-	if err != nil {
-		log.Fatalln("Failed anticheat img #5:", err)
-	}
-	colorText := strings.ToLower(reColor.ReplaceAllString(text, "")) // Already trimmed by regex
-
-	// If it's too late
-	if colorText == "nieko" {
-		return "nieko"
-	}
-
-	// Find color text
-	for _, v := range MD5SumToColor {
-		if colorText == v {
-			return v
-		}
-	}
-	return ""
-}
-
-func getColorToLinkMap(p *Player, doc *goquery.Document) (map[string]string, bool) {
-	failed := false
-
-	colorToLinkMap := make(map[string]string)
-
-	// Download each image and save to file + generate & print MD5
-	doc.Find("img[src*='antibotimg.php'][src*='nr=']").Each(func(i int, s *goquery.Selection) {
-		if failed {
-			return
-		}
-
-		// Get image URL
-		src, found := s.Attr("src")
-		if !found {
-			log.Println("Failed anticheat #1: image attribute 'src' not found")
-			failed = true
-			return
-		}
-		parsedSrc, err := url.Parse(src)
-		if err != nil {
-			log.Println("Failed anticheat #2:", err)
-			failed = true
-			return
-		}
-		imageLink := p.rootAddress + "/" + parsedSrc.RequestURI()
-
-		// Download image
+	// At max 100 image captcha refreshes...
+	for i := 0; i < 100; i++ {
+		// Get captcha image response
 		resp, err := p.httpRequest("GET", imageLink, nil)
 		if err != nil {
-			log.Println("Failed anticheat #3:", err)
-			failed = true
+			return "", errors.New("Failed to get captcha image response: " + err.Error())
+		}
+		defer resp.Body.Close()
+
+		// Download image body
+		content, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", errors.New("Failed to read captcha image body: " + err.Error())
+		}
+
+		// Read text from image
+		tessClient.SetImageFromBytes(content)
+		text, err := tessClient.Text()
+		if err != nil {
+			return "", errors.New("Failed to read text from captcha image: " + err.Error())
+		}
+		colorText := strings.ToLower(reColor.ReplaceAllString(text, "")) // Already trimmed by regex
+
+		// Check if we ran out of time
+		if colorText == "nieko" {
+			return "", errors.New("anti-cheat ran out of time and failed")
+		}
+
+		// Check if returned color text is recognized
+		for _, v := range MD5SumToColor {
+			if colorText == v {
+				return v, nil
+			}
+		}
+
+		// If not returned - try the same again in the next loop
+	}
+
+	return "", errors.New("reached too many tries to read color from the captcha image")
+}
+
+// map[colorName]linkToClick
+func getColorClickableMatrix(p *Player, doc *goquery.Document) (map[string]string, error) {
+	colorNameToLink := make(map[string]string)
+	var returnableError error = nil
+	doc.Find("img[src*='antibotimg.php'][src*='nr=']").Each(func(i int, s *goquery.Selection) {
+		// Extract image URL
+		src, found := s.Attr("src")
+		if !found {
+			returnableError = errors.New("failed to find clickable captcha image link (src attribute not found)")
+			return
+		}
+
+		// Get image link
+		parsedSrc, err := url.Parse(src)
+		if err != nil {
+			returnableError = errors.New("Failed to parse clickable captcha image link URL: " + err.Error())
+			return
+		}
+		imageLink := *p.Config.Settings.RootAddress + "/" + parsedSrc.RequestURI()
+
+		// Download image response
+		resp, err := p.httpRequest("GET", imageLink, nil)
+		if err != nil {
+			returnableError = errors.New("Failed to get clickable captcha image response: " + err.Error())
 			return
 		}
 		defer resp.Body.Close()
+
+		// Download image body
 		content, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Println("Failed anticheat #4:", err)
-			failed = true
+			returnableError = errors.New("Failed to read clickable captcha image body: " + err.Error())
 			return
 		}
 
@@ -176,31 +168,30 @@ func getColorToLinkMap(p *Player, doc *goquery.Document) (map[string]string, boo
 		// Find such color
 		color, ok := MD5SumToColor[md5sum]
 		if !ok {
-			log.Println("Failed anticheat #5: color not found (" + md5sum + ")")
-			failed = true
+			returnableError = errors.New("Failed to find color by MD5 checksum: " + md5sum)
 			return
 		}
 
 		// Find click link
 		href, found := s.Parent().Attr("href")
 		if !found {
-			log.Println("Failed anticheat #6: a attribute 'href' not found")
-			failed = true
+			returnableError = errors.New("failed to find clickable captcha image link (a attribute 'href' not found)")
 			return
 		}
+
+		// Create image click link
 		parsedHref, err := url.Parse(href)
 		if err != nil {
-			log.Println("Failed anticheat #7:", err)
-			failed = true
+			returnableError = errors.New("Failed to parse clickable captcha image link URL: " + err.Error())
 			return
 		}
-		aLink := p.rootAddress + "/" + parsedHref.RequestURI()
+		aLink := *p.Config.Settings.RootAddress + "/" + parsedHref.RequestURI()
 
 		// Add to map
-		colorToLinkMap[color] = aLink
+		colorNameToLink[color] = aLink
 	})
 
-	return colorToLinkMap, !failed
+	return colorNameToLink, returnableError
 }
 
 func init() {

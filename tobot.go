@@ -1,9 +1,17 @@
 package tobot
 
 import (
+	"io/ioutil"
+	"log"
+	"path"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"tobot/comms"
 	"tobot/module"
 	"tobot/player"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Activity struct {
@@ -11,7 +19,29 @@ type Activity struct {
 	Tasks []map[string]string `yaml:"tasks"`
 }
 
-func Start(p *player.Player, activities []*Activity) {
+func Start(p *player.Player) {
+	// Create activities from files
+	activities := []*Activity{}
+	files, err := filepath.Glob(p.Config.ActivitiesDir + string(filepath.Separator) + "*.yml")
+	if err != nil {
+		log.Fatalln("Failed to read activities .yml files of player '" + p.Config.Nick + "': " + err.Error())
+	}
+	for _, f := range files {
+		if strings.HasPrefix(path.Base(f), "_") {
+			continue // Skip '_*.yml' files
+		}
+		contents, err := ioutil.ReadFile(f)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		var a *Activity
+		if err := yaml.Unmarshal(contents, &a); err != nil {
+			log.Fatalln(err)
+		}
+		activities = append(activities, a)
+	}
+
 	// Validate activities
 	for _, a := range activities {
 		validateActivity(a)
@@ -52,7 +82,7 @@ func validateActivity(a *Activity) {
 }
 
 func runActivity(p *player.Player, a *Activity) {
-	p.Println("Started '" + a.Name + "'")
+	comms.SendMessageToTelegram(p.Config.Nick + " started '" + a.Name + "'")
 
 	for _, task := range a.Tasks {
 		m := module.Modules[task["_module"]]
@@ -71,7 +101,8 @@ func runActivity(p *player.Player, a *Activity) {
 
 			res := m.Perform(p, task)
 			if res.Error != nil {
-				p.NotifyTelegram("Bot stopping: "+res.Error.Error(), false)
+				comms.SendMessageToTelegram("Bot stopping: " + res.Error.Error())
+
 				panic(res.Error)
 			}
 

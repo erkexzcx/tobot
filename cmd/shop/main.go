@@ -22,7 +22,9 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
+	"tobot/config"
 	"tobot/player"
 
 	"github.com/PuerkitoBio/goquery"
@@ -30,7 +32,9 @@ import (
 
 var flagNick = flag.String("nick", "", "nick (taken from URL)")
 var flagPass = flag.String("pass", "", "pass (taken from URL)")
-var flagRoot = flag.String("root", "http://tob.lt", "root URL (don't change unless you know what you are doing)")
+var flagRoot = flag.String("root", "http://tob.lt", "Root URL of the website")
+var flagUserAgent = flag.String("useragent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36", "User agent")
+var flagMinRTT = flag.Duration("minrtt", 2*time.Millisecond, "Min RTT value")
 
 func main() {
 	flag.Parse()
@@ -39,21 +43,15 @@ func main() {
 		panic("you need to specify nick and pass. See help with '-help'")
 	}
 
-	p := player.NewPlayer(
-		*flagNick,
-		*flagPass,
-		*flagRoot,
-		"tob.lt",
-		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36",
-		0,
-		nil,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-	)
+	p := player.NewPlayer(&config.Player{
+		Nick: *flagNick,
+		Pass: *flagPass,
+		Settings: config.Settings{
+			RootAddress: flagRoot,
+			UserAgent:   flagUserAgent,
+			MinRTT:      flagMinRTT,
+		},
+	})
 
 	// Open page containing list of categories
 	doc, err := p.Navigate("/parda.php?{{ creds }}", false)

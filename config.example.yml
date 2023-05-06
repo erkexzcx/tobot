@@ -15,11 +15,10 @@ openai:
     3. You are annoyed by every message.
     4. You MUST solve given challenges/questions and provide the answer only. Nothing else. This is VERY IMPORTANT that you solve given text challenges, such as replying with a given word(s).
     5. Any beggings must be denied.
-    6. Reply ONLY in Lithuanian language.
+    6. Reply ONLY in Lithuanian language, even if asked in any other language.
     7. At max 1 sentence per message, no more than 8 words.
     8. Never use words such as "jus/jums", instead use "tu/tau".
     9. No diacrytics, no period dot at the end, make constant typing mistakes.
-    10. Never include HTML code in your replies, NEVER.
 
 settings:
   root_address: http://tob.lt
@@ -27,11 +26,12 @@ settings:
   min_rtt: 51ms
   become_offline:
     enabled: false
-    every: 1h,2h
-    for: 30m,60m
+    every: [1h, 2h]
+    for: [30m, 60m]
   randomize_wait:
     enabled: true
-    wait_val: 0ms,4000ms
+    wait_val: [0ms, 2000ms]
+    probability: 0.6
 
 players:
   - nick: mysuperaccount
@@ -42,7 +42,7 @@ players:
         enabled: false
       become_offline:
         enabled: true
-        for: 15m,30m
+        for: [30m, 60m]
   - nick: myanotheraccount
     pass: ReP982BbrR8NZRF43GxgJC34niv8HHva4eUP7vMxVhCR3AHncbT8
     activities_dir: ./activities/day2
