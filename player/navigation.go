@@ -99,7 +99,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	// Check if anti-cheat check is present
 	if doc.Find("div:contains('Paspauskite žemiau esančią šią spalvą:')").Length() > 0 {
 		err := p.solveAnticheat(doc)
-		if err != nil {
+		if err == nil {
 			log.Println("Successfully solved anti-cheat check")
 		} else {
 			log.Printf("Failed to solve anti-cheat check: %s", err.Error())
