@@ -11,6 +11,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Defines minimum amount of time needed to wait to not get "clicked too fast" error
 const MIN_WAIT_TIME = 625 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game.
@@ -24,20 +25,22 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 }
 
 func (p *Player) openLink(path string, action bool, method string, body io.Reader) (*goquery.Document, error) {
-	// Remember the timestamp
+	// Mandatory wait before opening any link in the game
 	timeNow := time.Now()
+	if action {
+		time.Sleep(p.timeUntilAction.Sub(timeNow))
+	} else {
+		time.Sleep(p.timeUntilNavigation.Sub(timeNow))
+	}
 
 	// Check if we have to become offline
 	if !action && method == "GET" {
 		p.manageBecomeOffline()
 	}
 
-	// Wait until performing HTTP request
-	if action {
-		time.Sleep(p.timeUntilAction.Sub(timeNow))
-	} else {
-		time.Sleep(p.timeUntilNavigation.Sub(timeNow))
-		p.randomWait()
+	// Check if we have to additionally wait before action
+	if action && method == "GET" {
+		p.manageRandomWait()
 	}
 
 	// Perform HTTP request and get response
@@ -71,19 +74,30 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		p.timeUntilAction = p.timeUntilNavigation
 	}
 
-	// Checks where did we land
-	if isPlayerNotExist(doc) {
-		return nil, errors.New("player deleted or does not exist")
+	// Check if bad credentials or player does not exist (deleted)
+	if doc.Find("div:contains('Blogi duomenys!')").Length() > 0 {
+		return nil, errors.New("invalid credentials or player does not exist (deleted?)")
 	}
-	if isBanned(doc) {
+
+	// Check if player is banned
+	if doc.Find("div:contains('Jūs užbanintas.')").Length() > 0 {
 		return nil, errors.New("player banned")
 	}
-	if isTooFast(doc) {
+
+	// Check if misconfiguration/marked as bot
+	if doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 {
+		return nil, errors.New("misconfiguration or your IP/configuration is marked as bot")
+	}
+
+	// Check if we clicked too fast
+	if doc.Find("b:contains('NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!')").Length() > 0 {
 		log.Println("[" + p.Config.Nick + "] Clicked too fast and now sleeps for 15 seconds...")
 		time.Sleep(15 * time.Second)
 		return p.openLink(path, action, method, body)
 	}
-	if isAnticheatPage(doc) {
+
+	// Check if anti-cheat check is present
+	if doc.Find("div:contains('Paspauskite žemiau esančią šią spalvą:')").Length() > 0 {
 		err := p.solveAnticheat(doc)
 		if err != nil {
 			log.Println("Successfully solved anti-cheat check")
@@ -94,32 +108,11 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	}
 
 	// Checks if there are new PMs
-	if hasNewPM(doc) {
+	if doc.Find("a[href*='id=pm']:contains('Yra naujų PM')").Length() > 0 {
 		p.dealWithPMs()
 	}
 
 	return doc, nil
-}
-
-func hasNewPM(doc *goquery.Document) bool {
-	return doc.Find("a[href*='id=pm']:contains('Yra naujų PM')").Length() > 0
-}
-
-func isTooFast(doc *goquery.Document) bool {
-	return doc.Find("b:contains('NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!')").Length() > 0
-}
-
-func isBanned(doc *goquery.Document) bool {
-	return doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 ||
-		doc.Find("div:contains('Jūs užbanintas.')").Length() > 0
-}
-
-func isPlayerNotExist(doc *goquery.Document) bool {
-	return doc.Find("div:contains('Blogi duomenys!')").Length() > 0
-}
-
-func isAnticheatPage(doc *goquery.Document) bool {
-	return doc.Find("div:contains('Paspauskite žemiau esančią šią spalvą:')").Length() > 0
 }
 
 func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
@@ -141,61 +134,79 @@ func (p *Player) renderFullLink(path string) string {
 	return *p.Config.Settings.RootAddress + strings.ReplaceAll(path, "{{ creds }}", "nick="+p.Config.Nick+"&pass="+p.Config.Pass)
 }
 
-func getRandomInt(min, max int) int {
-	source := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(source)
-	return random.Intn(max-min) + min
-}
-
-func getRandomInt64(min, max int64) int64 {
-	source := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(source)
-	return random.Int63n(max-min) + min
-}
-
-func getRandomForAdditionalWait(min, max int64) int64 {
-	source := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(source)
-	number := random.Int63n(max*2-min) + min
-	// Below logic helps to be more human like :)
-	if number > max {
-		return number / 2
-	}
-	return min
-}
-
+// This function provides ability to constantly go offline (sleep random durations at random intervals)
 func (p *Player) manageBecomeOffline() {
-	if p.becomeOfflineEveryTo == 0 && p.becomeOfflineForTo == 0 {
+	// If not enabled - return
+	if !*p.Config.Settings.BecomeOffline.Enabled {
 		return
 	}
 
+	// Get current timestamp
 	timeNow := time.Now()
 
-	// If we are past sleep period, generate new period
+	// If before sleep period - return
+	if timeNow.Before(p.sleepFrom) {
+		return
+	}
+
+	// If after sleep period - generate new sleep period
 	if timeNow.After(p.sleepTo) {
-		p.updateBecomeOfflineTimes()
+		// Generate new random sleep duration
+		sleepDuration := randomDuration(
+			(*p.Config.Settings.BecomeOffline.For)[0],
+			(*p.Config.Settings.BecomeOffline.For)[1],
+		)
+
+		// Generate random duration until sleep should occur
+		sleepIn := randomDuration(
+			(*p.Config.Settings.BecomeOffline.Every)[0],
+			(*p.Config.Settings.BecomeOffline.Every)[1],
+		)
+
+		// Update player variables
+		p.sleepFrom = time.Now().Add(time.Duration(sleepIn))
+		p.sleepTo = p.sleepFrom.Add(time.Duration(sleepDuration))
+
 		return
 	}
 
-	// If we have to sleep - sleep now
-	if timeNow.After(p.sleepFrom) && timeNow.Before(p.sleepTo) {
-		sleepDuration := p.sleepTo.Sub(timeNow)
-		p.Println("Sleeping for", sleepDuration.String())
-		time.Sleep(sleepDuration)
+	// If within sleep period - sleep (become offline)
+	sleepDuration := p.sleepTo.Sub(timeNow)
+	log.Println("Sleeping for", sleepDuration.String())
+	time.Sleep(sleepDuration)
+}
+
+// This function allows to add custom additional duration before opening an action link
+func (p *Player) manageRandomWait() {
+	// If not enabled - return
+	if !*p.Config.Settings.RandomizeWait.Enabled {
 		return
 	}
+
+	// Get random additional duration to wait
+	timeToWait := randomDurationWithProbability(
+		(*p.Config.Settings.RandomizeWait.WaitVal)[0],
+		(*p.Config.Settings.RandomizeWait.WaitVal)[1],
+		*p.Config.Settings.RandomizeWait.Probability,
+	)
+
+	// Sleep
+	time.Sleep(timeToWait)
 }
 
-func (p *Player) updateBecomeOfflineTimes() {
-	sleepDuration := getRandomInt64(int64(p.becomeOfflineForFrom), int64(p.becomeOfflineForTo))
-	sleepIn := getRandomInt64(int64(p.becomeOfflineEveryFrom), int64(p.becomeOfflineEveryTo))
-	p.sleepFrom = time.Now().Add(time.Duration(sleepIn))
-	p.sleepTo = p.sleepFrom.Add(time.Duration(sleepDuration))
-}
-
-func (p *Player) randomWait() {
-	if p.randomizeWaitTo != 0 {
-		timeToWait := time.Duration(getRandomForAdditionalWait(int64(p.randomizeWaitFrom), int64(p.randomizeWaitTo)))
-		time.Sleep(timeToWait)
+// randomDurationWithProbability takes two time.Duration values, a success rate probability,
+// and returns a random duration between them or 0 based on the success rate.
+func randomDurationWithProbability(minDuration, maxDuration time.Duration, probability float64) time.Duration {
+	if rand.Float64() >= probability {
+		return time.Duration(0)
 	}
+	return randomDuration(minDuration, maxDuration)
+}
+
+// randomDuration takes two time.Duration values and returns a random duration between them.
+func randomDuration(minDuration, maxDuration time.Duration) time.Duration {
+	durationDiff := maxDuration - minDuration
+	randomFloat := rand.Float64()
+	randomDuration := minDuration + time.Duration(randomFloat*float64(durationDiff))
+	return randomDuration
 }

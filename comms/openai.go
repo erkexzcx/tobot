@@ -11,12 +11,12 @@ import (
 
 var openaiClient *openai.Client
 
-type openaiMessage struct {
+type OpenaiMessage struct {
 	Received bool
 	Message  string
 }
 
-func GetOpenAIReply(messages ...*openaiMessage) string {
+func GetOpenAIReply(messages ...*OpenaiMessage) string {
 	if len(messages) == 0 {
 		errMsg := "No messages provided to GetOpenAIReply"
 		SendMessageToTelegram(errMsg)

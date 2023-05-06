@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"log"
+	"math/rand"
+	"time"
 	"tobot"
 
 	"tobot/comms"
@@ -16,6 +18,8 @@ var configPath = flag.String("config", "config.yml", "path to config file")
 
 func main() {
 	flag.Parse()
+
+	rand.Seed(time.Now().UnixNano())
 
 	// Parse configuration file
 	c, err := config.NewConfig(*configPath)
