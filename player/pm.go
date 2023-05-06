@@ -145,7 +145,7 @@ func (p *Player) dealWithPMs() error {
 	openaiReply := comms.GetOpenAIReply(openaiMsgs...)
 
 	// Sleep according to amount of symbols within the reply (to simulate user writing)
-	sleepDuration := CalculateSleepTime(openaiReply, 30)
+	sleepDuration := CalculateSleepTime(openaiReply, 40)
 	time.Sleep(sleepDuration)
 
 	// Send message back to user
