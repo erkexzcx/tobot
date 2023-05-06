@@ -1,8 +1,8 @@
 package tobot
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -30,7 +30,7 @@ func Start(p *player.Player) {
 		if strings.HasPrefix(path.Base(f), "_") {
 			continue // Skip '_*.yml' files
 		}
-		contents, err := ioutil.ReadFile(f)
+		contents, err := os.ReadFile(f)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -82,7 +82,7 @@ func validateActivity(a *Activity) {
 }
 
 func runActivity(p *player.Player, a *Activity) {
-	comms.SendMessageToTelegram(p.Config.Nick + " started '" + a.Name + "'")
+	log.Println(p.Config.Nick + " started '" + a.Name + "'")
 
 	for _, task := range a.Tasks {
 		m := module.Modules[task["_module"]]
