@@ -98,7 +98,7 @@ func (obj *GaminimasSuperAmatuPotion) Perform(p *player.Player, settings map[str
 	// Check if not depleted. If this is not checked, same error message
 	// would be shown in action page and result in error.
 	// TODO: Understand how to avoid this?
-	if doc.Find(":contains('Nepakanka reikiamų uogų!')").Length() > 0 {
+	if doc.Find(":contains('Nepakanka reikiamų')").Length() > 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
