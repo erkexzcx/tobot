@@ -28,7 +28,7 @@ type Player struct {
 func NewPlayer(c *config.Player) *Player {
 	p := &Player{
 		Config: c,
-		Log:    logging.MustGetLogger("player." + p.Config.Nick),
+		Log:    logging.MustGetLogger("player." + c.Nick),
 	}
 
 	// Init becomeOffline from/to fields
