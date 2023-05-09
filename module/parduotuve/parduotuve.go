@@ -880,11 +880,11 @@ func (obj *Parduotuve) Perform(p *player.Player, settings map[string]string) *mo
 
 	// If action was a success
 	if doc.Find("div:contains('Daiktai nupirkti, išleidote ')").Length() > 0 {
-		p.Log.Infof("[activity.%s] Bought %d of %s items\n", packageName, settings["item"], actionAmount)
+		p.Log.Infof("[activity.%s] Bought %s of %d items\n", packageName, settings["item"], actionAmount)
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 	if doc.Find("div:contains('Daiktai parduoti, gavote ')").Length() > 0 {
-		p.Log.Infof("[activity.%s] Sold %d of %s items\n", packageName, settings["item"], actionAmount)
+		p.Log.Infof("[activity.%s] Sold %s of %d items\n", packageName, settings["item"], actionAmount)
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
