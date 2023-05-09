@@ -55,6 +55,9 @@ func main() {
 		go tobot.Start(p)
 	}
 
+	log.Info("Application started!")
+	comms.SendMessageToTelegram("Application started!")
+
 	// block current routine
 	select {}
 }
