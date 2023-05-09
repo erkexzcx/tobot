@@ -28,6 +28,7 @@ type Player struct {
 func NewPlayer(c *config.Player) *Player {
 	p := &Player{
 		Config: c,
+		Log:    logging.MustGetLogger("player." + p.Config.Nick),
 	}
 
 	// Init becomeOffline from/to fields
@@ -36,9 +37,6 @@ func NewPlayer(c *config.Player) *Player {
 	// Wait before first click (in case software is in restart-loop)
 	p.timeUntilNavigation = time.Now().Add(MIN_WAIT_TIME - *p.Config.Settings.MinRTT)
 	p.timeUntilAction = p.timeUntilNavigation
-
-	// logger
-	p.Log = logging.MustGetLogger("player." + p.Config.Nick)
 
 	return p
 }
