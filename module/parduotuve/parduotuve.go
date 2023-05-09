@@ -3,6 +3,7 @@ package parduotuve
 import (
 	"errors"
 	"net/url"
+	"path"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -15,7 +16,7 @@ type Parduotuve struct{}
 
 type Empty struct{}
 
-var packageName = reflect.TypeOf(Empty{}).PkgPath()
+var packageName = path.Base(reflect.TypeOf(Empty{}).PkgPath())
 
 // See cmd/shop/main.go regarding below list
 var itemPage = map[string]string{
@@ -853,9 +854,9 @@ func (obj *Parduotuve) Perform(p *player.Player, settings map[string]string) *mo
 
 	// Logging
 	if buyAction {
-		p.Log.Debugf("[activity.%s] Attempting to buy %d of %s items\n", packageName, settings["item"], actionAmount)
+		p.Log.Debugf("[activity.%s] Attempting to buy %s of %d items\n", packageName, settings["item"], actionAmount)
 	} else {
-		p.Log.Debugf("[activity.%s] Attempting to sell %d of %s items\n", packageName, settings["item"], actionAmount)
+		p.Log.Debugf("[activity.%s] Attempting to sell %s of %d items\n", packageName, settings["item"], actionAmount)
 	}
 
 	// Build request body
