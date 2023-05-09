@@ -127,9 +127,9 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		p.Log.Debug("Anti-cheat check detected!")
 		err := p.solveAnticheat(doc)
 		if err == nil {
-			p.Log.Info("Successfully solved anti-cheat check (re-trying request)")
+			p.Log.Info("Successfully solved anti-cheat check")
 		} else {
-			p.Log.Warningf("Failed to solve anti-cheat check (re-trying request): %s\n", err.Error())
+			p.Log.Warningf("Failed to solve anti-cheat check: %s\n", err.Error())
 		}
 		return doc, true, nil
 	}
