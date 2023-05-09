@@ -31,17 +31,14 @@ var replacer strings.Replacer = *strings.NewReplacer(
 	"!", "\\!",
 )
 
-func SendMessageToTelegram(message string) {
-	sendTelegramMessage(message)
+func SendMessageToTelegram(rawMessage string) {
+	sanitizedMessage := replacer.Replace(rawMessage)
+	sendTelegramMessage(sanitizedMessage)
 }
 
 func ForwardMessageToTelegram(rawMessage string, rawNick string, messageReceived bool) {
 	telegramMessage := formatForwardableTelegramMessage(rawMessage, rawNick, messageReceived)
-	err := sendTelegramMessage(telegramMessage)
-	if err != nil {
-		log.Println("Failed to send message to Telegram:", err.Error())
-		sendTelegramMessage("Failed to send message to Telegram: " + err.Error())
-	}
+	sendTelegramMessage(telegramMessage)
 }
 
 func formatForwardableTelegramMessage(rawMessage string, rawNick string, messageReceived bool) string {
@@ -54,7 +51,7 @@ func formatForwardableTelegramMessage(rawMessage string, rawNick string, message
 	}
 }
 
-func sendTelegramMessage(msg string) error {
+func sendTelegramMessage(msg string) {
 	_, err := telegramBot.Send(
 		&tb.Chat{ID: appConfig.Telegram.ChatId},
 		msg,
@@ -65,5 +62,4 @@ func sendTelegramMessage(msg string) error {
 	if err != nil {
 		log.Println("Failed to send message to Telegram:", err.Error())
 	}
-	return err
 }
