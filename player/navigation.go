@@ -69,7 +69,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	// Remember until when we have to wait before opening another link
 	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - *p.Config.Settings.MinRTT)
 	if action {
-		p.timeUntilAction = timeNow.Add(p.extractWaitTime(doc) - *p.Config.Settings.MinRTT)
+		p.timeUntilAction = timeNow.Add(p.extractActionWaitTime(doc) - *p.Config.Settings.MinRTT)
 	} else {
 		p.timeUntilAction = p.timeUntilNavigation
 	}
@@ -120,7 +120,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	return doc, nil
 }
 
-func (p *Player) extractWaitTime(doc *goquery.Document) time.Duration {
+func (p *Player) extractActionWaitTime(doc *goquery.Document) time.Duration {
 	timeLeft, found := doc.Find("#countdown").Attr("title")
 	if !found {
 		return MIN_WAIT_TIME
