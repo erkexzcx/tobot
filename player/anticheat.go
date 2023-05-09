@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/url"
 	"regexp"
 	"strings"
@@ -58,7 +57,7 @@ func (p *Player) solveAnticheat(doc *goquery.Document) error {
 
 	// Check if something went wrong
 	contents, _ := doc.Html()
-	log.Println(contents)
+	fmt.Println(contents)
 	return errors.New("Failed to pass anti-cheat due unknown reason (color: " + color + ")")
 }
 

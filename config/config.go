@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	LogLevel string `yaml:"log_level"`
 	Telegram struct {
 		ApiKey string `yaml:"api_key"`
 		ChatId int64  `yaml:"chat_id"`

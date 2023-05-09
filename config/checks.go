@@ -9,6 +9,11 @@ import (
 // ### This does not validate settings under 'players' section ###
 func validateConfig(c *Config) error {
 
+	// Check log level
+	if c.LogLevel != "CRITICAL" && c.LogLevel != "WARNING" && c.LogLevel != "INFO" && c.LogLevel != "DEBUG" {
+		return errors.New("invalid 'log_level' field value")
+	}
+
 	// Check Telegram
 	if c.Telegram.ApiKey == "" {
 		return errors.New("empty 'telegram->api_key' field value")

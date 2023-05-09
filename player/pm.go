@@ -1,7 +1,6 @@
 package player
 
 import (
-	"log"
 	"math"
 	"net/url"
 	"regexp"
@@ -26,7 +25,7 @@ var (
 	messageHTMLRegex = regexp.MustCompile(`(?i)<img[^>]+>`)
 )
 
-func parsePmHtml(s *goquery.Selection) *pm {
+func parsePmHtml(p *Player, s *goquery.Selection) *pm {
 	// If sent by "@SISTEMA"
 	if s.Find("b:contains('» @SISTEMA')").Length() > 0 {
 		return &pm{system: true}
@@ -42,7 +41,7 @@ func parsePmHtml(s *goquery.Selection) *pm {
 	pm.nick = s.Find("a[href*='zaisti.php'][href*='id=apie']").First().Text()
 	pm.nick = strings.TrimSpace(pm.nick)
 	if pm.nick == "" {
-		log.Fatalln("Unable to parse PM pm.nick")
+		p.Log.Fatalf("Unable to parse PM message nick\n")
 	}
 
 	// If moderator - remove * char from their nick
@@ -63,7 +62,7 @@ func parsePmHtml(s *goquery.Selection) *pm {
 		match = rePmSent.FindStringSubmatch(messageElementHTML)
 	}
 	if len(match) != 2 {
-		log.Fatalln("Unable to parse PM message text")
+		p.Log.Fatalf("Unable to parse PM message text: %s\n", messageElementHTML)
 	}
 	pm.text = match[1]
 	pm.text = strings.TrimSpace(pm.text)
@@ -80,7 +79,7 @@ func (p *Player) getLastReceivedPM() *pm {
 
 	s := doc.Find("div.got").First()
 
-	return parsePmHtml(s)
+	return parsePmHtml(p, s)
 }
 
 func (p *Player) sendPM(to, message string, doc *goquery.Document) error {
@@ -99,31 +98,35 @@ func (p *Player) sendPM(to, message string, doc *goquery.Document) error {
 func (p *Player) dealWithPMs() error {
 	// Get last PM
 	lastPM := p.getLastReceivedPM()
+	p.Log.Debugf("Last PM: %+v\n", lastPM)
 
 	// Ignore if system message
 	if lastPM.system {
+		p.Log.Debug("Ignored system message")
 		return nil
 	}
 
-	// Format for logs
+	// Format for logging
 	modifiedNick := lastPM.nick
 	if lastPM.moderator {
 		modifiedNick = "*" + modifiedNick
 	}
 
-	log.Printf("Received PM from %s: %s\n", modifiedNick, lastPM.text)
+	p.Log.Infof("Received PM from %s: %s\n", modifiedNick, lastPM.text)
 	comms.ForwardMessageToTelegram(lastPM.text, modifiedNick, true)
 
 	// Open chat only with sender
+	p.Log.Debugf("Retrieving full chat with %s\n", modifiedNick)
 	doc, err := p.Navigate("/meniu.php?{{ creds }}&id=pm&ka="+lastPM.nick, false)
 	if err != nil {
 		return err
 	}
 
 	// Get slice of messages. This contains messages from the latest to the oldest one.
+	p.Log.Debugf("Parsing full chat with %s\n", modifiedNick)
 	allSendersPMs := []*pm{}
 	doc.Find("div.got, div.send").Each(func(i int, s *goquery.Selection) {
-		allSendersPMs = append(allSendersPMs, parsePmHtml(s))
+		allSendersPMs = append(allSendersPMs, parsePmHtml(p, s))
 	})
 
 	// Reverse the order of the messages slice, so it would be from the oldest to the latest one.
@@ -132,6 +135,7 @@ func (p *Player) dealWithPMs() error {
 	}
 
 	// Print messages for debug
+
 	openaiMsgs := []*comms.OpenaiMessage{}
 	for _, p := range allSendersPMs {
 		openaiMsg := &comms.OpenaiMessage{
@@ -142,10 +146,13 @@ func (p *Player) dealWithPMs() error {
 	}
 
 	// Get reply from openai api
+	p.Log.Debugf("Retrieving reply for %s from OpenAI\n", modifiedNick)
 	openaiReply := comms.GetOpenAIReply(openaiMsgs...)
+	p.Log.Debugf("Retrieved reply from OpenAI for %s: %s\n", openaiReply, modifiedNick)
 
 	// Sleep according to amount of symbols within the reply (to simulate user writing)
 	sleepDuration := CalculateSleepTime(openaiReply, 40)
+	p.Log.Debugf("Sleeping %s (simulate writing) for a reply for %s\n", sleepDuration.String(), modifiedNick)
 	time.Sleep(sleepDuration)
 
 	// Send message back to user
@@ -154,11 +161,11 @@ func (p *Player) dealWithPMs() error {
 		if err == nil {
 			break
 		}
-		log.Println("Failed to send PM, retrying...")
+		p.Log.Warningf("Failed to send PM to %s: %s: %s\n", modifiedNick, openaiReply, err.Error())
 		comms.SendMessageToTelegram("Failed to send PM (" + err.Error() + "), retrying...")
 	}
 
-	log.Printf("AI Replied to %s: %s\n", modifiedNick, openaiReply)
+	p.Log.Infof("AI replied to %s: %s\n", modifiedNick, openaiReply)
 	comms.ForwardMessageToTelegram(openaiReply, modifiedNick, false)
 
 	return nil
