@@ -28,7 +28,7 @@ func main() {
 	}
 
 	logBackend := logging.NewLogBackend(os.Stdout, "", 0)
-	loggerFormat := logging.MustStringFormatter(`%{color}%{time:15:04:05.000} %{shortfunc} ▶ %{level:.4s} [%{module}] %{message}`)
+	loggerFormat := logging.MustStringFormatter(`%{color}%{time:15:04:05.000} %{level:.4s} [%{module}] %{message}`)
 	logbackendFormatter := logging.NewBackendFormatter(logBackend, loggerFormat)
 	logbackendLeveled := logging.AddModuleLevel(logbackendFormatter)
 	switch c.LogLevel {
@@ -41,7 +41,7 @@ func main() {
 	case "CRITICAL":
 		logbackendLeveled.SetLevel(logging.CRITICAL, "")
 	}
-	logging.SetBackend(logbackendFormatter)
+	logging.SetBackend(logbackendLeveled)
 	log.Debug("Logger initialized")
 
 	// Start comms package
