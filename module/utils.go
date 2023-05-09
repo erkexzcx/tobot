@@ -1,18 +1,19 @@
 package module
 
 import (
-	"log"
+	"fmt"
+	"tobot/player"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func DumpHTML(doc *goquery.Document) {
+func DumpHTML(p *player.Player, doc *goquery.Document) {
 	html, err := doc.Html()
 	if err != nil {
-		log.Println(err)
+		p.Log.Warning("Failed to dump HTML:", err.Error())
 		return
 	}
-	log.Println(html)
+	fmt.Println(html)
 }
 
 // Returns true if doc contains "Jūs pavargęs, bandykite vėl po keleto sekundžių"-alike message

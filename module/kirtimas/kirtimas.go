@@ -69,15 +69,18 @@ func (obj *Kirtimas) Perform(p *player.Player, settings map[string]string) *modu
 	path := "/miskas.php?{{ creds }}&id=kertu&ka=" + settings["item"]
 
 	// Download page that contains unique action link
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return obj.Perform(p, settings)
 	}
 
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Kirsti')").Attr("href")
 	if !found {
-		module.DumpHTML(doc)
+		module.DumpHTML(p, doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
 
@@ -89,9 +92,12 @@ func (obj *Kirtimas) Perform(p *player.Player, settings map[string]string) *modu
 	requestURI := parsed.RequestURI()
 
 	// Download action page
-	doc, err = p.Navigate("/"+requestURI, true)
+	doc, antiCheatPage, err = p.Navigate("/"+requestURI, true)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return &module.Result{CanRepeat: true, Error: nil} // There is no way to know if action was successful, so just assume it was
 	}
 
 	if module.IsInvalidClick(doc) {
@@ -111,7 +117,7 @@ func (obj *Kirtimas) Perform(p *player.Player, settings map[string]string) *modu
 	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
-	module.DumpHTML(doc)
+	module.DumpHTML(p, doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

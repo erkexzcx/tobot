@@ -61,9 +61,12 @@ func (obj *ApdirbimasMaterial) Perform(p *player.Player, settings map[string]str
 	path := "/dirbtuves.php?{{ creds }}&id=fmat0&ka=" + settings["item"] + "&page=1"
 
 	// Download page that contains unique action link
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return obj.Perform(p, settings)
 	}
 
 	// Check if not depleted
@@ -74,7 +77,7 @@ func (obj *ApdirbimasMaterial) Perform(p *player.Player, settings map[string]str
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Gaminti')").Attr("href")
 	if !found {
-		module.DumpHTML(doc)
+		module.DumpHTML(p, doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
 
@@ -86,9 +89,12 @@ func (obj *ApdirbimasMaterial) Perform(p *player.Player, settings map[string]str
 	requestURI := parsed.RequestURI()
 
 	// Download action page
-	doc, err = p.Navigate("/"+requestURI, true)
+	doc, antiCheatPage, err = p.Navigate("/"+requestURI, true)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return &module.Result{CanRepeat: true, Error: nil} // No way of knowing the status, so let's assume we can re-try
 	}
 
 	if module.IsInvalidClick(doc) {
@@ -108,7 +114,7 @@ func (obj *ApdirbimasMaterial) Perform(p *player.Player, settings map[string]str
 	if module.IsActionTooFast(doc) {
 		return obj.Perform(p, settings)
 	}
-	module.DumpHTML(doc)
+	module.DumpHTML(p, doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

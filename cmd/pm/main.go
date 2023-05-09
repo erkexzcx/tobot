@@ -70,7 +70,7 @@ func main() {
 		params.Add("zinute", *flagMessage)
 		params.Add("null", "Siųsti")
 		body := strings.NewReader(params.Encode())
-		doc, err := p.Submit(path, body)
+		doc, _, err := p.Submit(path, body)
 		if err != nil {
 			panic(err)
 		}

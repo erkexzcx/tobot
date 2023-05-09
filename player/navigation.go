@@ -15,16 +15,16 @@ import (
 const MIN_WAIT_TIME = 625 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game.
-func (p *Player) Navigate(path string, action bool) (*goquery.Document, error) {
+func (p *Player) Navigate(path string, action bool) (goqueryDocument *goquery.Document, antiCheatPage bool, err error) {
 	return p.openLink(path, action, "GET", nil)
 }
 
 // Submit is used to submit forms in-game.
-func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) {
+func (p *Player) Submit(path string, body io.Reader) (goqueryDocument *goquery.Document, antiCheatPage bool, err error) {
 	return p.openLink(path, false, "POST", body)
 }
 
-func (p *Player) openLink(path string, action bool, method string, body io.Reader) (*goquery.Document, error) {
+func (p *Player) openLink(path string, action bool, method string, body io.Reader) (goqueryDocument *goquery.Document, antiCheatPage bool, err error) {
 	// Remember the time of this as soon as possible
 	timeNow := time.Now()
 
@@ -83,26 +83,42 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	if p.timeUntilAction.Before(p.timeUntilNavigation) {
 		p.timeUntilAction = p.timeUntilNavigation
 	}
+	p.Log.Debugf("Extracted wait times: {navigation: %s, action: %s}\n", p.timeUntilNavigation.Sub(timeNow), p.timeUntilAction.Sub(timeNow))
 
 	// Check if bad credentials or player does not exist (deleted)
 	if doc.Find("div:contains('Blogi duomenys!')").Length() > 0 {
-		return nil, errors.New("invalid credentials or player does not exist (deleted?)")
+		return nil, false, errors.New("invalid credentials or player does not exist (deleted?)")
 	}
 
 	// Check if player is banned
 	if doc.Find("div:contains('Jūs užbanintas.')").Length() > 0 {
-		return nil, errors.New("player banned")
+		return nil, false, errors.New("player banned")
 	}
 
 	// Check if misconfiguration/marked as bot
 	if doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 {
-		return nil, errors.New("misconfiguration or your IP/configuration is marked as bot")
+		return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
 	}
 
 	// Check if we clicked too fast
 	if doc.Find("b:contains('NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!')").Length() > 0 {
 		p.Log.Warning("Received 'Clicked too fast' error (sleeping for 15 seconds and re-trying request)")
 		time.Sleep(15 * time.Second)
+		return p.openLink(path, action, method, body)
+	}
+
+	// Checks if there are new PMs
+	if doc.Find("a[href*='id=pm']:contains('Yra naujų PM')").Length() > 0 {
+		p.Log.Debug("New PM detected!")
+		if err := p.dealWithPMs(); err != nil {
+			p.Log.Warningf("Failed to manage new PMs: %s\n", err.Error())
+			comms.SendMessageToTelegram(fmt.Sprintf("Failed to manage new PMs: %s", err.Error()))
+		}
+	}
+
+	// Check if anti-cheat failed and we are greeted with annoying message
+	if doc.Find("div:contains('Praėjo spalvos paspaudimo laikas')").Length() > 0 {
+		p.Log.Warning("Anti-cheat check timeout detected! (re-trying request)")
 		return p.openLink(path, action, method, body)
 	}
 
@@ -115,27 +131,10 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		} else {
 			p.Log.Warningf("Failed to solve anti-cheat check (re-trying request): %s\n", err.Error())
 		}
-		return p.openLink(path, action, method, body)
-		// TODO - do we have to re-try request in this case?
+		return doc, true, nil
 	}
 
-	// Check if anti-cheat failed and we are greeted with annoying message
-	if doc.Find("div:contains('Praėjo spalvos paspaudimo laikas')").Length() > 0 {
-		p.Log.Warning("Anti-cheat check timeout detected! (re-trying request)")
-		return p.openLink(path, action, method, body)
-		// TODO - do we have to re-try request in this case?
-	}
-
-	// Checks if there are new PMs
-	if doc.Find("a[href*='id=pm']:contains('Yra naujų PM')").Length() > 0 {
-		p.Log.Debug("New PM detected!")
-		if err := p.dealWithPMs(); err != nil {
-			p.Log.Warningf("Failed to manage new PMs: %s\n", err.Error())
-			comms.SendMessageToTelegram(fmt.Sprintf("Failed to manage new PMs: %s", err.Error()))
-		}
-	}
-
-	return doc, nil
+	return doc, false, nil
 }
 
 func (p *Player) extractActionWaitTime(doc *goquery.Document) time.Duration {

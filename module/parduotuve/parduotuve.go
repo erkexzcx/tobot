@@ -2,9 +2,8 @@ package parduotuve
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -13,6 +12,10 @@ import (
 )
 
 type Parduotuve struct{}
+
+type Empty struct{}
+
+var packageName = reflect.TypeOf(Empty{}).PkgPath()
 
 // See cmd/shop/main.go regarding below list
 var itemPage = map[string]string{
@@ -792,121 +795,100 @@ func (obj *Parduotuve) Validate(settings map[string]string) error {
 	return nil
 }
 
-func (obj *Parduotuve) Perform(p *player.Player, settings map[string]string) *module.Result {
-	if settings["action"] == "pirkti" {
-		return buy(p, settings)
-	}
-	return sell(p, settings)
-}
-
 var regexPirktiMax = regexp.MustCompile(`Daugiausia galite nusipirkti šių daiktų: <b>(\d+)</b>`)
 
-func buy(p *player.Player, settings map[string]string) *module.Result {
-	page := itemPage[settings["item"]]
+func (obj *Parduotuve) Perform(p *player.Player, settings map[string]string) *module.Result {
+	// Define some variables
+	buyAction := settings["action"] == "pirkti"
 	amount, _ := strconv.Atoi(settings["amount"])
+	page := itemPage[settings["item"]]
 
-	path := "/parda.php?{{ creds }}&id=pirkt&ka=" + settings["item"] + "&page=" + page
-	pathSubmit := "/parda.php?{{ creds }}&id=perku&ka=" + settings["item"] + "&page=" + page
+	// Define paths
+	var path, pathSubmit string
+	if buyAction {
+		path = "/parda.php?{{ creds }}&id=pirkt&ka=" + settings["item"] + "&page=" + page
+		pathSubmit = "/parda.php?{{ creds }}&id=perku&ka=" + settings["item"] + "&page=" + page
+	} else {
+		path = "/parda.php?{{ creds }}&id=parduot&ka=" + settings["item"] + "&page=" + page
+		pathSubmit = "/parda.php?{{ creds }}&id=parduodu&ka=" + settings["item"] + "&page=" + page
+	}
 
 	// Download page that contains max items we can buy
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-
-	// Find how many we can buy
-	code, err := doc.Html()
-	if err != nil {
-		return buy(p, settings) // retry
-	}
-	maxToBuyMatch := regexPirktiMax.FindStringSubmatch(code)
-	if len(maxToBuyMatch) != 2 {
-		return &module.Result{CanRepeat: false, Error: errors.New("unable to find count of available to buy items")}
-	}
-	maxToBuy := maxToBuyMatch[1]
-
-	// Convert string number to actual int
-	maxToBuyInt, err := strconv.Atoi(maxToBuy)
-	if err != nil {
-		return &module.Result{CanRepeat: false, Error: errors.New("unable to understand max number of items available to buy")}
+	if antiCheatPage {
+		return obj.Perform(p, settings)
 	}
 
-	buyAmount := maxToBuyInt + amount // Adding positive number = addition. Adding negative number = subtraction.
-	if buyAmount <= 0 {
+	// Find max amount of items we can buy or sell
+	var maxAmount int
+	if buyAction {
+		code, err := doc.Html()
+		if err != nil {
+			p.Log.Debugf("[activity.%s] Unable to load HTML, retrying\n", packageName)
+			return obj.Perform(p, settings) // retry
+		}
+		maxToBuyMatch := regexPirktiMax.FindStringSubmatch(code)
+		if len(maxToBuyMatch) != 2 {
+			return &module.Result{CanRepeat: false, Error: errors.New("unable to find count of available to buy items")}
+		}
+		maxAmount, _ = strconv.Atoi(maxToBuyMatch[1])
+	} else {
+		maxAmountStr, found := doc.Find("form > input[name='kiekis'][type='hidden']").Attr("value")
+		if !found {
+			return &module.Result{CanRepeat: false, Error: errors.New("unable to find count of available to sell items")}
+		}
+		maxAmount, _ = strconv.Atoi(maxAmountStr)
+	}
+
+	// Adding positive number = addition. Adding negative number = subtraction.
+	actionAmount := maxAmount + amount
+
+	// If value is 0, then ignore
+	if actionAmount <= 0 {
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	log.Println("Buying:", buyAmount)
+	// Logging
+	if buyAction {
+		p.Log.Debugf("[activity.%s] Attempting to buy %d of %s items\n", packageName, settings["item"], actionAmount)
+	} else {
+		p.Log.Debugf("[activity.%s] Attempting to sell %d of %s items\n", packageName, settings["item"], actionAmount)
+	}
+
+	// Build request body
 	params := url.Values{}
-	params.Add("kiekis", strconv.Itoa(buyAmount))
-	params.Add("null", "Pirkti")
+	params.Add("kiekis", strconv.Itoa(actionAmount))
+	if buyAction {
+		params.Add("null", "Pirkti")
+	} else {
+		params.Add("null", "Parduoti")
+	}
 	body := strings.NewReader(params.Encode())
 
 	// Submit request
-	doc, err = p.Submit(pathSubmit, body)
+	doc, antiCheatPage, err = p.Submit(pathSubmit, body)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return &module.Result{CanRepeat: true, Error: nil} // There is no way to know the status now
 	}
 
 	// If action was a success
 	if doc.Find("div:contains('Daiktai nupirkti, išleidote ')").Length() > 0 {
+		p.Log.Infof("[activity.%s] Bought %d of %s items\n", packageName, settings["item"], actionAmount)
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
-
-	html, _ := doc.Html()
-	log.Println(html)
-	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
-}
-
-func sell(p *player.Player, settings map[string]string) *module.Result {
-	page := itemPage[settings["item"]]
-	amount, _ := strconv.Atoi(settings["amount"])
-
-	path := "/parda.php?{{ creds }}&id=parduot&ka=" + settings["item"] + "&page=" + page
-	pathSubmit := "/parda.php?{{ creds }}&id=parduodu&ka=" + settings["item"] + "&page=" + page
-
-	// Download page that contains unique action link
-	doc, err := p.Navigate(path, false)
-	if err != nil {
-		return &module.Result{CanRepeat: false, Error: err}
-	}
-
-	// Find how many we can sell
-	maxToSell, found := doc.Find("form > input[name='kiekis'][type='hidden']").Attr("value")
-	if !found {
-		return &module.Result{CanRepeat: false, Error: errors.New("unable to find count of available to sell items")}
-	}
-
-	// Convert string number to actual int
-	maxToSellInt, err := strconv.Atoi(maxToSell)
-	if err != nil {
-		return &module.Result{CanRepeat: false, Error: errors.New("unable to understand max number of items available to sell")}
-	}
-
-	sellAmount := maxToSellInt + amount // Adding positive number = addition. Adding negative number = subtraction.
-	if sellAmount <= 0 {
-		return &module.Result{CanRepeat: false, Error: nil}
-	}
-
-	log.Println("Selling:", sellAmount)
-
-	params := url.Values{}
-	params.Add("kiekis", fmt.Sprint(sellAmount))
-	params.Add("null", "Parduoti")
-	body := strings.NewReader(params.Encode())
-
-	// Submit request
-	doc, err = p.Submit(pathSubmit, body)
-	if err != nil {
-		return &module.Result{CanRepeat: false, Error: err}
-	}
-
-	// If action was a success
 	if doc.Find("div:contains('Daiktai parduoti, gavote ')").Length() > 0 {
+		p.Log.Infof("[activity.%s] Sold %d of %s items\n", packageName, settings["item"], actionAmount)
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	module.DumpHTML(doc)
+	// Unknown error/invalid HTML
+	module.DumpHTML(p, doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

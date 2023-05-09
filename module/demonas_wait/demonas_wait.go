@@ -27,9 +27,12 @@ func (obj *DemonasWait) Perform(p *player.Player, settings map[string]string) *m
 	path := "/kova.php?{{ creds }}&id=tobgod"
 
 	// Download page
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return obj.Perform(p, settings)
 	}
 
 	// demonas is available
@@ -51,7 +54,7 @@ func (obj *DemonasWait) Perform(p *player.Player, settings map[string]string) *m
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	module.DumpHTML(doc)
+	module.DumpHTML(p, doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

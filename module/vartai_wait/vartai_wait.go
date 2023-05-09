@@ -27,9 +27,12 @@ func (obj *VartaiWait) Perform(p *player.Player, settings map[string]string) *mo
 	path := "/kasimas_kalve.php?{{ creds }}&id=deep"
 
 	// Download page
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		obj.Perform(p, settings)
 	}
 
 	// If levels are too weak - throw error
@@ -58,7 +61,7 @@ func (obj *VartaiWait) Perform(p *player.Player, settings map[string]string) *mo
 		return &module.Result{CanRepeat: false, Error: nil}
 	}
 
-	module.DumpHTML(doc)
+	module.DumpHTML(p, doc)
 	return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 }
 

@@ -211,9 +211,12 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	path := "/kova.php?{{ creds }}&id=kova0&vs=" + settings["vs"] + "&psl=" + enemyPage[settings["vs"]]
 
 	// Download page that contains unique action link
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return obj.Perform(p, settings)
 	}
 
 	// If slayer is provided - ensure it is enabled
@@ -240,7 +243,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	// Find action link
 	actionLink, found := doc.Find("a[href*='&kd=']:contains('Pulti')").Attr("href")
 	if !found {
-		module.DumpHTML(doc)
+		module.DumpHTML(p, doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("action button not found")}
 	}
 
@@ -252,9 +255,12 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	requestURI := parsed.RequestURI()
 
 	// Download action page
-	doc, err = p.Navigate("/"+requestURI, true)
+	doc, antiCheatPage, err = p.Navigate("/"+requestURI, true)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return &module.Result{CanRepeat: true, Error: nil} // There is no way to know if action was successful, so just assume it was
 	}
 
 	if module.IsInvalidClick(doc) {
@@ -276,7 +282,7 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 
 	// If lost - error is already thrown, so the only way - win. If not won - throw error
 	if !successWon {
-		module.DumpHTML(doc)
+		module.DumpHTML(p, doc)
 		return &module.Result{CanRepeat: false, Error: errors.New("unknown error occurred")}
 	}
 
@@ -312,9 +318,12 @@ func enableSlayer(p *player.Player, slayer string) error {
 	path := "/slayer.php?{{ creds }}&id=task&nr=" + slayer
 
 	// Download page that contains unique action link
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return err
+	}
+	if antiCheatPage {
+		return enableSlayer(p, slayer)
 	}
 
 	// Check if we've got a reward for previously completed slayer contract
@@ -322,7 +331,7 @@ func enableSlayer(p *player.Player, slayer string) error {
 		return nil
 	}
 
-	module.DumpHTML(doc)
+	module.DumpHTML(p, doc)
 	return errors.New("enabling slayer contract failed")
 }
 
@@ -330,9 +339,12 @@ func finishSlayer(p *player.Player) error {
 	path := "/slayer.php?{{ creds }}"
 
 	// Download page that contains unique action link
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return err
+	}
+	if antiCheatPage {
+		return finishSlayer(p)
 	}
 
 	// Check if successfully enabled
@@ -340,6 +352,6 @@ func finishSlayer(p *player.Player) error {
 		return nil
 	}
 
-	module.DumpHTML(doc)
+	module.DumpHTML(p, doc)
 	return errors.New("unable to finish slayer contract")
 }

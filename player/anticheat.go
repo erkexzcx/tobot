@@ -44,7 +44,7 @@ func (p *Player) solveAnticheat(doc *goquery.Document) error {
 	}
 
 	// Click on the found colour
-	doc, err = p.Navigate(colorClickableMatrix[color], false)
+	doc, _, err = p.Navigate(colorClickableMatrix[color], false)
 	if err != nil {
 		return errors.New("Failed to click color " + color + ": " + err.Error())
 	}

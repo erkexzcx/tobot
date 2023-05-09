@@ -115,9 +115,12 @@ func (obj *Eating) Perform(p *player.Player, settings map[string]string) *module
 	path := "/namai.php?{{ creds }}&id=lova"
 
 	// Download page that contains info about health
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
+	}
+	if antiCheatPage {
+		return obj.Perform(p, settings)
 	}
 
 	// Extract health and eat if not full
@@ -151,9 +154,12 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 	path := "/zaisti.php?{{ creds }}&id=valgyti&ka=" + item
 
 	// Download page
-	doc, err := p.Navigate(path, false)
+	doc, antiCheatPage, err := p.Navigate(path, false)
 	if err != nil {
 		return false, err
+	}
+	if antiCheatPage {
+		return Eat(p, item) // Eat again, since we don't know what happened
 	}
 
 	// Check if ran out of food
@@ -174,7 +180,7 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 		return Eat(p, item)
 	}
 
-	module.DumpHTML(doc)
+	module.DumpHTML(p, doc)
 	return false, errors.New("unknown error occurred (at eating module)")
 }
 

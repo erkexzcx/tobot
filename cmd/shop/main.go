@@ -54,7 +54,7 @@ func main() {
 	})
 
 	// Open page containing list of categories
-	doc, err := p.Navigate("/parda.php?{{ creds }}", false)
+	doc, _, err := p.Navigate("/parda.php?{{ creds }}", false)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +65,7 @@ func main() {
 		categoryLinkString, _ := s.Attr("href")
 		categoryLinkURL, _ := url.Parse(categoryLinkString)
 		categoryLinkURI := categoryLinkURL.RequestURI()
-		categoryDoc, err := p.Navigate("/"+categoryLinkURI, false)
+		categoryDoc, _, err := p.Navigate("/"+categoryLinkURI, false)
 		if err != nil {
 			panic(err)
 		}
@@ -76,7 +76,7 @@ func main() {
 			subCategoryLinkString, _ := ss.Attr("href")
 			subCategoryLinkURL, _ := url.Parse(subCategoryLinkString)
 			subCategoryLinkURI := subCategoryLinkURL.RequestURI()
-			subCategoryDoc, err := p.Navigate("/"+subCategoryLinkURI, false)
+			subCategoryDoc, _, err := p.Navigate("/"+subCategoryLinkURI, false)
 			if err != nil {
 				panic(err)
 			}

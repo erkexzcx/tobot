@@ -72,8 +72,11 @@ func parsePmHtml(p *Player, s *goquery.Selection) *pm {
 }
 
 func (p *Player) getLastReceivedPM() *pm {
-	doc, err := p.Navigate("/meniu.php?{{ creds }}&id=pm", false)
+	doc, antiCheatPage, err := p.Navigate("/meniu.php?{{ creds }}&id=pm", false)
 	if err != nil {
+		return p.getLastReceivedPM()
+	}
+	if antiCheatPage {
 		return p.getLastReceivedPM()
 	}
 
@@ -91,7 +94,7 @@ func (p *Player) sendPM(to, message string, doc *goquery.Document) error {
 	body := strings.NewReader(params.Encode())
 
 	// Submit request
-	_, err := p.Submit(path, body)
+	_, _, err := p.Submit(path, body)
 	return err
 }
 
@@ -117,9 +120,12 @@ func (p *Player) dealWithPMs() error {
 
 	// Open chat only with sender
 	p.Log.Debugf("Retrieving full chat with %s\n", modifiedNick)
-	doc, err := p.Navigate("/meniu.php?{{ creds }}&id=pm&ka="+lastPM.nick, false)
+	doc, antiCheatPage, err := p.Navigate("/meniu.php?{{ creds }}&id=pm&ka="+lastPM.nick, false)
 	if err != nil {
 		return err
+	}
+	if antiCheatPage {
+		return p.dealWithPMs()
 	}
 
 	// Get slice of messages. This contains messages from the latest to the oldest one.
