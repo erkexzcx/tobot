@@ -2,11 +2,11 @@ package player
 
 import (
 	"errors"
+	"fmt"
 	"io"
-	"log"
-	"math/rand"
 	"strings"
 	"time"
+	"tobot/comms"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -25,13 +25,24 @@ func (p *Player) Submit(path string, body io.Reader) (*goquery.Document, error) 
 }
 
 func (p *Player) openLink(path string, action bool, method string, body io.Reader) (*goquery.Document, error) {
-	// Mandatory wait before opening any link in the game
+	// Remember the time of this as soon as possible
 	timeNow := time.Now()
-	if action {
-		time.Sleep(p.timeUntilAction.Sub(timeNow))
-	} else {
-		time.Sleep(p.timeUntilNavigation.Sub(timeNow))
+
+	bodyPassed := true
+	if body == nil {
+		bodyPassed = false
 	}
+	p.Log.Debugf("Performing request: {path: %s, action: %t, method: %s, body passed: %t}\n", path, action, method, bodyPassed)
+
+	// Mandatory wait before opening any link in the game
+	var timeToSleep time.Duration
+	if action {
+		timeToSleep = p.timeUntilAction.Sub(timeNow)
+	} else {
+		timeToSleep = p.timeUntilNavigation.Sub(timeNow)
+	}
+	p.Log.Debugf("Sleeping for %s before performing request\n", timeToSleep)
+	time.Sleep(timeToSleep)
 
 	// Check if we have to become offline
 	if !action && method == "GET" {
@@ -47,8 +58,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	fullLink := p.renderFullLink(path)
 	resp, err := p.httpRequest(method, fullLink, body)
 	if err != nil {
-		log.Println("Failed to perform HTTP request:" + err.Error())
-		log.Println("Sleeping for 5 seconds and trying again...")
+		p.Log.Warningf("Failed to perform HTTP request (sleeping for 5 seconds and re-trying request): %s\n", err.Error())
 		time.Sleep(5 * time.Second)
 		return p.openLink(path, action, method, body)
 	}
@@ -60,8 +70,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	// Create GoQuery document out of response body
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Println("Failed to download HTTP response for GoQuery document:" + err.Error())
-		log.Println("Sleeping for 5 seconds and trying again...")
+		p.Log.Warningf("Failed to get GoQuery document from response body (sleeping for 5 seconds and re-trying request): %s\n", err.Error())
 		time.Sleep(5 * time.Second)
 		return p.openLink(path, action, method, body)
 	}
@@ -70,7 +79,8 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	p.timeUntilNavigation = timeNow.Add(MIN_WAIT_TIME - *p.Config.Settings.MinRTT)
 	if action {
 		p.timeUntilAction = timeNow.Add(p.extractActionWaitTime(doc) - *p.Config.Settings.MinRTT)
-	} else {
+	}
+	if p.timeUntilAction.Before(p.timeUntilNavigation) {
 		p.timeUntilAction = p.timeUntilNavigation
 	}
 
@@ -91,30 +101,38 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 
 	// Check if we clicked too fast
 	if doc.Find("b:contains('NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!')").Length() > 0 {
-		log.Println("[" + p.Config.Nick + "] Clicked too fast and now sleeps for 15 seconds...")
+		p.Log.Warning("Received 'Clicked too fast' error (sleeping for 15 seconds and re-trying request)")
 		time.Sleep(15 * time.Second)
 		return p.openLink(path, action, method, body)
 	}
 
 	// Check if anti-cheat check is present
 	if doc.Find("div:contains('Paspauskite žemiau esančią šią spalvą:')").Length() > 0 {
+		p.Log.Debug("Anti-cheat check detected!")
 		err := p.solveAnticheat(doc)
 		if err == nil {
-			log.Println("Successfully solved anti-cheat check")
+			p.Log.Debug("Successfully solved anti-cheat check (re-trying request)")
 		} else {
-			log.Printf("Failed to solve anti-cheat check: %s", err.Error())
+			p.Log.Warningf("Failed to solve anti-cheat check (re-trying request): %s\n", err.Error())
 		}
 		return p.openLink(path, action, method, body)
+		// TODO - do we have to re-try request in this case?
 	}
 
 	// Check if anti-cheat failed and we are greeted with annoying message
 	if doc.Find("div:contains('Praėjo spalvos paspaudimo laikas')").Length() > 0 {
+		p.Log.Warning("Anti-cheat check timeout detected! (re-trying request)")
 		return p.openLink(path, action, method, body)
+		// TODO - do we have to re-try request in this case?
 	}
 
 	// Checks if there are new PMs
 	if doc.Find("a[href*='id=pm']:contains('Yra naujų PM')").Length() > 0 {
-		p.dealWithPMs()
+		p.Log.Debug("New PM detected!")
+		if err := p.dealWithPMs(); err != nil {
+			p.Log.Warningf("Failed to manage new PMs: %s\n", err.Error())
+			comms.SendMessageToTelegram(fmt.Sprintf("Failed to manage new PMs: %s", err.Error()))
+		}
 	}
 
 	return doc, nil
@@ -156,6 +174,8 @@ func (p *Player) manageBecomeOffline() {
 
 	// If after sleep period - generate new sleep period
 	if timeNow.After(p.sleepTo) {
+		p.Log.Debug("Generating sleep durations (become offline) for upcoming sleep")
+
 		// Generate new random sleep duration
 		sleepDuration := randomDuration(
 			(*p.Config.Settings.BecomeOffline.For)[0],
@@ -177,7 +197,7 @@ func (p *Player) manageBecomeOffline() {
 
 	// If within sleep period - sleep (become offline)
 	sleepDuration := p.sleepTo.Sub(timeNow)
-	log.Println("Sleeping for", sleepDuration.String())
+	p.Log.Infof("Sleeping (become offline) for %s", sleepDuration.String())
 	time.Sleep(sleepDuration)
 }
 
@@ -202,7 +222,7 @@ func (p *Player) manageRandomWait() {
 // randomDurationWithProbability takes two time.Duration values, a success rate probability,
 // and returns a random duration between them or 0 based on the success rate.
 func randomDurationWithProbability(minDuration, maxDuration time.Duration, probability float64) time.Duration {
-	if rand.Float64() >= probability {
+	if randSeeded.Float64() >= probability {
 		return time.Duration(0)
 	}
 	return randomDuration(minDuration, maxDuration)
@@ -211,7 +231,7 @@ func randomDurationWithProbability(minDuration, maxDuration time.Duration, proba
 // randomDuration takes two time.Duration values and returns a random duration between them.
 func randomDuration(minDuration, maxDuration time.Duration) time.Duration {
 	durationDiff := maxDuration - minDuration
-	randomFloat := rand.Float64()
+	randomFloat := randSeeded.Float64()
 	randomDuration := minDuration + time.Duration(randomFloat*float64(durationDiff))
 	return randomDuration
 }

@@ -1,7 +1,6 @@
 package tobot
 
 import (
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -11,8 +10,11 @@ import (
 	"tobot/module"
 	"tobot/player"
 
+	"github.com/op/go-logging"
 	"gopkg.in/yaml.v2"
 )
+
+var log = logging.MustGetLogger("global")
 
 type Activity struct {
 	Name  string              `yaml:"name"`
@@ -22,34 +24,43 @@ type Activity struct {
 func Start(p *player.Player) {
 	// Create activities from files
 	activities := []*Activity{}
-	files, err := filepath.Glob(p.Config.ActivitiesDir + string(filepath.Separator) + "*.yml")
+	directoriesLocation := p.Config.ActivitiesDir + string(filepath.Separator) + "*.yml"
+	files, err := filepath.Glob(directoriesLocation)
 	if err != nil {
-		log.Fatalln("Failed to read activities .yml files of player '" + p.Config.Nick + "': " + err.Error())
+		p.Log.Critical("Failed to read activities .yml files of player '" + p.Config.Nick + "': " + err.Error())
 	}
+
+	p.Log.Debug("Parsing activity files from ", directoriesLocation)
 	for _, f := range files {
+		p.Log.Debug("Processing file:", f)
 		if strings.HasPrefix(path.Base(f), "_") {
+			p.Log.Debug("Skipping activity file:", f)
 			continue // Skip '_*.yml' files
 		}
 		contents, err := os.ReadFile(f)
 		if err != nil {
-			log.Fatalln(err)
+			p.Log.Criticalf("Failed to read activity file %s:%s", f, err.Error())
 		}
 
 		var a *Activity
 		if err := yaml.Unmarshal(contents, &a); err != nil {
-			log.Fatalln(err)
+			p.Log.Criticalf("Failed to unmarshal activity file %s:%s", f, err.Error())
 		}
 		activities = append(activities, a)
+		p.Log.Debug("Activity loaded:", a.Name)
 	}
 
 	// Validate activities
 	for _, a := range activities {
 		validateActivity(a)
 	}
+	p.Log.Debug("Activities validated successfully")
 
 	// Run activities in a loop
+	p.Log.Info("Activities started!")
 	for {
 		for _, aa := range activities {
+			p.Log.Infof("Starting activity '%s'", aa.Name)
 			runActivity(p, aa)
 		}
 	}
@@ -60,30 +71,25 @@ func validateActivity(a *Activity) {
 		count, found := task["_count"]
 		if found {
 			countInt, err := strconv.Atoi(count)
-			if err != nil {
-				panic("invalid '_count' value (in '" + a.Name + "' activity)")
-			}
-			if countInt < 0 {
-				panic("invalid '_count' value (in '" + a.Name + "' activity)")
+			if err != nil || countInt < 0 {
+				log.Panicf("invalid '_count' value (in '%s' activity)\n", a.Name)
 			}
 		}
 		if task["_module"] == "" {
-			panic("task missing _module (in '" + a.Name + "' activity)")
+			log.Panicf("task missing _module (in '%s' activity)\n", a.Name)
 		}
 		m, found := module.Modules[task["_module"]]
 		if !found {
-			panic("unknown _module '" + task["_module"] + "' (in '" + a.Name + "' activity)")
+			log.Panicf("unknown _module '%s' (in '%s' activity)\n", task["_module"], a.Name)
 		}
 		err := m.Validate(task)
 		if err != nil {
-			panic("Error from activity '" + a.Name + "' module '" + task["_module"] + "': " + err.Error())
+			log.Panicf("Error from activity '%s' module '%s': %s\n", a.Name, task["_module"], err.Error())
 		}
 	}
 }
 
 func runActivity(p *player.Player, a *Activity) {
-	log.Println(p.Config.Nick + " started '" + a.Name + "'")
-
 	for _, task := range a.Tasks {
 		m := module.Modules[task["_module"]]
 
@@ -101,9 +107,8 @@ func runActivity(p *player.Player, a *Activity) {
 
 			res := m.Perform(p, task)
 			if res.Error != nil {
-				comms.SendMessageToTelegram("Bot stopping: " + res.Error.Error())
-
-				panic(res.Error)
+				comms.SendMessageToTelegram("Bot stopped: " + res.Error.Error())
+				p.Log.Panic(res.Error)
 			}
 
 			if !res.CanRepeat {
