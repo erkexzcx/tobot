@@ -62,5 +62,8 @@ func sendTelegramMessage(msg string) error {
 			ParseMode: tb.ModeMarkdownV2,
 		},
 	)
+	if err != nil {
+		log.Println("Failed to send message to Telegram:", err.Error())
+	}
 	return err
 }
