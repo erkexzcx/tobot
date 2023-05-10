@@ -260,7 +260,17 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 		return &module.Result{CanRepeat: false, Error: err}
 	}
 	if antiCheatPage {
-		return &module.Result{CanRepeat: true, Error: nil} // There is no way to know if action was successful, so just assume it was
+		// There is no way to extract health bar, so let's assume we need to eat NOW
+		if _, found := settings["food"]; found {
+			noFoodLeft, err := eating.Eat(p, settings["food"]) // This function goes on loop, so call this once
+			if err != nil {
+				return &module.Result{CanRepeat: false, Error: err}
+			}
+			if noFoodLeft {
+				return &module.Result{CanRepeat: false, Error: nil}
+			}
+		}
+		return &module.Result{CanRepeat: true, Error: nil}
 	}
 
 	if module.IsInvalidClick(doc) {
