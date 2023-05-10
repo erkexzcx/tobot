@@ -116,12 +116,6 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		}
 	}
 
-	// Check if anti-cheat failed and we are greeted with annoying message
-	if doc.Find("div:contains('Praėjo spalvos paspaudimo laikas')").Length() > 0 {
-		p.Log.Warning("Anti-cheat check timeout detected! (re-trying request)")
-		return p.openLink(path, action, method, body)
-	}
-
 	// Check if anti-cheat check is present
 	if doc.Find("div:contains('Paspauskite žemiau esančią šią spalvą:')").Length() > 0 {
 		p.Log.Debug("Anti-cheat check detected!")
@@ -131,7 +125,16 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		} else {
 			p.Log.Warningf("Failed to solve anti-cheat check: %s\n", err.Error())
 		}
+		// The problem with this anti-cheat check is that your requested action (e.g. POST request) is performed,
+		// such as buying X amount of X items, but due to anti-cheat page, we cannot know if action was a success
+		// or a fail. This should be handled by the caller of this function.
 		return doc, true, nil
+	}
+
+	// Check if earlier anti-cheat failed
+	if doc.Find("div:contains('Praėjo spalvos paspaudimo laikas')").Length() > 0 {
+		p.Log.Warning("Anti-cheat check timeout detected! (re-trying request)")
+		return doc, true, nil // TODO - I assume that it's the same behavior as anti-cheat check window?
 	}
 
 	return doc, false, nil
