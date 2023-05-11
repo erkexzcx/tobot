@@ -140,8 +140,6 @@ func (p *Player) dealWithPMs() error {
 		allSendersPMs[i], allSendersPMs[j] = allSendersPMs[j], allSendersPMs[i]
 	}
 
-	// Print messages for debug
-
 	openaiMsgs := []*comms.OpenaiMessage{}
 	for _, p := range allSendersPMs {
 		openaiMsg := &comms.OpenaiMessage{
@@ -154,7 +152,13 @@ func (p *Player) dealWithPMs() error {
 	// Get reply from openai api
 	p.Log.Debugf("Retrieving reply for %s from OpenAI\n", modifiedNick)
 	openaiReply := comms.GetOpenAIReply(openaiMsgs...)
-	p.Log.Debugf("Retrieved reply from OpenAI for %s: %s\n", openaiReply, modifiedNick)
+	if openaiReply == "" {
+		p.Log.Warningf("OpenAI did not write a message for %s, sleeping for 10 minutes now, DO IT MANUALLY\n", modifiedNick)
+		comms.SendMessageToTelegram("OpenAI did not write a message for " + modifiedNick + ", sleeping for 10 minutes now, DO IT MANUALLY")
+		time.Sleep(10 * time.Minute)
+	} else {
+		p.Log.Debugf("Retrieved reply from OpenAI for %s: %s\n", openaiReply, modifiedNick)
+	}
 
 	// Sleep according to amount of symbols within the reply (to simulate user writing)
 	sleepDuration := CalculateSleepTime(openaiReply, 40)
