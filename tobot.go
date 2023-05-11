@@ -108,7 +108,8 @@ func runActivity(p *player.Player, a *Activity) {
 			res := m.Perform(p, task)
 			if res.Error != nil {
 				comms.SendMessageToTelegram("Bot stopped: " + res.Error.Error())
-				p.Log.Panic(res.Error)
+				p.Log.Critical("Bot stopped:", res.Error)
+				select {}
 			}
 
 			if !res.CanRepeat {
