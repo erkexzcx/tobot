@@ -2,6 +2,7 @@ package player
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"net/url"
 	"regexp"
@@ -105,6 +106,9 @@ func (p *Player) sendPM(to, message string, doc *goquery.Document) error {
 	if resultDoc.Find("div:contains('Išsiųsta!')").Length() == 0 {
 		return errors.New("failed to send PM")
 	}
+
+	html, _ := resultDoc.Html()
+	fmt.Println(html)
 
 	return err
 }
