@@ -107,8 +107,8 @@ func runActivity(p *player.Player, a *Activity) {
 
 			res := m.Perform(p, task)
 			if res.Error != nil {
-				comms.SendMessageToTelegram("Bot stopped: " + res.Error.Error())
-				p.Log.Critical("Bot stopped:", res.Error)
+				comms.SendMessageToTelegram("Player " + p.Config.Nick + " stopped: " + res.Error.Error())
+				p.Log.Critical("Player "+p.Config.Nick+" stopped:", res.Error)
 				select {}
 			}
 
