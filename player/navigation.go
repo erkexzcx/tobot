@@ -103,7 +103,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	// Check if we clicked too fast
 	if doc.Find("b:contains('NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!')").Length() > 0 {
 		p.Log.Warning("Received 'Clicked too fast' error (sleeping for 15 seconds and re-trying request)")
-		time.Sleep(15 * time.Second)
+		time.Sleep(time.Minute)
 		return p.openLink(path, action, method, body)
 	}
 
