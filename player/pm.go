@@ -1,6 +1,7 @@
 package player
 
 import (
+	"errors"
 	"math"
 	"net/url"
 	"regexp"
@@ -94,7 +95,17 @@ func (p *Player) sendPM(to, message string, doc *goquery.Document) error {
 	body := strings.NewReader(params.Encode())
 
 	// Submit request
-	_, _, err := p.Submit(path, body)
+	resultDoc, _, err := p.Submit(path, body)
+	// Hopefully anti-cheat woudn't be triggered during the reply
+	if err != nil {
+		return err
+	}
+
+	// If action was a success
+	if resultDoc.Find("div:contains('Išsiųsta!')").Length() == 0 {
+		return errors.New("failed to send PM")
+	}
+
 	return err
 }
 
@@ -166,6 +177,7 @@ func (p *Player) dealWithPMs() error {
 	time.Sleep(sleepDuration)
 
 	// Send message back to user
+	loopSleepDuration := 5 * time.Second
 	for {
 		err = p.sendPM(lastPM.nick, openaiReply, doc)
 		if err == nil {
@@ -173,6 +185,8 @@ func (p *Player) dealWithPMs() error {
 		}
 		p.Log.Warningf("Failed to send PM to %s: %s: %s\n", modifiedNick, openaiReply, err.Error())
 		comms.SendMessageToTelegram("Failed to send PM (" + err.Error() + "), retrying...")
+		time.Sleep(loopSleepDuration)
+		loopSleepDuration += time.Second
 	}
 
 	p.Log.Infof("AI replied to %s: %s\n", modifiedNick, openaiReply)
