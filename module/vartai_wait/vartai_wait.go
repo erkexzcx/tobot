@@ -27,11 +27,11 @@ func (obj *VartaiWait) Perform(p *player.Player, settings map[string]string) *mo
 	path := "/kasimas_kalve.php?{{ creds }}&id=deep"
 
 	// Download page
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		obj.Perform(p, settings)
 	}
 

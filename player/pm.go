@@ -74,11 +74,11 @@ func parsePmHtml(p *Player, s *goquery.Selection) *pm {
 }
 
 func (p *Player) getLastReceivedPM() *pm {
-	doc, antiCheatPage, err := p.Navigate("/meniu.php?{{ creds }}&id=pm", false)
+	doc, wrongDoc, err := p.Navigate("/meniu.php?{{ creds }}&id=pm", false)
 	if err != nil {
 		return p.getLastReceivedPM()
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return p.getLastReceivedPM()
 	}
 
@@ -135,11 +135,11 @@ func (p *Player) dealWithPMs() error {
 
 	// Open chat only with sender
 	p.Log.Debugf("Retrieving full chat with %s\n", modifiedNick)
-	doc, antiCheatPage, err := p.Navigate("/meniu.php?{{ creds }}&id=pm&ka="+lastPM.nick, false)
+	doc, wrongDoc, err := p.Navigate("/meniu.php?{{ creds }}&id=pm&ka="+lastPM.nick, false)
 	if err != nil {
 		return err
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return p.dealWithPMs()
 	}
 

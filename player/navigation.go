@@ -15,16 +15,16 @@ import (
 const MIN_WAIT_TIME = 625 * time.Millisecond
 
 // Navigate is used to navigate & perform activities in-game.
-func (p *Player) Navigate(path string, action bool) (goqueryDocument *goquery.Document, antiCheatPage bool, err error) {
+func (p *Player) Navigate(path string, action bool) (goqueryDocument *goquery.Document, wrongDoc bool, err error) {
 	return p.openLink(path, action, "GET", nil)
 }
 
 // Submit is used to submit forms in-game.
-func (p *Player) Submit(path string, body io.Reader) (goqueryDocument *goquery.Document, antiCheatPage bool, err error) {
+func (p *Player) Submit(path string, body io.Reader) (goqueryDocument *goquery.Document, wrongDoc bool, err error) {
 	return p.openLink(path, false, "POST", body)
 }
 
-func (p *Player) openLink(path string, action bool, method string, body io.Reader) (goqueryDocument *goquery.Document, antiCheatPage bool, err error) {
+func (p *Player) openLink(path string, action bool, method string, body io.Reader) (goqueryDocument *goquery.Document, wrongDoc bool, err error) {
 	// Remember the time of this as soon as possible
 	timeNow := time.Now()
 

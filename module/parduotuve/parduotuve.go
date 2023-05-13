@@ -815,11 +815,11 @@ func (obj *Parduotuve) Perform(p *player.Player, settings map[string]string) *mo
 	}
 
 	// Download page that contains max items we can buy
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return obj.Perform(p, settings)
 	}
 
@@ -870,11 +870,11 @@ func (obj *Parduotuve) Perform(p *player.Player, settings map[string]string) *mo
 	body := strings.NewReader(params.Encode())
 
 	// Submit request
-	doc, antiCheatPage, err = p.Submit(pathSubmit, body)
+	doc, wrongDoc, err = p.Submit(pathSubmit, body)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return &module.Result{CanRepeat: true, Error: nil} // There is no way to know the status now
 	}
 

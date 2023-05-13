@@ -64,11 +64,11 @@ func (obj *GaminimasLankai) Perform(p *player.Player, settings map[string]string
 	path := "/dirbtuves.php?{{ creds }}&id=gaminu0&ka=" + settings["item"]
 
 	// Download page that contains unique action link
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return obj.Perform(p, settings)
 	}
 
@@ -92,11 +92,11 @@ func (obj *GaminimasLankai) Perform(p *player.Player, settings map[string]string
 	requestURI := parsed.RequestURI()
 
 	// Download action page
-	doc, antiCheatPage, err = p.Navigate("/"+requestURI, true)
+	doc, wrongDoc, err = p.Navigate("/"+requestURI, true)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return &module.Result{CanRepeat: true, Error: nil} // There is no way to know if action was successful, so just assume it was
 	}
 

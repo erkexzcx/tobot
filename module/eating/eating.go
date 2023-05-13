@@ -115,11 +115,11 @@ func (obj *Eating) Perform(p *player.Player, settings map[string]string) *module
 	path := "/namai.php?{{ creds }}&id=lova"
 
 	// Download page that contains info about health
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return obj.Perform(p, settings)
 	}
 
@@ -154,11 +154,11 @@ func Eat(p *player.Player, item string) (noFoodLeft bool, err error) {
 	path := "/zaisti.php?{{ creds }}&id=valgyti&ka=" + item
 
 	// Download page
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return false, err
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return Eat(p, item) // Eat again, since we don't know what happened
 	}
 

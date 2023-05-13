@@ -211,11 +211,11 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	path := "/kova.php?{{ creds }}&id=kova0&vs=" + settings["vs"] + "&psl=" + enemyPage[settings["vs"]]
 
 	// Download page that contains unique action link
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return obj.Perform(p, settings)
 	}
 
@@ -255,11 +255,11 @@ func (obj *Kovojimas) Perform(p *player.Player, settings map[string]string) *mod
 	requestURI := parsed.RequestURI()
 
 	// Download action page
-	doc, antiCheatPage, err = p.Navigate("/"+requestURI, true)
+	doc, wrongDoc, err = p.Navigate("/"+requestURI, true)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		// There is no way to extract health bar, so let's assume we need to eat NOW
 		if _, found := settings["food"]; found {
 			noFoodLeft, err := eating.Eat(p, settings["food"]) // This function goes on loop, so call this once
@@ -328,11 +328,11 @@ func enableSlayer(p *player.Player, slayer string) error {
 	path := "/slayer.php?{{ creds }}&id=task&nr=" + slayer
 
 	// Download page that contains unique action link
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return err
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return enableSlayer(p, slayer)
 	}
 
@@ -349,11 +349,11 @@ func finishSlayer(p *player.Player) error {
 	path := "/slayer.php?{{ creds }}"
 
 	// Download page that contains unique action link
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return err
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return finishSlayer(p)
 	}
 

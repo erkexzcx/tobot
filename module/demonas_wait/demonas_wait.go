@@ -27,11 +27,11 @@ func (obj *DemonasWait) Perform(p *player.Player, settings map[string]string) *m
 	path := "/kova.php?{{ creds }}&id=tobgod"
 
 	// Download page
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return obj.Perform(p, settings)
 	}
 

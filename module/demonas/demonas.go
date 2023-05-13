@@ -42,11 +42,11 @@ func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *modul
 	path := "/kova.php?{{ creds }}&id=tobgod"
 
 	// Download page that contains unique action link
-	doc, antiCheatPage, err := p.Navigate(path, false)
+	doc, wrongDoc, err := p.Navigate(path, false)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return obj.Perform(p, settings)
 	}
 
@@ -70,11 +70,11 @@ func (obj *Demonas) Perform(p *player.Player, settings map[string]string) *modul
 	requestURI := parsed.RequestURI()
 
 	// Download action page
-	doc, antiCheatPage, err = p.Navigate("/"+requestURI, true)
+	doc, wrongDoc, err = p.Navigate("/"+requestURI, true)
 	if err != nil {
 		return &module.Result{CanRepeat: false, Error: err}
 	}
-	if antiCheatPage {
+	if wrongDoc {
 		return &module.Result{CanRepeat: true, Error: nil} // No way of knowing the status, so let's assume we can re-try
 	}
 
