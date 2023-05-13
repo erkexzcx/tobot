@@ -60,7 +60,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	if err != nil {
 		p.Log.Warningf("Failed to perform HTTP request (sleeping for 5 seconds and re-trying request): %s\n", err.Error())
 		time.Sleep(5 * time.Second)
-		return p.openLink(path, action, method, body)
+		return doc, true, nil // We don't know if server received the request - let's assume we need to re-try
 	}
 	defer resp.Body.Close()
 
@@ -72,7 +72,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	if err != nil {
 		p.Log.Warningf("Failed to get GoQuery document from response body (sleeping for 5 seconds and re-trying request): %s\n", err.Error())
 		time.Sleep(5 * time.Second)
-		return p.openLink(path, action, method, body)
+		return doc, true, nil // Failure downloading response body - server definitely processed the request
 	}
 
 	// Remember until when we have to wait before opening another link
