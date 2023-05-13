@@ -60,7 +60,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	if err != nil {
 		p.Log.Warningf("Failed to perform HTTP request (sleeping for 5 seconds and re-trying request): %s\n", err.Error())
 		time.Sleep(5 * time.Second)
-		return doc, true, nil // We don't know if server received the request - let's assume we need to re-try
+		return nil, true, err // We don't know if server received the request - let's assume we need to re-try
 	}
 	defer resp.Body.Close()
 
