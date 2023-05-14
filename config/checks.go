@@ -51,8 +51,11 @@ func validateConfig(c *Config) error {
 		if p.Nick == "" {
 			return errors.New("empty 'nick' field value")
 		}
-		if p.Pass == "" {
+		if p.Pass == "" && p.PassPlain == "" {
 			return errors.New("empty 'pass' field value")
+		}
+		if p.Pass != "" && p.PassPlain != "" {
+			return errors.New("both 'pass' and 'pass_plain' cannot be specified")
 		}
 		if p.ActivitiesDir == "" {
 			return errors.New("empty 'activities_dir' field value")
@@ -61,6 +64,10 @@ func validateConfig(c *Config) error {
 		// Validate player settings
 		if err := checkSettings(&c.Settings, fmt.Sprintf("player '%s'", p.Nick)); err != nil {
 			return err
+		}
+
+		if *c.CreatePlayers && p.Pass != "" {
+			return errors.New("cannot specify 'pass' when 'create_players' is enabled (use 'pass_plain' instead)")
 		}
 	}
 

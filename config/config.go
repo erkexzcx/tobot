@@ -1,6 +1,9 @@
 package config
 
 import (
+	"crypto/md5"
+	"encoding/base64"
+	"encoding/hex"
 	"os"
 	"time"
 
@@ -19,13 +22,15 @@ type Config struct {
 		Temperature  float32 `yaml:"temperature"`
 		Instructions string  `yaml:"instructions"`
 	} `yaml:"openai"`
-	Settings Settings  `yaml:"settings"`
-	Players  []*Player `yaml:"players"`
+	CreatePlayers *bool     `yaml:"create_players"`
+	Settings      Settings  `yaml:"settings"`
+	Players       []*Player `yaml:"players"`
 }
 
 type Player struct {
 	Nick          string   `yaml:"nick"`
 	Pass          string   `yaml:"pass"`
+	PassPlain     string   `yaml:"pass_plain"`
 	ActivitiesDir string   `yaml:"activities_dir"`
 	Settings      Settings `yaml:"settings"`
 }
@@ -62,6 +67,13 @@ func NewConfig(path string) (*Config, error) {
 	// Fill (overriden) player settings with global settings
 	for _, p := range c.Players {
 		fillPlayerSettings(p, &c.Settings)
+	}
+
+	// Generate password hashes
+	for _, p := range c.Players {
+		if p.PassPlain != "" {
+			p.Pass = generatePass(p.Nick, p.PassPlain)
+		}
 	}
 
 	// Validate config
@@ -101,4 +113,19 @@ func fillPlayerSettings(p *Player, c *Settings) {
 	if p.Settings.RandomizeWait.Probability == nil {
 		p.Settings.RandomizeWait.Probability = c.RandomizeWait.Probability
 	}
+}
+
+func generatePass(username, password string) string {
+	passwordPart := md5Hash(md5Hash(password))                             // Double MD5 encode
+	passwordPart = passwordPart[0:15]                                      // Cut first 15 characters
+	passwordPart = base64.StdEncoding.EncodeToString([]byte(passwordPart)) // Base64 encode
+
+	usernamePart := md5Hash(username) // MD5 encode
+
+	return passwordPart + usernamePart
+}
+
+func md5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
 }
