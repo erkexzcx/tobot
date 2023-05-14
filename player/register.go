@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"io"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -91,6 +92,9 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 	if err != nil {
 		return "", errors.New("Failed to convert ca.php captcha image to PNG: " + err.Error())
 	}
+
+	// Debug: Write to file
+	os.WriteFile("/tmp/ca.png", caPng, 0644)
 
 	// Read text from image
 	tessClientCA.SetImageFromBytes(caPng)
