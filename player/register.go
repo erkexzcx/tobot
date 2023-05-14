@@ -20,9 +20,6 @@ var registrationMux = &sync.Mutex{}
 var gosseractClientCA *gosseract.Client
 
 func (p *Player) registerPlayer() error {
-	registrationMux.Lock()
-	defer registrationMux.Unlock()
-
 	// Slow down
 	time.Sleep(time.Second)
 
