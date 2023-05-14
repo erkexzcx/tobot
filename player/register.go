@@ -97,7 +97,10 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 	os.WriteFile("/tmp/ca.png", caPng, 0644)
 
 	// Read text from image
-	tessClientCA.SetImageFromBytes(caPng)
+	err = tessClientCA.SetImageFromBytes(caPng)
+	if err != nil {
+		return "", errors.New("Failed to set image from bytes: " + err.Error())
+	}
 	text, err := tessClientCA.Text()
 	if err != nil {
 		return "", errors.New("Failed to read text from ca.php captcha image: " + err.Error())

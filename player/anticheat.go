@@ -94,7 +94,10 @@ func getColorToClickName(p *Player, doc *goquery.Document) (string, error) {
 		}
 
 		// Read text from image
-		tessClient.SetImageFromBytes(content)
+		err = tessClient.SetImageFromBytes(content)
+		if err != nil {
+			return "", errors.New("Failed to set captcha image to tesseract: " + err.Error())
+		}
 		text, err := tessClient.Text()
 		if err != nil {
 			return "", errors.New("Failed to read text from captcha image: " + err.Error())
