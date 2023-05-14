@@ -27,6 +27,9 @@ func main() {
 		log.Panic("Configuration failed:", err)
 	}
 
+	// Set global settings
+	config.CreatePlayers = c.CreatePlayers
+
 	logBackend := logging.NewLogBackend(os.Stdout, "", 0)
 	loggerFormat := logging.MustStringFormatter(`%{color}%{time:15:04:05.000} %{level:.4s} [%{module}] %{message}`)
 	logbackendFormatter := logging.NewBackendFormatter(logBackend, loggerFormat)

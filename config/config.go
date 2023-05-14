@@ -22,7 +22,7 @@ type Config struct {
 		Temperature  float32 `yaml:"temperature"`
 		Instructions string  `yaml:"instructions"`
 	} `yaml:"openai"`
-	CreatePlayers *bool     `yaml:"create_players"`
+	CreatePlayers bool      `yaml:"create_players"`
 	Settings      Settings  `yaml:"settings"`
 	Players       []*Player `yaml:"players"`
 }

@@ -14,6 +14,7 @@ import (
 )
 
 var tessClient *gosseract.Client
+var tessClientCA *gosseract.Client
 
 var MD5SumToColor = map[string]string{
 	"00b2bd826148fac618dd782570dde345": "raudona",
@@ -183,9 +184,7 @@ func getColorClickableMatrix(p *Player, doc *goquery.Document) (map[string]strin
 }
 
 func init() {
-	// Init tesseract OCR
+	// Init tesseract OCR for anti-bot captchas
 	tessClient = gosseract.NewClient()
-	//defer tessClient.Close()
-
 	tessClient.SetLanguage("lit")
 }

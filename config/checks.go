@@ -66,7 +66,7 @@ func validateConfig(c *Config) error {
 			return err
 		}
 
-		if *c.CreatePlayers && p.Pass != "" {
+		if c.CreatePlayers && p.Pass != "" {
 			return errors.New("cannot specify 'pass' when 'create_players' is enabled (use 'pass_plain' instead)")
 		}
 	}
