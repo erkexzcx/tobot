@@ -100,5 +100,4 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 func init() {
 	// Init tesseract OCR for ca.php captchas
 	tessClientCA = gosseract.NewClient()
-	tessClientCA.SetWhitelist("0123456789")
 }
