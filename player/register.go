@@ -20,32 +20,38 @@ var registrationMux = &sync.Mutex{}
 var gosseractClientCA *gosseract.Client
 
 func (p *Player) registerPlayer() error {
+	registrationMux.Lock()
+	defer registrationMux.Unlock()
+
+	sleepTime := MIN_WAIT_TIME - *p.Config.Settings.MinRTT
+
+	time.Sleep(sleepTime)
+
 	err := p.createAccount()
 	if err != nil {
 		return err
 	}
 
-	time.Sleep(time.Second)
+	time.Sleep(sleepTime)
 
 	err = p.selectWarrior()
 	if err != nil {
 		return err
 	}
 
-	time.Sleep(time.Second)
+	time.Sleep(sleepTime)
 
 	err = p.disablePictures()
 	if err != nil {
 		return err
 	}
 
+	time.Sleep(sleepTime)
+
 	return nil
 }
 
 func (p *Player) createAccount() error {
-	// Slow down
-	time.Sleep(time.Second)
-
 	captchaCode, err := p.getUnregisteredCaptchaCode()
 	if err != nil {
 		return err
@@ -78,7 +84,7 @@ func (p *Player) createAccount() error {
 	// Retry if invalid CA code, which is fine
 	if doc.Find("div:contains('Blogas kodas')").Length() > 0 {
 		p.Log.Debug("Invalid captcha CA code, retrying...")
-		return p.registerPlayer()
+		return p.createAccount()
 	}
 
 	// If failed to register
@@ -91,8 +97,6 @@ func (p *Player) createAccount() error {
 }
 
 func (p *Player) selectWarrior() error {
-	time.Sleep(time.Second)
-
 	// Submit warrior selection request
 	resp, err := p.httpRequest("GET", p.renderFullLink("/zaisti.php?{{ creds }}&tipas=0"), nil)
 	if err != nil {
@@ -118,8 +122,6 @@ func (p *Player) selectWarrior() error {
 }
 
 func (p *Player) disablePictures() error {
-	time.Sleep(time.Second)
-
 	// Submit icons visibility request
 	resp, err := p.httpRequest("GET", p.renderFullLink("/meniu.php?{{ creds }}&id=icons2"), nil)
 	if err != nil {
