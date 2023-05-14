@@ -14,10 +14,11 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/otiai10/gosseract"
+	"github.com/otiai10/gosseract/v2"
 )
 
 var registrationMux = &sync.Mutex{}
+var gosseractClientCA *gosseract.Client
 
 func (p *Player) registerPlayer() error {
 	registrationMux.Lock()
@@ -97,11 +98,11 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 	os.WriteFile("/tmp/ca.png", caPng, 0644)
 
 	// Read text from image
-	err = tessClientCA.SetImageFromBytes(caPng)
+	err = gosseractClientCA.SetImageFromBytes(caPng)
 	if err != nil {
 		return "", errors.New("Failed to set image from bytes: " + err.Error())
 	}
-	text, err := tessClientCA.Text()
+	text, err := gosseractClientCA.Text()
 	if err != nil {
 		return "", errors.New("Failed to read text from ca.php captcha image: " + err.Error())
 	}
@@ -139,6 +140,6 @@ func ConvertGifToPng(gifBytes []byte) ([]byte, error) {
 
 func init() {
 	// Init tesseract OCR for ca.php captchas
-	tessClientCA = gosseract.NewClient()
-	tessClientCA.SetWhitelist("0123456789")
+	gosseractClientCA = gosseract.NewClient()
+	gosseractClientCA.SetWhitelist("0123456789")
 }

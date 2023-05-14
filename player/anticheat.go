@@ -14,7 +14,6 @@ import (
 )
 
 var tessClient *gosseract.Client
-var tessClientCA *gosseract.Client
 
 var MD5SumToColor = map[string]string{
 	"00b2bd826148fac618dd782570dde345": "raudona",
