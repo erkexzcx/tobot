@@ -88,11 +88,11 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 		return "", errors.New("Failed to read captcha image body: " + err.Error())
 	}
 
-	// Convert static GIF to PNG
-	caPng, err := ConvertGifToPng(content)
-	if err != nil {
-		return "", errors.New("Failed to convert ca.php captcha image to PNG: " + err.Error())
-	}
+	// // Convert static GIF to PNG
+	// caPng, err := ConvertGifToPng(content)
+	// if err != nil {
+	// 	return "", errors.New("Failed to convert ca.php captcha image to PNG: " + err.Error())
+	// }
 
 	// Debug: Write to file
 	os.WriteFile("/tmp/ca.png", caPng, 0644)
