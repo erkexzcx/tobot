@@ -21,6 +21,8 @@ openai:
     7. Never use words such as "jus/jums", instead use "tu/tau".
     8. No diacrytics, no period dot at the end, make constant typing mistakes.
 
+create_players: true
+
 settings:
   root_address: http://tob.lt
   user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
@@ -51,5 +53,5 @@ players:
       become_offline:
         enabled: false
   - nick: mythirdaccount
-    pass: 68nSnf3WZ4EyKbTWqedhahXrPKTQy3DSUaimmLjWbSXYHGneqae9
+    pass_plain: labas123
     activities_dir: ./activities/mycustom

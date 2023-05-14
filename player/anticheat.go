@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/otiai10/gosseract"
+	"github.com/otiai10/gosseract/v2"
 )
 
 var tessClient *gosseract.Client
@@ -93,7 +93,10 @@ func getColorToClickName(p *Player, doc *goquery.Document) (string, error) {
 		}
 
 		// Read text from image
-		tessClient.SetImageFromBytes(content)
+		err = tessClient.SetImageFromBytes(content)
+		if err != nil {
+			return "", errors.New("Failed to set captcha image to tesseract: " + err.Error())
+		}
 		text, err := tessClient.Text()
 		if err != nil {
 			return "", errors.New("Failed to read text from captcha image: " + err.Error())
@@ -183,9 +186,7 @@ func getColorClickableMatrix(p *Player, doc *goquery.Document) (map[string]strin
 }
 
 func init() {
-	// Init tesseract OCR
+	// Init tesseract OCR for anti-bot captchas
 	tessClient = gosseract.NewClient()
-	//defer tessClient.Close()
-
 	tessClient.SetLanguage("lit")
 }

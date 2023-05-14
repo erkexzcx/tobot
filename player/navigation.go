@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 	"tobot/comms"
+	"tobot/config"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -85,21 +86,6 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	}
 	p.Log.Debugf("Extracted wait times: {navigation: %s, action: %s}\n", p.timeUntilNavigation.Sub(timeNow), p.timeUntilAction.Sub(timeNow))
 
-	// Check if bad credentials or player does not exist (deleted)
-	if doc.Find("div:contains('Blogi duomenys!')").Length() > 0 {
-		return nil, false, errors.New("invalid credentials or player does not exist (deleted?)")
-	}
-
-	// Check if player is banned
-	if doc.Find("div:contains('Jūs užbanintas.')").Length() > 0 {
-		return nil, false, errors.New("player banned")
-	}
-
-	// Check if misconfiguration/marked as bot
-	if doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 {
-		return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
-	}
-
 	// Check if we clicked too fast
 	if doc.Find("b:contains('NUORODAS REIKIA SPAUSTI TIK VIENĄ KARTĄ!')").Length() > 0 {
 		p.Log.Warning("Received 'Clicked too fast' error (sleeping for 15 seconds and re-trying request)")
@@ -135,6 +121,30 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	if doc.Find("div:contains('Praėjo spalvos paspaudimo laikas')").Length() > 0 {
 		p.Log.Warning("Anti-cheat check timeout detected! (re-trying request)")
 		return doc, true, nil // TODO - I assume that it's the same behavior as anti-cheat check window?
+	}
+
+	// Check if player is banned
+	if doc.Find("div:contains('Jūs užbanintas.')").Length() > 0 {
+		return nil, false, errors.New("player banned")
+	}
+
+	// Check if misconfiguration/marked as bot
+	if doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 {
+		return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
+	}
+
+	// Check if bad credentials or player does not exist (deleted)
+	// This check must be after all other checks
+	if doc.Find("div:contains('Blogi duomenys!')").Length() > 0 {
+		if config.CreatePlayers {
+			return nil, false, errors.New("invalid credentials or player does not exist (deleted?)")
+		}
+		err = p.registerPlayer()
+		if err != nil {
+			time.Sleep(5 * time.Second) // Wait 5 seconds between retries, so we don't DOS server
+			return p.openLink(path, action, method, body)
+		}
+		return nil, true, nil
 	}
 
 	return doc, false, nil
