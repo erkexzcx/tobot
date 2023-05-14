@@ -1,10 +1,12 @@
 package player
 
 import (
+	"bytes"
 	"errors"
+	"image/gif"
+	"image/png"
 	"io"
 	"net/url"
-	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -84,11 +86,14 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 		return "", errors.New("Failed to read captcha image body: " + err.Error())
 	}
 
-	// Debug - store to /tmp/ca
-	os.WriteFile("/tmp/ca", content, 0644)
+	// Convert static GIF to PNG
+	caPng, err := ConvertGifToPng(content)
+	if err != nil {
+		return "", errors.New("Failed to convert ca.php captcha image to PNG: " + err.Error())
+	}
 
 	// Read text from image
-	tessClientCA.SetImageFromBytes(content)
+	tessClientCA.SetImageFromBytes(caPng)
 	text, err := tessClientCA.Text()
 	if err != nil {
 		return "", errors.New("Failed to read text from ca.php captcha image: " + err.Error())
@@ -98,7 +103,31 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 	if len(caText) < 2 {
 		return p.getUnregisteredCaptchaCode()
 	}
+
 	return caText, nil
+}
+
+func ConvertGifToPng(gifBytes []byte) ([]byte, error) {
+	// Create a bytes reader from the gif bytes
+	gifReader := bytes.NewReader(gifBytes)
+
+	// Decode the gif image
+	gifImg, err := gif.Decode(gifReader)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a buffer to write the png to
+	pngBuffer := new(bytes.Buffer)
+
+	// Encode the image to png
+	err = png.Encode(pngBuffer, gifImg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the bytes of the png image
+	return pngBuffer.Bytes(), nil
 }
 
 func init() {
