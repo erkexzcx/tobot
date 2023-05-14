@@ -7,7 +7,6 @@ import (
 	"image/png"
 	"io"
 	"net/url"
-	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -94,11 +93,11 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 	// 	return "", errors.New("Failed to convert ca.php captcha image to PNG: " + err.Error())
 	// }
 
-	// Debug: Write to file
-	os.WriteFile("/tmp/ca.png", caPng, 0644)
+	// // Debug: Write to file
+	// os.WriteFile("/tmp/ca.png", caPng, 0644)
 
 	// Read text from image
-	err = gosseractClientCA.SetImageFromBytes(caPng)
+	err = gosseractClientCA.SetImageFromBytes(content)
 	if err != nil {
 		return "", errors.New("Failed to set image from bytes: " + err.Error())
 	}
