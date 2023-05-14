@@ -31,8 +31,6 @@ func (p *Player) registerPlayer() error {
 		return err
 	}
 
-	// nick=test3&passs=test3&passs2=test3&ko=31&null=Registruotis
-
 	params := url.Values{}
 	params.Add("nick", p.Config.Nick)
 	params.Add("passs", p.Config.PassPlain)
@@ -42,7 +40,7 @@ func (p *Player) registerPlayer() error {
 	body := strings.NewReader(params.Encode())
 
 	// Submit registration form
-	resp, err := p.httpRequest("POST", "https://tobot.9e9.eu/index.php?id=reg2&mo=Human&world=1", body)
+	resp, err := p.httpRequest("POST", *p.Config.Settings.RootAddress+"/"+"index.php?id=reg2&mo=Human&world=1", body)
 	if err != nil {
 		p.Log.Warning("Failed to perform registration request:", err)
 		return err
@@ -62,12 +60,34 @@ func (p *Player) registerPlayer() error {
 		return p.registerPlayer()
 	}
 
-	// If registered successfully
-	if doc.Find("div:contains('Jūs užregistruotas sėkmingai')").Length() > 0 {
-		return nil
+	// If failed to register
+	if doc.Find("div:contains('Jūs užregistruotas sėkmingai')").Length() == 0 {
+		return errors.New("failed to register player")
 	}
 
-	return errors.New("failed to register player")
+	time.Sleep(time.Second)
+
+	// Submit registration form
+	resp, err = p.httpRequest("GET", p.renderFullLink("/zaisti.php?{{ creds }}&tipas=0"), nil)
+	if err != nil {
+		p.Log.Warning("Failed to perform character warrior type request:", err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create GoQuery document out of response body
+	doc, err = goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		p.Log.Warning("Failed to create GoQuery doc out of response body for warrior type:", err)
+		return err
+	}
+
+	// If failed to choose warior type
+	if doc.Find("div:contains('Tipas sėkmingai pasirinktas')").Length() == 0 {
+		return errors.New("failed to choose warrior type")
+	}
+
+	return nil
 }
 
 var reCaDigits = regexp.MustCompile(`[^0-9]`)
