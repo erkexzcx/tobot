@@ -55,7 +55,6 @@ func validateConfig(c *Config) error {
 			return errors.New("empty both 'pass' and 'pass_plain' field value")
 		}
 		if p.Pass != "" && p.PassPlain != "" {
-			fmt.Println("Pass:", p.Pass, "PassPlain:", p.PassPlain)
 			return errors.New("both 'pass' and 'pass_plain' cannot be specified")
 		}
 		if p.ActivitiesDir == "" {

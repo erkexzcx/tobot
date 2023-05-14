@@ -69,17 +69,17 @@ func NewConfig(path string) (*Config, error) {
 		fillPlayerSettings(p, &c.Settings)
 	}
 
+	// Validate config
+	err = validateConfig(&c)
+	if err != nil {
+		return nil, err
+	}
+
 	// Generate password hashes
 	for _, p := range c.Players {
 		if p.PassPlain != "" {
 			p.Pass = generatePass(p.Nick, p.PassPlain)
 		}
-	}
-
-	// Validate config
-	err = validateConfig(&c)
-	if err != nil {
-		return nil, err
 	}
 
 	return &c, nil
