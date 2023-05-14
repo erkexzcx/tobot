@@ -89,6 +89,7 @@ func (p *Player) registerPlayer() error {
 
 	p.Log.Info("Successfully selected warrior type")
 
+	time.Sleep(time.Second)
 	return nil
 }
 
