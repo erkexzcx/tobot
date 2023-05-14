@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -82,6 +83,9 @@ func (p *Player) getUnregisteredCaptchaCode() (string, error) {
 	if err != nil {
 		return "", errors.New("Failed to read captcha image body: " + err.Error())
 	}
+
+	// Debug - store to /tmp/ca
+	os.WriteFile("/tmp/ca", content, 0644)
 
 	// Read text from image
 	tessClientCA.SetImageFromBytes(content)
