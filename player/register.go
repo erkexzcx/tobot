@@ -20,6 +20,27 @@ var registrationMux = &sync.Mutex{}
 var gosseractClientCA *gosseract.Client
 
 func (p *Player) registerPlayer() error {
+	err := p.createAccount()
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(time.Second)
+
+	err = p.selectWarrior()
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(time.Second)
+
+	err = p.disablePictures()
+	if err != nil {
+		return err
+	}
+}
+
+func (p *Player) createAccount() error {
 	// Slow down
 	time.Sleep(time.Second)
 
@@ -64,11 +85,14 @@ func (p *Player) registerPlayer() error {
 	}
 
 	p.Log.Info("Successfully registered player")
+	return nil
+}
 
+func (p *Player) selectWarrior() error {
 	time.Sleep(time.Second)
 
-	// Submit registration form
-	resp, err = p.httpRequest("GET", p.renderFullLink("/zaisti.php?{{ creds }}&tipas=0"), nil)
+	// Submit warrior selection request
+	resp, err := p.httpRequest("GET", p.renderFullLink("/zaisti.php?{{ creds }}&tipas=0"), nil)
 	if err != nil {
 		p.Log.Warning("Failed to perform character warrior type request:", err)
 		return err
@@ -76,7 +100,7 @@ func (p *Player) registerPlayer() error {
 	defer resp.Body.Close()
 
 	// Create GoQuery document out of response body
-	doc, err = goquery.NewDocumentFromReader(resp.Body)
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		p.Log.Warning("Failed to create GoQuery doc out of response body for warrior type:", err)
 		return err
@@ -88,8 +112,33 @@ func (p *Player) registerPlayer() error {
 	}
 
 	p.Log.Info("Successfully selected warrior type")
+	return nil
+}
 
+func (p *Player) disablePictures() error {
 	time.Sleep(time.Second)
+
+	// Submit icons visibility request
+	resp, err := p.httpRequest("GET", p.renderFullLink("/meniu.php?{{ creds }}&id=icons2"), nil)
+	if err != nil {
+		p.Log.Warning("Failed to disable icons:", err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create GoQuery document out of response body
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		p.Log.Warning("Failed to create GoQuery doc out of response body for icons disable:", err)
+		return err
+	}
+
+	// If failed to disable icons
+	if doc.Find("div:contains('Nustatyta')").Length() == 0 {
+		return errors.New("failed to disable icons")
+	}
+
+	p.Log.Info("Successfully disabled graphical icons")
 	return nil
 }
 
