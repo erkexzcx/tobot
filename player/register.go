@@ -30,6 +30,7 @@ func (p *Player) registerPlayer() error {
 	if err != nil {
 		return err
 	}
+	p.Log.Debug("Got captcha code:", captchaCode)
 
 	params := url.Values{}
 	params.Add("nick", p.Config.Nick)
