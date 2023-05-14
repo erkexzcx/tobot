@@ -38,6 +38,8 @@ func (p *Player) registerPlayer() error {
 	if err != nil {
 		return err
 	}
+
+	return nil
 }
 
 func (p *Player) createAccount() error {
