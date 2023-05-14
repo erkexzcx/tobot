@@ -68,12 +68,9 @@ func (p *Player) registerPlayer() error {
 	p.Log.Info("Successfully registered player")
 
 	time.Sleep(time.Second)
-	return p.selectWarriorType()
-}
 
-func (p *Player) selectWarriorType() error {
 	// Submit registration form
-	resp, err := p.httpRequest("GET", p.renderFullLink("/zaisti.php?{{ creds }}&tipas=0"), nil)
+	resp, err = p.httpRequest("GET", p.renderFullLink("/zaisti.php?{{ creds }}&tipas=0"), nil)
 	if err != nil {
 		p.Log.Warning("Failed to perform character warrior type request:", err)
 		return err
@@ -81,7 +78,7 @@ func (p *Player) selectWarriorType() error {
 	defer resp.Body.Close()
 
 	// Create GoQuery document out of response body
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	doc, err = goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		p.Log.Warning("Failed to create GoQuery doc out of response body for warrior type:", err)
 		return err
