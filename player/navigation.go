@@ -133,6 +133,19 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
 	}
 
+	// Check if warrior type is not selected
+	if doc.Find("div:contains('Turite pasirinkti savo kovojimo tipą. Šis jūsų pasirinkimas jus lydės visą žaidimą')").Length() > 0 {
+		if config.CreatePlayers {
+			return nil, false, errors.New("warrior type is not selected")
+		}
+		err = p.selectWarriorType()
+		if err != nil {
+			time.Sleep(5 * time.Second) // Wait 5 seconds between retries, so we don't DOS server
+			return p.openLink(path, action, method, body)
+		}
+		return nil, true, nil
+	}
+
 	// Check if bad credentials or player does not exist (deleted)
 	// This check must be after all other checks
 	if doc.Find("div:contains('Blogi duomenys!')").Length() > 0 {
@@ -144,7 +157,6 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 			time.Sleep(5 * time.Second) // Wait 5 seconds between retries, so we don't DOS server
 			return p.openLink(path, action, method, body)
 		}
-		p.Log.Info("Successfully registered player")
 		return nil, true, nil
 	}
 
