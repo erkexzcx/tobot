@@ -52,7 +52,7 @@ func validateConfig(c *Config) error {
 			return errors.New("empty 'nick' field value")
 		}
 		if p.Pass == "" && p.PassPlain == "" {
-			return errors.New("empty 'pass' field value")
+			return errors.New("empty both 'pass' and 'pass_plain' field value")
 		}
 		if p.Pass != "" && p.PassPlain != "" {
 			return errors.New("both 'pass' and 'pass_plain' cannot be specified")
