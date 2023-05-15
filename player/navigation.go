@@ -150,6 +150,9 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		return nil, true, nil
 	}
 
+	// TODO - for future:
+	// Laba, aš esu šio pasaulio džinas! Noriu jums įteikti dovaną - stebuklingą lempą. Sėkmės! Gal dar susimatysime... Iki ;)
+
 	return doc, false, nil
 }
 
