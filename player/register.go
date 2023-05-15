@@ -67,7 +67,7 @@ func (p *Player) createAccount() error {
 	body := strings.NewReader(params.Encode())
 
 	// Submit registration form
-	resp, err := p.httpRequest("POST", *p.Config.Settings.RootAddress+"/"+"index.php?id=reg2&mo=Human&world=1", body)
+	resp, err := p.httpRequest("POST", *p.Config.Settings.RootAddress+"/"+"index.php?id=reg2&mo=Light_warrior&world=1", body)
 	if err != nil {
 		p.Log.Warning("Failed to perform registration request:", err)
 		return err
