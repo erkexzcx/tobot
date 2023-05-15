@@ -145,6 +145,8 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 			time.Sleep(5 * time.Second) // Wait 5 seconds between retries, so we don't DOS server
 			return p.openLink(path, action, method, body)
 		}
+		p.Log.Warning("Player found not to exist, registered player")
+		comms.SendMessageToTelegram("Player '" + p.Config.Nick + "' found not to exist, registered player")
 		return nil, true, nil
 	}
 
