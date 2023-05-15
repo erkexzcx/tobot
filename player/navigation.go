@@ -125,7 +125,8 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 
 	// Check if player is banned
 	if doc.Find("div:contains('Jūs užbanintas.')").Length() > 0 {
-		return nil, false, errors.New("player banned")
+		time.Sleep(5 * time.Minute) // Just wait I guess
+		p.openLink(path, action, method, body)
 	}
 
 	// Check if misconfiguration/marked as bot
