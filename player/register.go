@@ -34,12 +34,12 @@ func (p *Player) registerPlayer() error {
 
 	time.Sleep(sleepTime)
 
-	err = p.selectWarrior()
-	if err != nil {
-		return err
-	}
+	// err = p.selectWarrior()
+	// if err != nil {
+	// 	return err
+	// }
 
-	time.Sleep(sleepTime)
+	// time.Sleep(sleepTime)
 
 	err = p.disablePictures()
 	if err != nil {
