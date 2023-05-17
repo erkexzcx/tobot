@@ -131,13 +131,17 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 
 	// Check if misconfiguration/marked as bot
 	if doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 {
-		return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
+		if !config.CreatePlayers {
+			return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
+		}
+		p.Log.Warning("IP ban detected, waiting 1 minute and re-trying")
+		return nil, true, nil
 	}
 
 	// Check if bad credentials or player does not exist (deleted)
 	// This check must be after all other checks
 	if doc.Find("div:contains('Blogi duomenys!')").Length() > 0 {
-		if config.CreatePlayers {
+		if !config.CreatePlayers {
 			return nil, false, errors.New("invalid credentials or player does not exist (deleted?)")
 		}
 		err = p.registerPlayer()

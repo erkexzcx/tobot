@@ -23,6 +23,7 @@ type Config struct {
 		Instructions string  `yaml:"instructions"`
 	} `yaml:"openai"`
 	CreatePlayers bool      `yaml:"create_players"`
+	IgnoreIPBan   bool      `yaml:"ignore_ipban"`
 	Settings      Settings  `yaml:"settings"`
 	Players       []*Player `yaml:"players"`
 }

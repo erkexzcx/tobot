@@ -22,6 +22,7 @@ openai:
     8. No diacrytics, no period dot at the end, make constant typing mistakes.
 
 create_players: true
+ignore_ipban: true
 
 settings:
   root_address: http://tob.lt
