@@ -48,6 +48,13 @@ func (p *Player) registerPlayer() error {
 
 	time.Sleep(sleepTime)
 
+	err = p.disableMainai()
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(sleepTime)
+
 	return nil
 }
 
@@ -143,6 +150,31 @@ func (p *Player) disablePictures() error {
 	}
 
 	p.Log.Info("Successfully disabled graphical icons")
+	return nil
+}
+
+func (p *Player) disableMainai() error {
+	// Submit mainai change request
+	resp, err := p.httpRequest("GET", p.renderFullLink("/meniu.php?{{ creds }}&id=onoffmainus2"), nil)
+	if err != nil {
+		p.Log.Warning("Failed to disable mainai:", err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Create GoQuery document out of response body
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		p.Log.Warning("Failed to create GoQuery doc out of response body for mainai disable:", err)
+		return err
+	}
+
+	// If failed to disable mainai
+	if doc.Find("div:contains('Pakeista')").Length() == 0 {
+		return errors.New("failed to disable mainai")
+	}
+
+	p.Log.Info("Successfully disabled mainai")
 	return nil
 }
 
