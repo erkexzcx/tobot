@@ -36,12 +36,12 @@ func SendMessageToTelegram(rawMessage string) {
 	sendTelegramMessage(sanitizedMessage)
 }
 
-func ForwardMessageToTelegram(rawMessage string, rawNick string, messageReceived bool) {
-	telegramMessage := formatForwardableTelegramMessage(rawMessage, rawNick, messageReceived)
+func ForwardMessageToTelegram(myplayer, rawMessage, rawNick string, messageReceived bool) {
+	telegramMessage := formatForwardableTelegramMessage(myplayer, rawMessage, rawNick, messageReceived)
 	sendTelegramMessage(telegramMessage)
 }
 
-func formatForwardableTelegramMessage(rawMessage string, rawNick string, messageReceived bool) string {
+func formatForwardableTelegramMessage(myplayer, rawMessage, rawNick string, messageReceived bool) string {
 	sanitizedMessage := replacer.Replace(rawMessage)
 	sanitizedNick := replacer.Replace(rawNick)
 	if messageReceived {

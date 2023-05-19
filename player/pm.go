@@ -131,7 +131,7 @@ func (p *Player) dealWithPMs() error {
 	}
 
 	p.Log.Infof("Received PM from %s: %s\n", modifiedNick, lastPM.text)
-	comms.ForwardMessageToTelegram(lastPM.text, modifiedNick, true)
+	comms.ForwardMessageToTelegram(p.Config.Nick, lastPM.text, modifiedNick, true)
 
 	// Open chat only with sender
 	p.Log.Debugf("Retrieving full chat with %s\n", modifiedNick)
@@ -195,7 +195,7 @@ func (p *Player) dealWithPMs() error {
 	}
 
 	p.Log.Infof("AI replied to %s: %s\n", modifiedNick, openaiReply)
-	comms.ForwardMessageToTelegram(openaiReply, modifiedNick, false)
+	comms.ForwardMessageToTelegram(p.Config.Nick, openaiReply, modifiedNick, false)
 
 	return nil
 }
