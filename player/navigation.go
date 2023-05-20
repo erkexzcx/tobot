@@ -126,7 +126,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	// Check if player is banned
 	if doc.Find("div:contains('Jūs užbanintas.')").Length() > 0 {
 		time.Sleep(5 * time.Minute) // Just wait I guess
-		p.openLink(path, action, method, body)
+		return doc, true, nil       // TODO - I assume that it's the same behavior as anti-cheat check window?
 	}
 
 	// Check if misconfiguration/marked as bot
@@ -135,6 +135,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 			return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
 		}
 		p.Log.Warning("IP ban detected, waiting 1 minute and re-trying")
+		time.Sleep(time.Minute)
 		return nil, true, nil
 	}
 
