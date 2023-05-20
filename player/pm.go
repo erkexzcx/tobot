@@ -182,7 +182,7 @@ func (p *Player) dealWithPMs() error {
 
 	// Send message back to user
 	loopSleepDuration := 5 * time.Second
-	maxRetries := 5
+	maxRetries := 10
 	for i := 0; i < maxRetries; i++ {
 		err = p.sendPM(lastPM.nick, openaiReply, doc)
 		if err == nil {
@@ -191,7 +191,7 @@ func (p *Player) dealWithPMs() error {
 		p.Log.Warningf("Failed to send PM to %s: %s: %s\n", modifiedNick, openaiReply, err.Error())
 		comms.SendMessageToTelegram("Failed to send PM (" + err.Error() + "), retrying...")
 		time.Sleep(loopSleepDuration)
-		loopSleepDuration += 2 * time.Second
+		loopSleepDuration += time.Second
 	}
 
 	p.Log.Infof("AI replied to %s: %s\n", modifiedNick, openaiReply)
