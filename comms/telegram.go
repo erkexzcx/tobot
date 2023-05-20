@@ -44,10 +44,11 @@ func ForwardMessageToTelegram(myplayer, rawMessage, rawNick string, messageRecei
 func formatForwardableTelegramMessage(myplayer, rawMessage, rawNick string, messageReceived bool) string {
 	sanitizedMessage := replacer.Replace(rawMessage)
 	sanitizedNick := replacer.Replace(rawNick)
+	sanitizedPlayer := replacer.Replace(myplayer)
 	if messageReceived {
-		return fmt.Sprintf("*Received from %s:*\n%s", sanitizedNick, sanitizedMessage)
+		return fmt.Sprintf("*Received %s -> %s:*\n%s", sanitizedNick, sanitizedPlayer, sanitizedMessage)
 	} else {
-		return fmt.Sprintf("*Sent to %s:*\n_%s_", sanitizedNick, sanitizedMessage)
+		return fmt.Sprintf("*Sent %s -> %s:*\n_%s_", sanitizedPlayer, sanitizedNick, sanitizedMessage)
 	}
 }
 
