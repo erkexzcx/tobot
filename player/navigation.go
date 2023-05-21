@@ -155,8 +155,16 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		return nil, true, nil
 	}
 
-	// TODO - for future:
-	// Laba, aš esu šio pasaulio džinas! Noriu jums įteikti dovaną - stebuklingą lempą. Sėkmės! Gal dar susimatysime... Iki ;)
+	// Check if we received stebuklinga lempa
+	if doc.Find("div:contains('Noriu jums įteikti dovaną - stebuklingą lempą')").Length() > 0 && config.DropStebLEM {
+		// Laba, aš esu šio pasaulio džinas! Noriu jums įteikti dovaną - stebuklingą lempą. Sėkmės! Gal dar susimatysime... Iki ;)
+		err := p.dropAllLEM()
+		if err != nil {
+			p.Log.Warningf("Failed to drop all LEM: %s\n", err.Error())
+		}
+		p.Log.Info("Successfully dropped all LEM")
+		return nil, true, nil
+	}
 
 	return doc, false, nil
 }

@@ -29,6 +29,8 @@ func main() {
 
 	// Set global settings
 	config.CreatePlayers = c.CreatePlayers
+	config.IgnoreIPBan = c.IgnoreIPBan
+	config.DropStebLEM = c.DropStebLempos
 
 	logBackend := logging.NewLogBackend(os.Stdout, "", 0)
 	loggerFormat := logging.MustStringFormatter(`%{color}%{time:15:04:05.000} %{level:.4s} [%{module}] %{message}`)

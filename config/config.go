@@ -22,10 +22,11 @@ type Config struct {
 		Temperature  float32 `yaml:"temperature"`
 		Instructions string  `yaml:"instructions"`
 	} `yaml:"openai"`
-	CreatePlayers bool      `yaml:"create_players"`
-	IgnoreIPBan   bool      `yaml:"ignore_ipban"`
-	Settings      Settings  `yaml:"settings"`
-	Players       []*Player `yaml:"players"`
+	CreatePlayers  bool      `yaml:"create_players"`
+	IgnoreIPBan    bool      `yaml:"ignore_ipban"`
+	DropStebLempos bool      `yaml:"drop_steb_lempos"`
+	Settings       Settings  `yaml:"settings"`
+	Players        []*Player `yaml:"players"`
 }
 
 type Player struct {

@@ -23,6 +23,7 @@ openai:
 
 create_players: true
 ignore_ipban: true
+drop_steb_lempos: true
 
 settings:
   root_address: http://tob.lt
