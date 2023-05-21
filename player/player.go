@@ -23,12 +23,16 @@ type Player struct {
 
 	// Define a player logger
 	Log *logging.Logger
+
+	// Temp, for testing
+	AlreadyDroppedLamp bool
 }
 
 func NewPlayer(c *config.Player) *Player {
 	p := &Player{
-		Config: c,
-		Log:    logging.MustGetLogger("player." + c.Nick),
+		Config:             c,
+		Log:                logging.MustGetLogger("player." + c.Nick),
+		AlreadyDroppedLamp: false,
 	}
 
 	// Init becomeOffline from/to fields
