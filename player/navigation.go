@@ -25,6 +25,8 @@ func (p *Player) Submit(path string, body io.Reader) (goqueryDocument *goquery.D
 	return p.openLink(path, false, "POST", body)
 }
 
+var alreadyDroppedLem = false
+
 func (p *Player) openLink(path string, action bool, method string, body io.Reader) (goqueryDocument *goquery.Document, wrongDoc bool, err error) {
 	// Remember the time of this as soon as possible
 	timeNow := time.Now()
@@ -156,13 +158,13 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	}
 
 	// Check if we received stebuklinga lempa
-	if doc.Find("div:contains('Noriu jums įteikti dovaną - stebuklingą lempą')").Length() > 0 && config.DropStebLEM {
+	if doc.Find("div:contains('Noriu jums įteikti dovaną - stebuklingą lempą')").Length() > 0 && config.DropStebLEM && !alreadyDroppedLem {
 		// Laba, aš esu šio pasaulio džinas! Noriu jums įteikti dovaną - stebuklingą lempą. Sėkmės! Gal dar susimatysime... Iki ;)
 		err := p.dropAllLEM()
 		if err != nil {
 			p.Log.Warningf("Failed to drop all LEM: %s\n", err.Error())
 		}
-		p.Log.Info("Successfully dropped all LEM")
+		alreadyDroppedLem = true
 		return nil, true, nil
 	}
 
