@@ -21,11 +21,13 @@ func (p *Player) dropAllLEM() error {
 		return err
 	}
 	if wrongDoc {
+		p.Log.Warning("Got wrong document during LEM drop, trying again")
 		return p.dropAllLEM()
 	}
 
 	maxToDrop, found := doc.Find("form > input[name='kiekis'][type='hidden']").Attr("value")
 	if !found {
+		p.Log.Warning("No LEM drop, exiting")
 		return nil // Probably empty page, nothing to drop
 	}
 
@@ -42,6 +44,7 @@ func (p *Player) dropAllLEM() error {
 		return err
 	}
 	if wrongDoc {
+		p.Log.Warning("Got wrong document during LEM drop submit, trying again")
 		return p.dropAllLEM()
 	}
 
@@ -50,6 +53,7 @@ func (p *Player) dropAllLEM() error {
 	}
 
 	if doc.Find("div:contains('Antiflood! Bandykite už kelių sekundžių.')").Length() > 0 {
+		p.Log.Warning("Got too fast click during LEM drop submit, trying again in 5 seconds")
 		time.Sleep(5 * time.Second)
 		return p.dropAllLEM()
 	}
