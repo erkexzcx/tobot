@@ -156,16 +156,14 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	}
 
 	// Check if we received stebuklinga lempa
-	if (config.DropStebLEM && doc.Find("div:contains('Noriu jums įteikti dovaną - stebuklingą lempą')").Length() > 0) ||
-		(config.DropStebLEM && !p.AlreadyDroppedLamp) {
+	if config.DropStebLEM && doc.Find("div:contains('Noriu jums įteikti dovaną - stebuklingą lempą')").Length() > 0 {
 		// Laba, aš esu šio pasaulio džinas! Noriu jums įteikti dovaną - stebuklingą lempą. Sėkmės! Gal dar susimatysime... Iki ;)
-
-		p.AlreadyDroppedLamp = true
 		p.Log.Warning("Received stebuklinga lempa, dropping it")
 		err := p.dropAllLEM()
 		if err != nil {
 			p.Log.Warningf("Failed to drop all LEM: %s\n", err.Error())
 		}
+		p.Log.Info("Successfully dropped all LEM")
 		return nil, true, nil
 	}
 

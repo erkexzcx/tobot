@@ -27,14 +27,14 @@ func (p *Player) dropAllLEM() error {
 		return err
 	}
 	if wrongDoc {
-		p.Log.Warning("Got wrong document during LEM drop, trying again")
+		p.Log.Debug("Got wrong document during LEM drop, trying again")
 		lemDropMux.Unlock()
 		return p.dropAllLEM()
 	}
 
 	maxToDrop, found := doc.Find("form > input[name='kiekis'][type='hidden']").Attr("value")
 	if !found {
-		p.Log.Warning("No LEM drop, exiting")
+		p.Log.Debug("No LEM drop, exiting")
 		lemDropMux.Unlock()
 		return nil // Probably empty page, nothing to drop
 	}
@@ -53,7 +53,7 @@ func (p *Player) dropAllLEM() error {
 		return err
 	}
 	if wrongDoc {
-		p.Log.Warning("Got wrong document during LEM drop submit, trying again")
+		p.Log.Debug("Got wrong document during LEM drop submit, trying again")
 		lemDropMux.Unlock()
 		return p.dropAllLEM()
 	}
