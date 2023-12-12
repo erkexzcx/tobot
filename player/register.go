@@ -248,5 +248,6 @@ func ConvertGifToPng(gifBytes []byte) ([]byte, error) {
 func init() {
 	// Init tesseract OCR for ca.php captchas
 	gosseractClientCA = gosseract.NewClient()
+	gosseractClientCA.SetLanguage("lit")
 	gosseractClientCA.SetWhitelist("0123456789")
 }

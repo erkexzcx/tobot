@@ -28,6 +28,12 @@ func Start(p *player.Player) {
 	files, err := filepath.Glob(directoriesLocation)
 	if err != nil {
 		p.Log.Critical("Failed to read activities .yml files of player '" + p.Config.Nick + "': " + err.Error())
+		os.Exit(1)
+	}
+
+	if len(files) == 0 {
+		p.Log.Critical("No activity files found for player '" + p.Config.Nick + "' in " + directoriesLocation + "... Exiting.")
+		os.Exit(1)
 	}
 
 	p.Log.Debug("Parsing activity files from ", directoriesLocation)
@@ -40,11 +46,13 @@ func Start(p *player.Player) {
 		contents, err := os.ReadFile(f)
 		if err != nil {
 			p.Log.Criticalf("Failed to read activity file %s:%s", f, err.Error())
+			os.Exit(1)
 		}
 
 		var a *Activity
 		if err := yaml.Unmarshal(contents, &a); err != nil {
 			p.Log.Criticalf("Failed to unmarshal activity file %s:%s", f, err.Error())
+			os.Exit(1)
 		}
 		activities = append(activities, a)
 		p.Log.Debug("Activity loaded:", a.Name)
