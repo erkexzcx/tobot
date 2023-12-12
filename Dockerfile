@@ -1,22 +1,16 @@
-## Build stage
-FROM golang:1.20-alpine AS build-env
-RUN apk add --no-cache \
-    tesseract-ocr-dev \
-    gcc \
-    g++ \
-    git \
-    leptonica-dev \
-    ca-certificates
-ADD . /build
-WORKDIR /build
-RUN go build -a -ldflags '-s -w' -o tobot ./cmd/tobot/main.go
+FROM --platform=$BUILDPLATFORM golang:1.21-alpine as builder
+RUN apk add --no-cache tesseract-ocr-dev gcc g++ git leptonica-dev ca-certificates
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+ARG version
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH GOARM=${TARGETVARIANT#v} go build -a -ldflags "-w -s -X main.version=$version -extldflags '-static'" -o tobot ./cmd/tobot/main.go
 
-## Create image
-FROM alpine:3.17
-RUN apk add --no-cache \
-    tesseract-ocr \
-    tesseract-ocr-data-lit \
-    ca-certificates
-COPY --from=build-env /build/tobot /tobot
-WORKDIR /
+FROM alpine
+RUN apk add --no-cache tesseract-ocr tesseract-ocr-data-lit ca-certificates
+COPY --from=builder /app/tobot /tobot
 ENTRYPOINT ["/tobot"]

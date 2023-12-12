@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"tobot"
 
@@ -14,15 +15,26 @@ import (
 	_ "tobot/module/all"
 )
 
-var configPath = flag.String("config", "config.yml", "path to config file")
+var (
+	version string
+
+	flagConfigPath = flag.String("config", "config.yml", "path to config file")
+	flagVersion    = flag.Bool("version", false, "prints version of the application")
+)
+
 var log = logging.MustGetLogger("global")
 
 func main() {
 	// Parse command line arguments
 	flag.Parse()
 
+	if *flagVersion {
+		fmt.Println("Version:", version)
+		return
+	}
+
 	// Parse configuration file
-	c, err := config.NewConfig(*configPath)
+	c, err := config.NewConfig(*flagConfigPath)
 	if err != nil {
 		log.Panic("Configuration failed:", err)
 	}
