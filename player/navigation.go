@@ -145,13 +145,15 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 		if !config.CreatePlayers {
 			return nil, false, errors.New("invalid credentials or player does not exist (deleted?)")
 		}
+
+		p.Log.Warning("Player found not to exist, registered player")
+		comms.SendMessageToTelegram("Player '" + p.Config.Nick + "' found not to exist, registered player")
+
 		err = p.registerPlayer()
 		if err != nil {
 			time.Sleep(5 * time.Second) // Wait 5 seconds between retries, so we don't DOS server
 			return p.openLink(path, action, method, body)
 		}
-		p.Log.Warning("Player found not to exist, registered player")
-		comms.SendMessageToTelegram("Player '" + p.Config.Nick + "' found not to exist, registered player")
 		return nil, true, nil
 	}
 
