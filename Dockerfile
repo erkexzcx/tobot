@@ -8,7 +8,7 @@ ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 ARG version
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH GOARM=${TARGETVARIANT#v} go build -a -ldflags "-w -s -X main.version=$version -extldflags '-static'" -o tobot ./cmd/tobot/main.go
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH GOARM=${TARGETVARIANT#v} go build -a -ldflags "-w -s -X main.version=$version" -o tobot ./cmd/tobot/main.go
 
 FROM alpine
 RUN apk add --no-cache tesseract-ocr tesseract-ocr-data-lit ca-certificates
