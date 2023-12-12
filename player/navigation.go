@@ -151,6 +151,7 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 
 		err = p.registerPlayer()
 		if err != nil {
+			p.Log.Debug("failed to register player: " + err.Error())
 			time.Sleep(5 * time.Second) // Wait 5 seconds between retries, so we don't DOS server
 			return p.openLink(path, action, method, body)
 		}
