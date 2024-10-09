@@ -109,14 +109,14 @@ func startRefresher() {
 			if err != nil {
 				log.Println("(REFRESHER) Failed to create transport with working proxy "+workingProxyCopy+":", err)
 			} else {
-				if checkTarget(t) {
+				if err := checkTarget(t); err != nil {
+					log.Println("(REFRESHER) Proxy " + workingProxyCopy + " is not working: " + err.Error())
+					delete(proxies, workingProxyCopy)
+				} else {
 					// Same working proxy is still working
 					proxiesMux.Unlock()
 					time.Sleep(10 * time.Second)
 					continue
-				} else {
-					log.Println("(REFRESHER) Proxy " + workingProxyCopy + " is not working...")
-					delete(proxies, workingProxyCopy)
 				}
 			}
 		}
@@ -128,14 +128,14 @@ func startRefresher() {
 				log.Println("(REFRESHER) Failed to create transport with proxy "+p+":", err)
 				continue
 			}
-			if checkTarget(t) {
+			if err := checkTarget(t); err != nil {
+				log.Println("(REFRESHER) Proxy " + p + " is not working " + err.Error())
+				delete(proxies, p)
+			} else {
 				workingProxy = p
 				workingProxyTransport = t
 				log.Println("(REFRESHER) Working proxy set to " + p)
 				break
-			} else {
-				log.Println("(REFRESHER) Proxy " + p + " is not working...")
-				delete(proxies, p)
 			}
 		}
 

@@ -15,7 +15,7 @@ var httpClient = http.Client{
 	Timeout: time.Second * 10,
 }
 
-func checkTarget(transport http.RoundTripper) bool {
+func checkTarget(transport http.RoundTripper) error {
 	originalTransport := httpClient.Transport
 	defer func() {
 		httpClient.Transport = originalTransport
@@ -25,30 +25,30 @@ func checkTarget(transport http.RoundTripper) bool {
 
 	req, err := http.NewRequest("GET", proxiesCheckTarget, nil)
 	if err != nil {
-		return false
+		return errors.New("failed to create request to check target: " + err.Error())
 	}
 	req.Header.Set("User-Agent", proxiesCheckUserAgent)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return false
+		return errors.New("failed to send request to check target: " + err.Error())
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 && resp.StatusCode >= 300 {
-		return false
+		return errors.New("unexpected response code: " + resp.Status)
 	}
 
 	contents, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return false
+		return errors.New("failed to read response body: " + err.Error())
 	}
 
 	if strings.Contains(string(contents), "Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.") {
-		return false
+		return errors.New("IP ban detected")
 	}
 
-	return true
+	return nil
 }
 
 func getTransportWithProxy(proxyString string) (transport http.RoundTripper, err error) {
