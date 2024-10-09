@@ -28,6 +28,8 @@ func checkTarget(transport http.RoundTripper) error {
 		return errors.New("failed to create request to check target: " + err.Error())
 	}
 	req.Header.Set("User-Agent", proxiesCheckUserAgent)
+	req.Header.Set("Host", proxiesCheckTargetHost)
+	req.Header.Set("Accept", "*/*")
 
 	resp, err := httpClient.Do(req)
 	if err != nil {

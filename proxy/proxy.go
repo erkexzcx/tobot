@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -13,9 +14,10 @@ import (
 var (
 	dynamicProviders = []string{"proxyscrape"}
 
-	proxiesEnabled        = false
-	proxiesCheckTarget    = ""
-	proxiesCheckUserAgent = ""
+	proxiesEnabled         = false
+	proxiesCheckTarget     = ""
+	proxiesCheckTargetHost = ""
+	proxiesCheckUserAgent  = ""
 
 	proxies    = map[string]struct{}{}
 	proxiesMux = sync.Mutex{}
@@ -38,6 +40,8 @@ func Start(enabled bool, providers []string, static []string, checkTarget string
 	proxiesEnabled = true
 	proxiesCheckTarget = checkTarget
 	proxiesCheckUserAgent = checkUserAgent
+	targetURL, _ := url.Parse(checkTarget)
+	proxiesCheckTargetHost = targetURL.Host
 
 	for _, p := range static {
 		proxies[p] = struct{}{}
