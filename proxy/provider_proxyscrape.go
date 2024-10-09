@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type ProxyscrapeJSON struct {
 func refresherProxyscrape() {
 	for {
 		proxiesMux.Lock()
+		httpClient.Transport = http.DefaultTransport
 		resp, err := httpClient.Get("https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&proxy_format=protocolipport&format=json")
 		if err != nil {
 			log.Println("Failed to get proxy list from proxyscrape:", err)
