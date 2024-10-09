@@ -4,10 +4,36 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 )
 
 // ### This does not validate settings under 'players' section ###
 func validateConfig(c *Config) error {
+
+	// Check proxy settings
+	if c.Proxy != nil && c.Proxy.Enabled {
+		// Normalize providers
+		providers := make(map[string]struct{}, 0)
+		for _, p := range c.Proxy.Providers {
+			providers[strings.ToLower(p)] = struct{}{}
+		}
+		c.Proxy.Providers = make([]string, 0, len(providers))
+		for p := range providers {
+			c.Proxy.Providers = append(c.Proxy.Providers, p)
+			if p == "" {
+				return errors.New("empty 'proxy.providers' field value")
+			}
+		}
+
+		for _, p := range c.Proxy.Static {
+			if p == "" {
+				return errors.New("empty 'proxy.providers.url' field value")
+			}
+			if _, err := url.Parse(p); err != nil {
+				return errors.New("failed to parse 'proxy.providers.url' field value")
+			}
+		}
+	}
 
 	// Check log level
 	if c.LogLevel != "CRITICAL" && c.LogLevel != "WARNING" && c.LogLevel != "INFO" && c.LogLevel != "DEBUG" {

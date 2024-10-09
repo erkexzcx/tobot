@@ -9,6 +9,7 @@ import (
 	"tobot/comms"
 	"tobot/config"
 	"tobot/player"
+	proxyfier "tobot/proxy"
 
 	"github.com/op/go-logging"
 
@@ -64,6 +65,12 @@ func main() {
 	// Start comms package
 	comms.InitComms(c)
 	log.Debug("Comms initialized")
+
+	// Start proxy package
+	err = proxyfier.Start(c.Proxy.Enabled, c.Proxy.Providers, c.Proxy.Static, *c.Settings.RootAddress, *c.Settings.UserAgent)
+	if err != nil {
+		log.Panic("Failed to configure proxy:", err)
+	}
 
 	// Create each player and start it
 	for _, configPlayer := range c.Players {

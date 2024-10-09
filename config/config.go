@@ -22,6 +22,7 @@ type Config struct {
 		Temperature  float32 `yaml:"temperature"`
 		Instructions string  `yaml:"instructions"`
 	} `yaml:"openai"`
+	Proxy          *Proxy    `yaml:"proxy"`
 	CreatePlayers  bool      `yaml:"create_players"`
 	IgnoreIPBan    bool      `yaml:"ignore_ipban"`
 	DropStebLempos bool      `yaml:"drop_steb_lempos"`
@@ -35,6 +36,12 @@ type Player struct {
 	PassPlain     string   `yaml:"pass_plain"`
 	ActivitiesDir string   `yaml:"activities_dir"`
 	Settings      Settings `yaml:"settings"`
+}
+
+type Proxy struct {
+	Enabled   bool     `yaml:"enabled"`
+	Providers []string `yaml:"providers"`
+	Static    []string `yaml:"static"`
 }
 
 type Settings struct {

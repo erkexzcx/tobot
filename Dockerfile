@@ -1,7 +1,7 @@
-ARG ALPINETAG="3.19"
-ARG GOVERSION="1.21"
+ARG ALPINETAG="3.20"
+ARG GOVERSION="1.23"
 
-FROM golang:${GOVERSION}-alpine${ALPINETAG} as builder
+FROM golang:${GOVERSION}-alpine${ALPINETAG} AS builder
 RUN apk add --no-cache tesseract-ocr-dev leptonica-dev gcc g++
 WORKDIR /app
 COPY go.mod go.sum ./
