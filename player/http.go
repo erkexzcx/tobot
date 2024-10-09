@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"time"
+	proxyfier "tobot/proxy"
 )
 
 var httpClient = &http.Client{
@@ -28,6 +29,7 @@ func (p *Player) httpRequest(method, link string, body io.Reader) (*http.Respons
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 
+	httpClient.Transport = proxyfier.GetTransport()
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err

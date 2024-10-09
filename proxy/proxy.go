@@ -66,22 +66,23 @@ func Start(enabled bool, providers []string, static []string, checkTarget string
 	return nil
 }
 
-func GetTransport() *http.RoundTripper {
+func GetTransport() http.RoundTripper {
 	workingProxyMux.Lock()
 
 	if !proxiesEnabled {
 		workingProxyMux.Unlock()
-		return &workingProxyTransport
+		return workingProxyTransport
 	}
 
 	if workingProxy == "" {
 		workingProxyMux.Unlock()
+		log.Println("No working proxy available, retrying...")
 		time.Sleep(1 * time.Second)
 		return GetTransport()
 	}
 
 	defer workingProxyMux.Unlock()
-	return &workingProxyTransport
+	return workingProxyTransport
 }
 
 func startRefresher() {
