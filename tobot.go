@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 	"tobot/comms"
 	"tobot/module"
 	"tobot/player"
@@ -115,9 +116,10 @@ func runActivity(p *player.Player, a *Activity) {
 
 			res := m.Perform(p, task)
 			if res.Error != nil {
-				comms.SendMessageToTelegram("Player " + p.Config.Nick + " stopped: " + res.Error.Error())
-				p.Log.Critical("Player "+p.Config.Nick+" stopped:", res.Error)
-				select {}
+				comms.SendMessageToTelegram("Player " + p.Config.Nick + " had a failure (re-trying in 5 seconds): " + res.Error.Error())
+				p.Log.Critical("Player "+p.Config.Nick+" had a failure (re-trying in 5 seconds):", res.Error)
+				time.Sleep(time.Second * 5)
+				continue
 			}
 
 			if !res.CanRepeat {
