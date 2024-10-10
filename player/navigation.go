@@ -130,7 +130,8 @@ func (p *Player) openLink(path string, action bool, method string, body io.Reade
 	}
 
 	// Check if misconfiguration/marked as bot
-	if doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 {
+	if doc.Find("div:contains('Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.')").Length() > 0 ||
+		(doc.Find("div:contains('Blogas ip.')").Length() > 0 && doc.Find("div:contains('Susisiekite su administracija info@finx.lt')").Length() > 0) {
 		if !config.IgnoreIPBan {
 			return nil, false, errors.New("misconfiguration or your IP/configuration is marked as bot")
 		}
