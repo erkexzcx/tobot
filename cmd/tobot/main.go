@@ -67,7 +67,7 @@ func main() {
 	log.Debug("Comms initialized")
 
 	// Start proxy package
-	err = proxyfier.Start(c.Proxy.Enabled, c.Proxy.Providers, c.Proxy.Static, *c.Settings.RootAddress, *c.Settings.UserAgent)
+	err = proxyfier.Start(c.Proxy.Enabled, c.Proxy.Providers, c.Proxy.Static, *c.Settings.RootAddress+"/index.php?user=asdf&pass=asdf123&id=123", *c.Settings.UserAgent)
 	if err != nil {
 		log.Panic("Failed to configure proxy:", err)
 	}
