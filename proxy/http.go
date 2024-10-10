@@ -47,7 +47,11 @@ func checkTarget(transport http.RoundTripper) error {
 	}
 
 	if strings.Contains(string(contents), "Sistema nustatė, jog jūs jungiates per kitą serverį, todėl greičiausiai bandote naudotis autokėlėju.") {
-		return errors.New("IP ban detected")
+		return errors.New("request blocked (system detected connection via other server)")
+	}
+
+	if strings.Contains(string(contents), "Blogas ip.") && strings.Contains(string(contents), "Susisiekite su administracija info@finx.lt") {
+		return errors.New("request blocked (bad IP)")
 	}
 
 	return nil
